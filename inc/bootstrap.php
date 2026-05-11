@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once __DIR__ . '/compat.php';
 require_once __DIR__ . '/options.php';
 require_once __DIR__ . '/listmonk/class-listmonk-client.php';
+require_once __DIR__ . '/render/class-email-html-processor.php';
 require_once __DIR__ . '/render/class-plain-text-builder.php';
 require_once __DIR__ . '/render/class-raw-html-builder.php';
 

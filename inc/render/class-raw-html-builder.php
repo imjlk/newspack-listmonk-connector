@@ -35,6 +35,7 @@ class Newspack_Listmonk_Connector_Raw_HTML_Builder {
 		}
 
 		$html = $this->absolutize_urls( $html );
+		$html = ( new Newspack_Listmonk_Connector_Email_HTML_Processor() )->process( $html );
 
 		return (string) apply_filters( 'newspack_listmonk_connector_raw_html', $html, $post );
 	}

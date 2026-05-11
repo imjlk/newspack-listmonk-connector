@@ -276,10 +276,12 @@ async function loginAsAdmin( page: Page ) {
 		return;
 	}
 
-	await page.getByLabel( /Username|Email Address/i ).fill( 'admin' );
-	await page.getByLabel( /^Password$/i ).fill( 'password' );
-	await page.getByRole( 'button', { name: /Log In/i } ).click();
-	await page.waitForURL( /\/wp-admin\// );
+	await page.locator( '#user_login' ).fill( 'admin' );
+	await page.locator( '#user_pass' ).fill( 'password' );
+	await Promise.all( [
+		page.waitForURL( /\/wp-admin\// ),
+		page.locator( '#wp-submit' ).click(),
+	] );
 }
 
 async function prepareEditorUi( page: Page ) {
@@ -364,7 +366,10 @@ test.describe( 'Listmonk editor panel', () => {
 			new RegExp( `"postId": ${ fixture.postId }` )
 		);
 
-		await panel.getByRole( 'button', { name: 'Sync' } ).click();
+		await page
+			.locator( '.newspack-listmonk-connector-panel__actions' )
+			.getByRole( 'button', { name: /^Sync$/ } )
+			.click();
 		await expect(
 			page
 				.locator( '.components-snackbar__content' )
@@ -381,7 +386,7 @@ test.describe( 'Listmonk editor panel', () => {
 		await panel
 			.getByLabel( 'Test email', { exact: true } )
 			.fill( fixture.testEmail );
-		await panel.getByRole( 'button', { name: 'Send test' } ).click();
+		await page.getByRole( 'button', { name: /^Send test$/ } ).click();
 		await expect(
 			page
 				.locator( '.components-snackbar__content' )

@@ -48,6 +48,25 @@ The connector sends Newspack rendered HTML as a Listmonk campaign payload:
 }
 ```
 
+HTML is prepared in this order:
+
+1. Render with `Newspack_Newsletters_Renderer::retrieve_email_html()` when
+   available, otherwise fall back to WordPress rendered post content.
+2. Absolutize root-relative URLs.
+3. Inline conservative CSS from `<style>` tags.
+4. Remove unsafe email HTML while preserving responsive `<style>` rules.
+
+CSS inlining is intentionally limited to simple top-level selectors: `tag`,
+`.class`, `#id`, `tag.class`, and comma-separated combinations of those. Media
+queries, supports rules, pseudo selectors, and combinator selectors remain in
+the original `<style>` tags. Existing inline style properties are preserved over
+stylesheet declarations, while later stylesheet rules override earlier
+stylesheet rules before inlining.
+
+The cleanup pass removes script/form/embed-style unsafe tags, event-handler
+attributes, `srcdoc`, and `javascript:` URLs. It also absolutizes root-relative
+`href`, `src`, `poster`, `background`, and `srcset` URLs.
+
 The provider keeps draft campaigns as drafts during `sync()`. It only changes
 status during `send()`:
 

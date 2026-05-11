@@ -181,10 +181,12 @@ async function loginAsAdmin( page: Page ) {
 		return;
 	}
 
-	await page.getByLabel( /Username|Email Address/i ).fill( 'admin' );
-	await page.getByLabel( /^Password$/i ).fill( 'password' );
-	await page.getByRole( 'button', { name: /Log In/i } ).click();
-	await page.waitForURL( /\/wp-admin\// );
+	await page.locator( '#user_login' ).fill( 'admin' );
+	await page.locator( '#user_pass' ).fill( 'password' );
+	await Promise.all( [
+		page.waitForURL( /\/wp-admin\// ),
+		page.locator( '#wp-submit' ).click(),
+	] );
 }
 
 test.describe.configure( { mode: 'serial' } );
