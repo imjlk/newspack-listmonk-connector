@@ -216,6 +216,31 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 	}
 
 	/**
+	 * Get a subscriber.
+	 *
+	 * @param int $subscriber_id Subscriber ID.
+	 * @return array|WP_Error
+	 */
+	public function get_subscriber( $subscriber_id ) {
+		return $this->request( 'GET', sprintf( '/api/subscribers/%d', absint( $subscriber_id ) ) );
+	}
+
+	/**
+	 * Get subscriber bounce records.
+	 *
+	 * @param int $subscriber_id Subscriber ID.
+	 * @return array|WP_Error
+	 */
+	public function get_subscriber_bounces( $subscriber_id ) {
+		$result = $this->request( 'GET', sprintf( '/api/subscribers/%d/bounces', absint( $subscriber_id ) ) );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return $this->extract_results( $result );
+	}
+
+	/**
 	 * Find a subscriber by email.
 	 *
 	 * @param string $email Email address.

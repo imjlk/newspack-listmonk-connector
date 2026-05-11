@@ -70,6 +70,11 @@ Newspack contacts map to Listmonk subscribers:
   does not need `subscribers:sql_query`.
 - Missing subscribers are created with `status: "enabled"`.
 - Existing subscribers are patched without replacing their full list set.
+- Existing `blocklisted` subscribers are never re-enabled or resubscribed by
+  the connector. Operators must review and unblock them in Listmonk first.
+- `get_contact_data()` reflects `is_blocklisted`, `bounce_count`, and
+  `has_bounces`. Bounce lookup failures use safe defaults and do not fail
+  contact lookup.
 - Existing subscriber list additions use `unconfirmed` by default, preserving
   Listmonk's double opt-in posture unless a site changes the
   `newspack_listmonk_connector_subscriber_list_add_status` filter.

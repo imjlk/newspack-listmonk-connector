@@ -205,10 +205,19 @@ class Newspack_Listmonk_Connector_Listmonk_Client_Test extends WP_UnitTestCase {
 				'status'          => 'unconfirmed',
 			)
 		);
+
+		$this->queue_response( 200, array( 'data' => array( 'id' => 20 ) ) );
+		$client->get_subscriber( 20 );
+		$this->assert_request_without_body( 3, 'GET', 'http://listmonk.test:9000/api/subscribers/20' );
+
+		$this->queue_response( 200, array( 'data' => array( 'results' => array( array( 'id' => 1 ) ) ) ) );
+		$bounces = $client->get_subscriber_bounces( 20 );
+		$this->assertSame( array( array( 'id' => 1 ) ), $bounces );
+		$this->assert_request_without_body( 4, 'GET', 'http://listmonk.test:9000/api/subscribers/20/bounces' );
 	}
 
 	/**
-	 * Subscriber lookup uses Listmonk's query parameter and returns the matched subscriber.
+	 * Subscriber lookup fetches subscribers and returns the local exact email match.
 	 */
 	public function test_find_subscriber_by_email_queries_and_returns_match() {
 		$client = $this->client();

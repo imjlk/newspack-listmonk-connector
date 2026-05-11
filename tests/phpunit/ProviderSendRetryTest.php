@@ -614,6 +614,173 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 	}
 
 	/**
+	 * Blocklisted subscribers are not re-enabled by add_contact.
+	 */
+	public function test_add_contact_returns_error_for_blocklisted_subscriber() {
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results' => array(
+						array(
+							'id'     => 124,
+							'email'  => 'reader@example.com',
+							'status' => 'blocklisted',
+							'lists'  => array(),
+						),
+					),
+				),
+			)
+		);
+
+		$result = $this->provider->add_contact(
+			array(
+				'email' => 'reader@example.com',
+				'name'  => 'Reader',
+			),
+			3
+		);
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'newspack_listmonk_connector_subscriber_blocklisted', $result->get_error_code() );
+		$this->assertCount( 1, $this->requests );
+		$this->assert_request_without_body(
+			0,
+			'GET',
+			add_query_arg(
+				array(
+					'per_page' => 'all',
+				),
+				'http://listmonk.test:9000/api/subscribers'
+			)
+		);
+	}
+
+	/**
+	 * Blocklisted subscribers do not receive list membership updates.
+	 */
+	public function test_update_contact_lists_returns_error_for_blocklisted_subscriber() {
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results' => array(
+						array(
+							'id'     => 125,
+							'email'  => 'reader@example.com',
+							'status' => 'blocklisted',
+							'lists'  => array(),
+						),
+					),
+				),
+			)
+		);
+
+		$result = $this->provider->update_contact_lists( 'reader@example.com', array( 5 ), array() );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'newspack_listmonk_connector_subscriber_blocklisted', $result->get_error_code() );
+		$this->assertCount( 1, $this->requests );
+	}
+
+	/**
+	 * Contact data includes blocklist and bounce metadata.
+	 */
+	public function test_get_contact_data_returns_blocklist_and_bounce_fields() {
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results' => array(
+						array(
+							'id'     => 126,
+							'email'  => 'reader@example.com',
+							'name'   => 'Reader',
+							'status' => 'enabled',
+							'lists'  => array( array( 'id' => 3 ) ),
+						),
+					),
+				),
+			)
+		);
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results' => array(
+						array( 'id' => 1 ),
+						array( 'id' => 2 ),
+					),
+				),
+			)
+		);
+
+		$result = $this->provider->get_contact_data( 'reader@example.com' );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 126, $result['id'] );
+		$this->assertSame( 'enabled', $result['status'] );
+		$this->assertFalse( $result['is_blocklisted'] );
+		$this->assertSame( 2, $result['bounce_count'] );
+		$this->assertTrue( $result['has_bounces'] );
+		$this->assertSame( array( 3 ), $result['lists'] );
+		$this->assert_request_without_body( 1, 'GET', 'http://listmonk.test:9000/api/subscribers/126/bounces' );
+	}
+
+	/**
+	 * Raw contact details include bounces when the bounce endpoint succeeds.
+	 */
+	public function test_get_contact_data_raw_response_includes_listmonk_bounces() {
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results' => array(
+						array(
+							'id'     => 127,
+							'email'  => 'reader@example.com',
+							'status' => 'enabled',
+						),
+					),
+				),
+			)
+		);
+		$this->queue_response( 200, array( 'data' => array( 'results' => array( array( 'id' => 7 ) ) ) ) );
+
+		$result = $this->provider->get_contact_data( 'reader@example.com', true );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( array( array( 'id' => 7 ) ), $result['_listmonk_bounces'] );
+	}
+
+	/**
+	 * Bounce endpoint failures do not fail contact lookup.
+	 */
+	public function test_get_contact_data_uses_safe_bounce_defaults_when_bounce_fetch_fails() {
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results' => array(
+						array(
+							'id'     => 128,
+							'email'  => 'reader@example.com',
+							'status' => 'enabled',
+						),
+					),
+				),
+			)
+		);
+		$this->queue_response( 500, array( 'message' => 'Bounce lookup failed.' ), 'Server Error' );
+
+		$result = $this->provider->get_contact_data( 'reader@example.com' );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 0, $result['bounce_count'] );
+		$this->assertFalse( $result['has_bounces'] );
+	}
+
+	/**
 	 * Create a future newsletter post.
 	 *
 	 * @return int

@@ -188,6 +188,47 @@ if ( empty( $errors ) && $secondary_list_id !== $primary_list_id ) {
 	}
 }
 
+if ( empty( $errors ) ) {
+	$client = new Newspack_Listmonk_Connector_Listmonk_Client();
+	$blocklist = $client->request( 'PUT', sprintf( '/api/subscribers/%d/blocklist', $subscriber_id ) );
+	if ( is_wp_error( $blocklist ) ) {
+		$errors[] = 'Unable to blocklist local Listmonk subscriber: ' . $blocklist->get_error_message();
+	}
+}
+
+if ( empty( $errors ) ) {
+	$blocked_contact = $provider->get_contact_data( $email );
+	if ( is_wp_error( $blocked_contact ) ) {
+		$errors[] = 'Unable to retrieve blocklisted subscriber: ' . $blocked_contact->get_error_message();
+	} elseif ( empty( $blocked_contact['is_blocklisted'] ) ) {
+		$errors[] = 'Blocklisted subscriber was not reflected as blocklisted.';
+	}
+}
+
+if ( empty( $errors ) ) {
+	$blocked_add = $provider->add_contact(
+		array(
+			'email' => $email,
+			'name' => 'Smoke Subscriber',
+		),
+		$primary_list_id
+	);
+	if ( ! is_wp_error( $blocked_add ) ) {
+		$errors[] = 'Blocklisted subscriber add_contact unexpectedly succeeded.';
+	} elseif ( 'newspack_listmonk_connector_subscriber_blocklisted' !== $blocked_add->get_error_code() ) {
+		$errors[] = 'Blocklisted subscriber add_contact returned unexpected error: ' . $blocked_add->get_error_code();
+	}
+}
+
+if ( empty( $errors ) ) {
+	$blocked_update = $provider->update_contact_lists( $email, array( $primary_list_id ), array() );
+	if ( ! is_wp_error( $blocked_update ) ) {
+		$errors[] = 'Blocklisted subscriber update_contact_lists unexpectedly succeeded.';
+	} elseif ( 'newspack_listmonk_connector_subscriber_blocklisted' !== $blocked_update->get_error_code() ) {
+		$errors[] = 'Blocklisted subscriber update_contact_lists returned unexpected error: ' . $blocked_update->get_error_code();
+	}
+}
+
 if ( ! empty( $errors ) ) {
 	echo wp_json_encode( array( 'ok' => false, 'errors' => $errors, 'results' => $results ), JSON_PRETTY_PRINT ) . PHP_EOL;
 	exit( 1 );
@@ -203,6 +244,8 @@ echo wp_json_encode(
 		'initialLists' => $contact_lists,
 		'updatedLists' => $updated_lists ?? $contact_lists,
 		'removedLists' => $removed_lists ?? $contact_lists,
+		'isBlocklisted' => (bool) ( $blocked_contact['is_blocklisted'] ?? false ),
+		'bounceCount' => absint( $blocked_contact['bounce_count'] ?? 0 ),
 	),
 	JSON_PRETTY_PRINT
 ) . PHP_EOL;

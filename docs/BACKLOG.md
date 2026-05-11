@@ -155,7 +155,7 @@ Goal: Sync Newspack signup/contact flows into Listmonk subscribers.
 - `[x]` Implement list membership add/remove.
 - `[~]` Handle double opt-in list behavior.
 - `[x]` Map Reader Activation metadata to Listmonk attributes.
-- `[ ]` Reflect blocklist/bounce state where useful.
+- `[x]` Reflect blocklist/bounce state where useful.
 - `[x]` Add subscriber sync tests.
 
 ## Phase 8: Test Strategy And QA
@@ -194,5 +194,5 @@ Goal: Prepare a beta plugin build for staging.
 ## Next Recommended Work
 
 1. Run staging smoke test from the beta zip.
-2. Add blocklist/bounce reflection policy for subscriber sync.
-3. Add CSS inlining and email-safe cleanup policy.
+2. Add CSS inlining and email-safe cleanup policy.
+3. Add unsubscribe/footer placeholder policy.

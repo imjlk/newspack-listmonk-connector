@@ -522,6 +522,9 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 				__( 'Listmonk subscriber response did not include a valid ID.', 'newspack-listmonk-connector' )
 			);
 		}
+		if ( $this->is_subscriber_blocklisted( $subscriber ) ) {
+			return $this->subscriber_blocklisted_error( $payload['email'], $subscriber );
+		}
 
 		$update_payload = array(
 			'email'                    => $payload['email'],
@@ -558,22 +561,38 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	 * @return array|WP_Error
 	 */
 	public function get_contact_data( $email, $return_details = false ) {
-		$subscriber = $this->client()->find_subscriber_by_email( $email );
+		$client     = $this->client();
+		$subscriber = $client->find_subscriber_by_email( $email );
 		if ( is_wp_error( $subscriber ) ) {
 			return $subscriber;
+		}
+
+		$bounces       = array();
+		$subscriber_id = absint( $subscriber['id'] ?? 0 );
+		if ( $subscriber_id ) {
+			$bounce_response = $client->get_subscriber_bounces( $subscriber_id );
+			if ( ! is_wp_error( $bounce_response ) ) {
+				$bounces                       = $bounce_response;
+				$subscriber['_listmonk_bounces'] = $bounces;
+			}
 		}
 
 		if ( $return_details ) {
 			return $subscriber;
 		}
 
+		$status = sanitize_key( $subscriber['status'] ?? '' );
+
 		return array(
-			'id'     => absint( $subscriber['id'] ?? 0 ),
-			'uuid'   => (string) ( $subscriber['uuid'] ?? '' ),
-			'email'  => sanitize_email( $subscriber['email'] ?? '' ),
-			'name'   => sanitize_text_field( $subscriber['name'] ?? '' ),
-			'status' => sanitize_key( $subscriber['status'] ?? '' ),
-			'lists'  => $this->extract_subscriber_list_ids( $subscriber ),
+			'id'             => $subscriber_id,
+			'uuid'           => (string) ( $subscriber['uuid'] ?? '' ),
+			'email'          => sanitize_email( $subscriber['email'] ?? '' ),
+			'name'           => sanitize_text_field( $subscriber['name'] ?? '' ),
+			'status'         => $status,
+			'is_blocklisted' => 'blocklisted' === $status,
+			'bounce_count'   => count( $bounces ),
+			'has_bounces'    => ! empty( $bounces ),
+			'lists'          => $this->extract_subscriber_list_ids( $subscriber ),
 		);
 	}
 
@@ -623,6 +642,9 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 				'newspack_listmonk_connector_invalid_subscriber_id',
 				__( 'Listmonk subscriber response did not include a valid ID.', 'newspack-listmonk-connector' )
 			);
+		}
+		if ( $this->is_subscriber_blocklisted( $subscriber ) ) {
+			return $this->subscriber_blocklisted_error( $email, $subscriber );
 		}
 
 		if ( ! empty( $lists_to_add ) ) {
@@ -734,6 +756,35 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	 */
 	public function get_usage_report() {
 		return $this->not_implemented( __( 'Listmonk usage reports are not implemented yet.', 'newspack-listmonk-connector' ) );
+	}
+
+	/**
+	 * Whether a Listmonk subscriber is blocklisted.
+	 *
+	 * @param array $subscriber Subscriber data.
+	 * @return bool
+	 */
+	private function is_subscriber_blocklisted( array $subscriber ) {
+		return 'blocklisted' === sanitize_key( $subscriber['status'] ?? '' );
+	}
+
+	/**
+	 * Build a blocklisted subscriber error.
+	 *
+	 * @param string $email Email address.
+	 * @param array  $subscriber Subscriber data.
+	 * @return WP_Error
+	 */
+	private function subscriber_blocklisted_error( $email, array $subscriber ) {
+		return new WP_Error(
+			'newspack_listmonk_connector_subscriber_blocklisted',
+			__( 'The Listmonk subscriber is blocklisted and must be reviewed in Listmonk before it can be resubscribed.', 'newspack-listmonk-connector' ),
+			array(
+				'email'         => sanitize_email( $email ),
+				'subscriber_id' => absint( $subscriber['id'] ?? 0 ),
+				'status'        => sanitize_key( $subscriber['status'] ?? '' ),
+			)
+		);
 	}
 
 	/**

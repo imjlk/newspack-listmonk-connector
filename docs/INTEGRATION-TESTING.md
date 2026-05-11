@@ -177,7 +177,9 @@ policy.
 The subscriber smoke is local-only as well. It verifies that the Newspack
 provider can create a Listmonk subscriber, retrieve subscriber data, read list
 memberships, add a secondary list membership, and remove that secondary
-membership without touching an external Listmonk server.
+membership without touching an external Listmonk server. It also blocklists the
+fixture subscriber and verifies that provider contact/list updates refuse to
+resubscribe it.
 
 Useful local Listmonk commands:
 
