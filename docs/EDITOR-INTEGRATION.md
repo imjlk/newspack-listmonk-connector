@@ -12,12 +12,10 @@ Environment:
 
 ## Summary
 
-Newspack recognizes `listmonk` as a supported provider and loads the provider
-class correctly, but the editor expects provider-specific Newspack REST routes
-that this connector does not register yet.
-
-Before building a Listmonk editor side panel, the next backend milestone should
-add a Listmonk provider controller for:
+Newspack recognizes `listmonk` as a supported provider, loads the provider class,
+and now receives provider-specific REST routes for the built-in editor flow.
+The connector keeps these routes in the Newspack namespace because the editor
+bundle calls them directly:
 
 ```text
 GET  /newspack-newsletters/v1/listmonk/{post_id}/retrieve
@@ -27,7 +25,8 @@ GET  /newspack-newsletters/v1/{post_id}/sync-error
 
 The final `sync-error` route is inherited from
 `Newspack_Newsletters_Service_Provider_Controller`, so the connector needs a
-controller instance even if the custom route methods only proxy to the provider.
+controller instance even though the custom route methods only proxy to the
+provider.
 
 ## Localized Editor Data
 
@@ -86,6 +85,9 @@ The current route table with `listmonk` active includes:
 /newspack-newsletters/v1/lists_config
 /newspack-newsletters/v1/lists
 /newspack-newsletters/v1/send-lists
+/newspack-newsletters/v1/{post_id}/sync-error
+/newspack-newsletters/v1/listmonk/{post_id}/retrieve
+/newspack-newsletters/v1/listmonk/{post_id}/test
 /newspack-listmonk-connector/v1
 /newspack-listmonk-connector/v1/listmonk-settings
 /newspack-listmonk-connector/v1/listmonk-settings/item
@@ -93,15 +95,8 @@ The current route table with `listmonk` active includes:
 /newspack-listmonk-connector/v1/newsletter-preview/item
 ```
 
-Missing route table entries:
-
-```text
-/newspack-newsletters/v1/listmonk/{post_id}/retrieve
-/newspack-newsletters/v1/listmonk/{post_id}/test
-/newspack-newsletters/v1/{post_id}/sync-error
-```
-
-The provider's protected `controller` property is currently unset.
+The provider's protected `controller` property is set to
+`Newspack_Listmonk_Connector_Controller`.
 
 ## Retrieve Response Shape
 
@@ -131,7 +126,8 @@ base shape for the editor store:
     }
   ],
   "senderName": "Smoke Test",
-  "senderEmail": "Smoke Test <smoke@example.com>"
+  "senderEmail": "Smoke Test <smoke@example.com>",
+  "supports_multiple_test_recipients": true
 }
 ```
 
@@ -144,7 +140,7 @@ Required or useful fields for editor compatibility:
 | `lists` | Present | Used by generic pre-send/list display paths and cached list lookup. |
 | `senderEmail` | Present | Required by Newspack validation before sending. Prefer a plain email value in editor meta. |
 | `senderName` | Present | Required by Newspack validation before sending. |
-| `supports_multiple_test_recipients` | Missing | Enables the editor help text for comma-separated test recipients. The provider already supports multiple emails, so this should be added. |
+| `supports_multiple_test_recipients` | Present | Enables the editor help text for comma-separated test recipients. |
 | `link` | Missing | Optional. Enables "View Campaign in {Provider}" if we later build a Listmonk admin campaign URL. |
 
 The editor also calls `/send-lists` independently, so the `lists` array in
@@ -218,13 +214,11 @@ Listmonk-specific controls still need connector-side editor JavaScript:
 
 ## Next Backend Tasks
 
-1. Add `Newspack_Listmonk_Connector_Controller` extending
-   `Newspack_Newsletters_Service_Provider_Controller`.
-2. Instantiate the controller from `Newspack_Listmonk_Connector_Provider` so
-   `sync-error` and provider-specific routes register on `rest_api_init`.
-3. Register `GET /newspack-newsletters/v1/listmonk/{post_id}/retrieve`.
-4. Register `POST /newspack-newsletters/v1/listmonk/{post_id}/test`.
-5. Add `supports_multiple_test_recipients => true` to `retrieve()` and sync
-   response data.
-6. Add a smoke check for those Newspack editor routes before implementing the
-   React side panel.
+1. Add the connector editor side panel for list selection, sync/test actions,
+   campaign status, and raw HTML/payload preview.
+2. Keep the Newspack namespace REST routes as thin controller proxies; new
+   typed connector-specific APIs should continue to live under
+   `newspack-listmonk-connector/v1`.
+3. Keep the Newspack editor wire shapes mirrored in `src/types.ts` so wp-typia
+   type checks can catch contract drift even though these Newspack routes are
+   manually registered.

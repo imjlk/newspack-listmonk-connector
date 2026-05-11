@@ -80,6 +80,17 @@ if ( empty( $errors ) ) {
 
 if ( empty( $errors ) ) {
 	$list_id = absint( $settings['default_list_ids'][0] );
+	$administrator_ids = get_users(
+		array(
+			'role' => 'administrator',
+			'number' => 1,
+			'fields' => 'ID',
+		)
+	);
+	if ( ! empty( $administrator_ids ) ) {
+		wp_set_current_user( absint( $administrator_ids[0] ) );
+	}
+
 	$post_id = wp_insert_post(
 		array(
 			'post_type' => Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT,
@@ -100,6 +111,26 @@ if ( empty( $errors ) ) {
 		$sync = $provider->sync( get_post( $post_id ) );
 		if ( is_wp_error( $sync ) ) {
 			$errors[] = 'Provider sync failed: ' . $sync->get_error_message();
+		}
+	}
+}
+
+if ( empty( $errors ) ) {
+	$request = new WP_REST_Request( 'GET', sprintf( '/newspack-newsletters/v1/listmonk/%d/retrieve', $post_id ) );
+	$response = rest_do_request( $request );
+	if ( is_wp_error( $response ) ) {
+		$errors[] = 'Retrieve REST route returned WP_Error: ' . $response->get_error_message();
+	} elseif ( 200 !== $response->get_status() ) {
+		$errors[] = 'Retrieve REST route returned HTTP ' . $response->get_status() . ': ' . wp_json_encode( $response->get_data() );
+	} else {
+		$retrieve_data = $response->get_data();
+		foreach ( array( 'campaign', 'send_list_id', 'lists', 'senderName', 'senderEmail', 'supports_multiple_test_recipients' ) as $required_key ) {
+			if ( ! array_key_exists( $required_key, $retrieve_data ) ) {
+				$errors[] = 'Retrieve REST route response is missing key: ' . $required_key;
+			}
+		}
+		if ( empty( $retrieve_data['supports_multiple_test_recipients'] ) ) {
+			$errors[] = 'Retrieve REST route does not advertise multiple test recipients.';
 		}
 	}
 }
@@ -148,6 +179,7 @@ echo wp_json_encode(
 		'payloadHash' => $payload_hash,
 		'lastSyncedAt' => $last_synced_at,
 		'listCount' => count( $lists ),
+		'retrieveRouteSupportsMultipleTestRecipients' => (bool) ( $retrieve_data['supports_multiple_test_recipients'] ?? false ),
 	),
 	JSON_PRETTY_PRINT
 ) . PHP_EOL;

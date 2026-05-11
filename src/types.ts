@@ -89,3 +89,43 @@ export interface ListmonkCampaignRef {
 	uuid?: string;
 	status: ListmonkCampaignStatus;
 }
+
+export interface NewspackSendList {
+	provider: 'listmonk';
+	type: 'list' | 'sublist';
+	entity_type: string & tags.MaxLength< 80 >;
+	id: string & tags.MaxLength< 80 >;
+	name: string & tags.MaxLength< 200 >;
+	count?: number & tags.Type< 'uint32' >;
+	label?: string & tags.MaxLength< 300 >;
+	value?: string & tags.MaxLength< 80 >;
+}
+
+export interface NewspackEditorRetrieveResponse {
+	campaign: boolean;
+	campaign_id?: string | ( number & tags.Type< 'uint32' > );
+	listmonk_campaign_id?: string | ( number & tags.Type< 'uint32' > );
+	listmonk_campaign_uuid?: string & tags.MaxLength< 80 >;
+	listmonk_last_status?: ListmonkCampaignStatus | '';
+	listmonk_last_synced_at?: string;
+	listmonk_last_error?: string & tags.MaxLength< 1000 >;
+	send_list_id: string & tags.MaxLength< 80 >;
+	lists: NewspackSendList[];
+	senderName?: string & tags.MaxLength< 200 >;
+	senderEmail?: string & tags.MaxLength< 200 >;
+	supports_multiple_test_recipients: boolean;
+	link?: string & tags.MaxLength< 300 >;
+}
+
+export interface NewspackEditorTestRequest {
+	test_email: string & tags.MaxLength< 1000 >;
+}
+
+export interface NewspackEditorTestResponse {
+	message: string & tags.MaxLength< 500 >;
+	result?: unknown;
+}
+
+export interface NewspackEditorSyncErrorResponse {
+	message?: string & tags.MaxLength< 1000 >;
+}

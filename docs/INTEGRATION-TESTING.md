@@ -42,6 +42,8 @@ It verifies:
 - `listmonk` is registered in Newspack providers.
 - `listmonk` can be selected as the active provider.
 - the provider instance has the expected class.
+- the provider has a `Newspack_Listmonk_Connector_Controller`.
+- Newspack editor routes for retrieve, test send, and sync errors are registered.
 - plugin REST routes are registered.
 - missing Listmonk credentials return a `WP_Error`, not a fatal.
 
@@ -87,6 +89,9 @@ The send/schedule smoke is intentionally local-only. It reads only
 It verifies:
 
 - draft sync still creates a `draft` Listmonk campaign.
+- the Newspack editor retrieve route returns the expected campaign payload shape.
+- local smoke fixture subscribers are created in Listmonk so the Newspack
+  editor test route returns a success message.
 - immediate `provider->send()` changes Listmonk status to `running`.
 - scheduled `provider->send()` changes Listmonk status to `scheduled`.
 - scheduled payload includes `send_at`.
@@ -132,6 +137,7 @@ It verifies:
 - `test_connection()` succeeds.
 - `get_lists()` returns at least one active list.
 - a `newspack_nl_cpt` draft post can sync into a Listmonk draft campaign.
+- the Newspack editor retrieve route returns the expected campaign payload shape.
 - `_wtnl_listmonk_campaign_id`, `_wtnl_listmonk_payload_hash`, and
   `_wtnl_listmonk_last_synced_at` are stored.
 - the synced Listmonk campaign remains in `draft` status.

@@ -53,9 +53,21 @@ if ( empty( $errors ) ) {
 	if ( ! $provider instanceof Newspack_Listmonk_Connector_Provider ) {
 		$errors[] = 'The listmonk provider instance has the wrong class.';
 	}
+	if ( $provider instanceof Newspack_Listmonk_Connector_Provider ) {
+		$reflection = new ReflectionClass( $provider );
+		$controller_property = $reflection->getProperty( 'controller' );
+		$controller_property->setAccessible( true );
+		$controller = $controller_property->getValue( $provider );
+		if ( ! $controller instanceof Newspack_Listmonk_Connector_Controller ) {
+			$errors[] = 'The listmonk provider controller is not registered.';
+		}
+	}
 
 	$routes = rest_get_server()->get_routes();
 	$expected_routes = array(
+		${phpString('/newspack-newsletters/v1/(?P<id>[\\a-z]+)/sync-error')},
+		${phpString('/newspack-newsletters/v1/listmonk/(?P<id>[\\d]+)/retrieve')},
+		${phpString('/newspack-newsletters/v1/listmonk/(?P<id>[\\d]+)/test')},
 		'/newspack-listmonk-connector/v1/listmonk-settings/item',
 		'/newspack-listmonk-connector/v1/newsletter-preview/item',
 	);
@@ -85,8 +97,12 @@ echo wp_json_encode(
 		'ok' => true,
 		'provider' => 'listmonk',
 		'providerClass' => get_class( Newspack_Newsletters::get_service_provider_instance( 'listmonk' ) ),
+		'controllerClass' => get_class( $controller ),
 		'serviceProviderOption' => get_option( 'newspack_newsletters_service_provider' ),
 		'routes' => array(
+			${phpString('/newspack-newsletters/v1/(?P<id>[\\a-z]+)/sync-error')},
+			${phpString('/newspack-newsletters/v1/listmonk/(?P<id>[\\d]+)/retrieve')},
+			${phpString('/newspack-newsletters/v1/listmonk/(?P<id>[\\d]+)/test')},
 			${phpString('/newspack-listmonk-connector/v1/listmonk-settings/item')},
 			${phpString('/newspack-listmonk-connector/v1/newsletter-preview/item')}
 		),

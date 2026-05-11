@@ -12,6 +12,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Newspack\Newsletters\Send_List;
 use Newspack\Newsletters\Send_Lists;
 
+require_once __DIR__ . '/class-listmonk-controller.php';
+
 /**
  * Listmonk service provider.
  */
@@ -34,7 +36,8 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->service = 'listmonk';
+		$this->service    = 'listmonk';
+		$this->controller = new Newspack_Listmonk_Connector_Controller( $this );
 
 		add_action( 'updated_post_meta', array( $this, 'save' ), 10, 3 );
 		add_action( 'wp_trash_post', array( $this, 'trash' ), 10, 1 );
@@ -174,17 +177,18 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		}
 
 		return array(
-			'campaign'                 => true,
-			'campaign_id'              => get_post_meta( $post_id, '_wtnl_listmonk_campaign_id', true ),
-			'listmonk_campaign_id'     => get_post_meta( $post_id, '_wtnl_listmonk_campaign_id', true ),
-			'listmonk_campaign_uuid'   => get_post_meta( $post_id, '_wtnl_listmonk_campaign_uuid', true ),
-			'listmonk_last_status'     => get_post_meta( $post_id, '_wtnl_listmonk_last_status', true ),
-			'listmonk_last_synced_at'  => get_post_meta( $post_id, '_wtnl_listmonk_last_synced_at', true ),
-			'listmonk_last_error'      => get_post_meta( $post_id, '_wtnl_listmonk_last_error', true ),
-			'send_list_id'             => ! empty( $list_ids ) ? (string) $list_ids[0] : '',
-			'lists'                    => $lists,
-			'senderName'               => get_post_meta( $post_id, 'senderName', true ),
-			'senderEmail'              => get_post_meta( $post_id, 'senderEmail', true ),
+			'campaign'                           => true,
+			'campaign_id'                        => get_post_meta( $post_id, '_wtnl_listmonk_campaign_id', true ),
+			'listmonk_campaign_id'               => get_post_meta( $post_id, '_wtnl_listmonk_campaign_id', true ),
+			'listmonk_campaign_uuid'             => get_post_meta( $post_id, '_wtnl_listmonk_campaign_uuid', true ),
+			'listmonk_last_status'               => get_post_meta( $post_id, '_wtnl_listmonk_last_status', true ),
+			'listmonk_last_synced_at'            => get_post_meta( $post_id, '_wtnl_listmonk_last_synced_at', true ),
+			'listmonk_last_error'                => get_post_meta( $post_id, '_wtnl_listmonk_last_error', true ),
+			'send_list_id'                       => ! empty( $list_ids ) ? (string) $list_ids[0] : '',
+			'lists'                              => $lists,
+			'senderName'                         => get_post_meta( $post_id, 'senderName', true ),
+			'senderEmail'                        => get_post_meta( $post_id, 'senderEmail', true ),
+			'supports_multiple_test_recipients' => true,
 		);
 	}
 
@@ -708,13 +712,14 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		);
 
 		return array(
-			'campaign'               => true,
-			'campaign_id'            => $campaign_id,
-			'listmonk_campaign_id'   => $campaign_id,
-			'listmonk_campaign_uuid' => $data['uuid'] ?? get_post_meta( $post->ID, '_wtnl_listmonk_campaign_uuid', true ),
-			'listmonk_status'        => $data['status'] ?? get_post_meta( $post->ID, '_wtnl_listmonk_last_status', true ),
-			'send_list_id'           => ! empty( $list_ids ) ? (string) $list_ids[0] : '',
-			'lists'                  => is_wp_error( $lists ) ? array() : $lists,
+			'campaign'                           => true,
+			'campaign_id'                        => $campaign_id,
+			'listmonk_campaign_id'               => $campaign_id,
+			'listmonk_campaign_uuid'             => $data['uuid'] ?? get_post_meta( $post->ID, '_wtnl_listmonk_campaign_uuid', true ),
+			'listmonk_status'                    => $data['status'] ?? get_post_meta( $post->ID, '_wtnl_listmonk_last_status', true ),
+			'send_list_id'                       => ! empty( $list_ids ) ? (string) $list_ids[0] : '',
+			'lists'                              => is_wp_error( $lists ) ? array() : $lists,
+			'supports_multiple_test_recipients' => true,
 		);
 	}
 

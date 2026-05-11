@@ -23,6 +23,12 @@ Verified contract points:
 - active provider option `newspack_newsletters_service_provider`
 - provider instance resolution through
   `Newspack_Newsletters::get_service_provider_instance( 'listmonk' )`
+- editor REST route pattern
+  `/newspack-newsletters/v1/{provider}/{post_id}/retrieve`
+- editor REST route pattern
+  `/newspack-newsletters/v1/{provider}/{post_id}/test`
+- shared provider sync-error route
+  `/newspack-newsletters/v1/{post_id}/sync-error`
 - newsletter CPT constant `Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT`
 - stored HTML meta constant `Newspack_Newsletters::EMAIL_HTML_META`
 - hookable provider methods `save()`, `send()`, and `trash()`

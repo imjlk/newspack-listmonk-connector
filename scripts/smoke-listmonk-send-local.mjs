@@ -91,6 +91,19 @@ if ( empty( $errors ) ) {
 	}
 }
 
+if ( empty( $errors ) ) {
+	$administrator_ids = get_users(
+		array(
+			'role' => 'administrator',
+			'number' => 1,
+			'fields' => 'ID',
+		)
+	);
+	if ( ! empty( $administrator_ids ) ) {
+		wp_set_current_user( absint( $administrator_ids[0] ) );
+	}
+}
+
 function newspack_listmonk_connector_smoke_get_campaign_status( $campaign_id ) {
 	$client = new Newspack_Listmonk_Connector_Listmonk_Client();
 	$campaign = $client->get_campaign( absint( $campaign_id ) );
@@ -148,6 +161,72 @@ if ( empty( $errors ) ) {
 }
 
 if ( empty( $errors ) ) {
+	$retrieve_request = new WP_REST_Request( 'GET', sprintf( '/newspack-newsletters/v1/listmonk/%d/retrieve', $immediate_post_id ) );
+	$retrieve_response = rest_do_request( $retrieve_request );
+	if ( is_wp_error( $retrieve_response ) ) {
+		$errors[] = 'Retrieve REST route returned WP_Error: ' . $retrieve_response->get_error_message();
+	} elseif ( 200 !== $retrieve_response->get_status() ) {
+		$errors[] = 'Retrieve REST route returned HTTP ' . $retrieve_response->get_status() . ': ' . wp_json_encode( $retrieve_response->get_data() );
+	} else {
+		$retrieve_data = $retrieve_response->get_data();
+		foreach ( array( 'campaign', 'send_list_id', 'lists', 'senderName', 'senderEmail', 'supports_multiple_test_recipients' ) as $required_key ) {
+			if ( ! array_key_exists( $required_key, $retrieve_data ) ) {
+				$errors[] = 'Retrieve REST route response is missing key: ' . $required_key;
+			}
+		}
+		if ( empty( $retrieve_data['supports_multiple_test_recipients'] ) ) {
+			$errors[] = 'Retrieve REST route does not advertise multiple test recipients.';
+		}
+	}
+}
+
+if ( empty( $errors ) ) {
+	$test_emails = array(
+		sprintf( 'smoke-%d@example.com', $immediate_post_id ),
+		sprintf( 'second-smoke-%d@example.com', $immediate_post_id ),
+	);
+	$client = new Newspack_Listmonk_Connector_Listmonk_Client();
+	foreach ( $test_emails as $test_email ) {
+		$subscriber = $client->request(
+			'POST',
+			'/api/subscribers',
+			array(
+				'email' => $test_email,
+				'name' => 'Smoke Test',
+				'status' => 'enabled',
+				'lists' => array( absint( $settings['default_list_ids'][0] ) ),
+				'attribs' => new stdClass(),
+				'preconfirm_subscriptions' => true,
+			)
+		);
+		if ( is_wp_error( $subscriber ) ) {
+			$errors[] = 'Unable to create local Listmonk test subscriber: ' . $subscriber->get_error_message();
+			break;
+		}
+	}
+}
+
+if ( empty( $errors ) ) {
+	$test_request = new WP_REST_Request( 'POST', sprintf( '/newspack-newsletters/v1/listmonk/%d/test', $immediate_post_id ) );
+	$test_request->set_body_params(
+		array(
+			'test_email' => implode( ',', $test_emails ),
+		)
+	);
+	$test_response = rest_do_request( $test_request );
+	if ( is_wp_error( $test_response ) ) {
+		$errors[] = 'Test REST route returned WP_Error: ' . $test_response->get_error_message();
+	} elseif ( 200 !== $test_response->get_status() ) {
+		$errors[] = 'Test REST route returned HTTP ' . $test_response->get_status() . ': ' . wp_json_encode( $test_response->get_data() );
+	} else {
+		$test_data = $test_response->get_data();
+		if ( empty( $test_data['message'] ) ) {
+			$errors[] = 'Test REST route response is missing message.';
+		}
+	}
+}
+
+if ( empty( $errors ) ) {
 	$immediate_post = get_post( $immediate_post_id );
 	$immediate_post->post_status = 'publish';
 	$send_result = $provider->send( $immediate_post );
@@ -171,6 +250,8 @@ if ( empty( $errors ) ) {
 			'campaignId' => $immediate_campaign_id,
 			'campaignStatus' => is_wp_error( $immediate_status ) ? null : $immediate_status,
 			'metaStatus' => $immediate_meta_status,
+			'retrieveRouteSupportsMultipleTestRecipients' => (bool) ( $retrieve_data['supports_multiple_test_recipients'] ?? false ),
+			'testRouteMessage' => (string) ( $test_data['message'] ?? '' ),
 		);
 	}
 }
