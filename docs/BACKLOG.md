@@ -19,7 +19,7 @@ Status legend:
 | 4 | Raw HTML rendering pipeline | `[~]` |
 | 5 | Campaign sync/send flow | `[~]` |
 | 6 | Admin and editor UI | `[~]` |
-| 7 | Subscriber/list integration | `[ ]` |
+| 7 | Subscriber/list integration | `[~]` |
 | 8 | Test strategy and QA | `[~]` |
 | 9 | Packaging and beta release | `[~]` |
 
@@ -64,7 +64,7 @@ Goal: Provide a thin PHP client around the Listmonk APIs needed for MVP.
 - `[x]` `send_test()` using `POST /api/campaigns/{id}/test`.
 - `[x]` `set_status()` using `PUT /api/campaigns/{id}/status`.
 - `[ ]` Add pagination handling beyond MVP list fetch.
-- `[ ]` Add subscriber endpoints.
+- `[x]` Add subscriber endpoints.
 - `[ ]` Add webhook/analytics endpoints.
 - `[x]` Add integration tests against Docker Listmonk.
 
@@ -83,7 +83,7 @@ Goal: Make Listmonk appear as a Newspack Newsletters ESP provider.
 - `[x]` Implement `sync()`.
 - `[x]` Implement `test()`.
 - `[x]` Implement `send()`.
-- `[~]` Stub subscriber/tag methods with explicit MVP errors.
+- `[~]` Implement subscriber methods; keep tag methods as explicit MVP stubs.
 - `[x]` Confirm editor-side Newspack data expectations in a live Newspack site.
 - `[x]` Add Listmonk Newspack provider REST controller for retrieve/test/sync-error routes.
 - `[x]` Add `supports_multiple_test_recipients` to editor response payloads.
@@ -150,13 +150,13 @@ Goal: Let operators manage the connection and preview/sync campaigns without cod
 
 Goal: Sync Newspack signup/contact flows into Listmonk subscribers.
 
-- `[ ]` Implement subscriber lookup.
-- `[ ]` Implement subscriber create/update.
-- `[ ]` Implement list membership add/remove.
-- `[ ]` Handle double opt-in list behavior.
-- `[ ]` Map Reader Activation metadata to Listmonk attributes.
+- `[x]` Implement subscriber lookup.
+- `[x]` Implement subscriber create/update.
+- `[x]` Implement list membership add/remove.
+- `[~]` Handle double opt-in list behavior.
+- `[x]` Map Reader Activation metadata to Listmonk attributes.
 - `[ ]` Reflect blocklist/bounce state where useful.
-- `[ ]` Add subscriber sync tests.
+- `[x]` Add subscriber sync tests.
 
 ## Phase 8: Test Strategy And QA
 
@@ -194,5 +194,5 @@ Goal: Prepare a beta plugin build for staging.
 ## Next Recommended Work
 
 1. Run staging smoke test from the beta zip.
-2. Start subscriber endpoint design for Phase 7.
+2. Add blocklist/bounce reflection policy for subscriber sync.
 3. Add CSS inlining and email-safe cleanup policy.

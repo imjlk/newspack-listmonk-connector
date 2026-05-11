@@ -433,6 +433,187 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 	}
 
 	/**
+	 * add_contact creates a missing Listmonk subscriber with sanitized metadata.
+	 */
+	public function test_add_contact_creates_missing_subscriber() {
+		$this->queue_response( 200, array( 'data' => array( 'results' => array() ) ) );
+		$this->queue_response( 200, array( 'data' => array( 'id' => 120, 'email' => 'reader@example.com' ) ) );
+
+		$result = $this->provider->add_contact(
+			array(
+				'email'    => 'Reader@Example.com',
+				'name'     => 'Reader <b>Name</b>',
+				'metadata' => array(
+					'Membership Level' => 'paid',
+					'nested'           => array(
+						'City' => 'Seoul',
+					),
+				),
+			),
+			2
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 120, $result['data']['id'] );
+		$this->assert_request_without_body(
+			0,
+			'GET',
+			add_query_arg(
+				array(
+					'per_page' => 'all',
+				),
+				'http://listmonk.test:9000/api/subscribers'
+			)
+		);
+		$this->assert_request(
+			1,
+			'POST',
+			'http://listmonk.test:9000/api/subscribers',
+			array(
+				'email'                    => 'reader@example.com',
+				'name'                     => 'Reader Name',
+				'status'                   => 'enabled',
+				'lists'                    => array( 2 ),
+				'attribs'                  => array(
+					'membershiplevel' => 'paid',
+					'nested'          => array(
+						'city' => 'Seoul',
+					),
+				),
+				'preconfirm_subscriptions' => false,
+			)
+		);
+	}
+
+	/**
+	 * add_contact patches an existing subscriber and adds the requested list membership.
+	 */
+	public function test_add_contact_updates_existing_subscriber_and_adds_list() {
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results' => array(
+						array(
+							'id'    => 121,
+							'email' => 'reader@example.com',
+							'lists' => array(),
+						),
+					),
+				),
+			)
+		);
+		$this->queue_response( 200, array( 'data' => array( 'id' => 121, 'email' => 'reader@example.com' ) ) );
+		$this->queue_response( 200, array( 'data' => true ) );
+
+		$result = $this->provider->add_contact(
+			array(
+				'email'    => 'reader@example.com',
+				'name'     => 'Reader',
+				'metadata' => array( 'membership' => 'paid' ),
+			),
+			3
+		);
+
+		$this->assertIsArray( $result );
+		$this->assert_request(
+			1,
+			'PATCH',
+			'http://listmonk.test:9000/api/subscribers/121',
+			array(
+				'email'                    => 'reader@example.com',
+				'name'                     => 'Reader',
+				'status'                   => 'enabled',
+				'attribs'                  => array( 'membership' => 'paid' ),
+				'preconfirm_subscriptions' => false,
+			)
+		);
+		$this->assert_request(
+			2,
+			'PUT',
+			'http://listmonk.test:9000/api/subscribers/lists',
+			array(
+				'ids'             => array( 121 ),
+				'action'          => 'add',
+				'target_list_ids' => array( 3 ),
+				'status'          => 'unconfirmed',
+			)
+		);
+	}
+
+	/**
+	 * get_contact_lists returns numeric Listmonk list IDs.
+	 */
+	public function test_get_contact_lists_returns_list_ids() {
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results' => array(
+						array(
+							'id'    => 122,
+							'email' => 'reader@example.com',
+							'lists' => array(
+								array( 'id' => 3 ),
+								array( 'id' => 4 ),
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$this->assertSame( array( 3, 4 ), $this->provider->get_contact_lists( 'reader@example.com' ) );
+	}
+
+	/**
+	 * update_contact_lists delegates add and remove membership changes to Listmonk.
+	 */
+	public function test_update_contact_lists_adds_and_removes_memberships() {
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results' => array(
+						array(
+							'id'    => 123,
+							'email' => 'reader@example.com',
+							'lists' => array(),
+						),
+					),
+				),
+			)
+		);
+		$this->queue_response( 200, array( 'data' => true ) );
+		$this->queue_response( 200, array( 'data' => true ) );
+
+		$result = $this->provider->update_contact_lists( 'reader@example.com', array( '5', '5' ), array( 6 ) );
+
+		$this->assertTrue( $result );
+		$this->assert_request(
+			1,
+			'PUT',
+			'http://listmonk.test:9000/api/subscribers/lists',
+			array(
+				'ids'             => array( 123 ),
+				'action'          => 'add',
+				'target_list_ids' => array( 5 ),
+				'status'          => 'unconfirmed',
+			)
+		);
+		$this->assert_request(
+			2,
+			'PUT',
+			'http://listmonk.test:9000/api/subscribers/lists',
+			array(
+				'ids'             => array( 123 ),
+				'action'          => 'remove',
+				'target_list_ids' => array( 6 ),
+			)
+		);
+	}
+
+	/**
 	 * Create a future newsletter post.
 	 *
 	 * @return int

@@ -493,14 +493,61 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	}
 
 	/**
-	 * Subscriber sync is intentionally left for a later milestone.
+	 * Add or update a Listmonk subscriber.
 	 *
 	 * @param array       $contact Contact data.
 	 * @param string|bool $list_id List ID.
-	 * @return WP_Error
+	 * @return array|WP_Error
 	 */
 	public function add_contact( $contact, $list_id = false ) {
-		return $this->not_implemented( __( 'Listmonk subscriber sync is not implemented in this MVP.', 'newspack-listmonk-connector' ) );
+		$payload = $this->build_subscriber_payload( $contact, $list_id );
+		if ( is_wp_error( $payload ) ) {
+			return $payload;
+		}
+
+		$client     = $this->client();
+		$subscriber = $client->find_subscriber_by_email( $payload['email'] );
+		if ( is_wp_error( $subscriber ) ) {
+			if ( 'newspack_listmonk_connector_subscriber_not_found' !== $subscriber->get_error_code() ) {
+				return $subscriber;
+			}
+
+			return $client->create_subscriber( $payload );
+		}
+
+		$subscriber_id = absint( $subscriber['id'] ?? 0 );
+		if ( ! $subscriber_id ) {
+			return new WP_Error(
+				'newspack_listmonk_connector_invalid_subscriber_id',
+				__( 'Listmonk subscriber response did not include a valid ID.', 'newspack-listmonk-connector' )
+			);
+		}
+
+		$update_payload = array(
+			'email'                    => $payload['email'],
+			'name'                     => $payload['name'],
+			'status'                   => $payload['status'],
+			'attribs'                  => $payload['attribs'],
+			'preconfirm_subscriptions' => $payload['preconfirm_subscriptions'],
+		);
+		$updated        = $client->update_subscriber( $subscriber_id, $update_payload );
+		if ( is_wp_error( $updated ) ) {
+			return $updated;
+		}
+
+		if ( ! empty( $payload['lists'] ) ) {
+			$list_update = $client->update_subscriber_lists(
+				array( $subscriber_id ),
+				$payload['lists'],
+				'add',
+				$this->get_subscriber_list_add_status( $payload['email'], $payload['lists'] )
+			);
+			if ( is_wp_error( $list_update ) ) {
+				return $list_update;
+			}
+		}
+
+		return $updated;
 	}
 
 	/**
@@ -508,10 +555,26 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	 *
 	 * @param string $email Email.
 	 * @param bool   $return_details Return details.
-	 * @return WP_Error
+	 * @return array|WP_Error
 	 */
 	public function get_contact_data( $email, $return_details = false ) {
-		return $this->not_implemented();
+		$subscriber = $this->client()->find_subscriber_by_email( $email );
+		if ( is_wp_error( $subscriber ) ) {
+			return $subscriber;
+		}
+
+		if ( $return_details ) {
+			return $subscriber;
+		}
+
+		return array(
+			'id'     => absint( $subscriber['id'] ?? 0 ),
+			'uuid'   => (string) ( $subscriber['uuid'] ?? '' ),
+			'email'  => sanitize_email( $subscriber['email'] ?? '' ),
+			'name'   => sanitize_text_field( $subscriber['name'] ?? '' ),
+			'status' => sanitize_key( $subscriber['status'] ?? '' ),
+			'lists'  => $this->extract_subscriber_list_ids( $subscriber ),
+		);
 	}
 
 	/**
@@ -521,7 +584,12 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	 * @return array
 	 */
 	public function get_contact_lists( $email ) {
-		return array();
+		$subscriber = $this->client()->find_subscriber_by_email( $email );
+		if ( is_wp_error( $subscriber ) ) {
+			return array();
+		}
+
+		return $this->extract_subscriber_list_ids( $subscriber );
 	}
 
 	/**
@@ -530,10 +598,53 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	 * @param string $email Email.
 	 * @param array  $lists_to_add Lists to add.
 	 * @param array  $lists_to_remove Lists to remove.
-	 * @return WP_Error
+	 * @return true|WP_Error
 	 */
 	public function update_contact_lists( $email, $lists_to_add = array(), $lists_to_remove = array() ) {
-		return $this->not_implemented();
+		$email = strtolower( sanitize_email( $email ) );
+		if ( '' === $email || ! is_email( $email ) ) {
+			return new WP_Error(
+				'newspack_listmonk_connector_invalid_subscriber_email',
+				__( 'A valid subscriber email is required.', 'newspack-listmonk-connector' )
+			);
+		}
+
+		$client     = $this->client();
+		$subscriber = $client->find_subscriber_by_email( $email );
+		if ( is_wp_error( $subscriber ) ) {
+			return $subscriber;
+		}
+
+		$subscriber_id   = absint( $subscriber['id'] ?? 0 );
+		$lists_to_add    = newspack_listmonk_connector_normalize_list_ids( $lists_to_add );
+		$lists_to_remove = newspack_listmonk_connector_normalize_list_ids( $lists_to_remove );
+		if ( ! $subscriber_id ) {
+			return new WP_Error(
+				'newspack_listmonk_connector_invalid_subscriber_id',
+				__( 'Listmonk subscriber response did not include a valid ID.', 'newspack-listmonk-connector' )
+			);
+		}
+
+		if ( ! empty( $lists_to_add ) ) {
+			$add = $client->update_subscriber_lists(
+				array( $subscriber_id ),
+				$lists_to_add,
+				'add',
+				$this->get_subscriber_list_add_status( $email, $lists_to_add )
+			);
+			if ( is_wp_error( $add ) ) {
+				return $add;
+			}
+		}
+
+		if ( ! empty( $lists_to_remove ) ) {
+			$remove = $client->update_subscriber_lists( array( $subscriber_id ), $lists_to_remove, 'remove' );
+			if ( is_wp_error( $remove ) ) {
+				return $remove;
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -623,6 +734,134 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	 */
 	public function get_usage_report() {
 		return $this->not_implemented( __( 'Listmonk usage reports are not implemented yet.', 'newspack-listmonk-connector' ) );
+	}
+
+	/**
+	 * Build a Listmonk subscriber payload from Newspack contact data.
+	 *
+	 * @param array       $contact Contact data.
+	 * @param string|bool $list_id List ID.
+	 * @return array|WP_Error
+	 */
+	private function build_subscriber_payload( $contact, $list_id = false ) {
+		$contact = is_array( $contact ) ? $contact : array();
+		$email   = strtolower( sanitize_email( $contact['email'] ?? $contact['email_address'] ?? '' ) );
+		if ( '' === $email || ! is_email( $email ) ) {
+			return new WP_Error(
+				'newspack_listmonk_connector_invalid_subscriber_email',
+				__( 'A valid subscriber email is required.', 'newspack-listmonk-connector' )
+			);
+		}
+
+		$name = sanitize_text_field( $contact['name'] ?? '' );
+		if ( '' === $name ) {
+			$name = trim(
+				sprintf(
+					'%s %s',
+					sanitize_text_field( $contact['first_name'] ?? '' ),
+					sanitize_text_field( $contact['last_name'] ?? '' )
+				)
+			);
+		}
+
+		$list_ids = false === $list_id ? newspack_listmonk_connector_get_settings( true )['default_list_ids'] : (array) $list_id;
+		$list_ids = newspack_listmonk_connector_normalize_list_ids( $list_ids );
+		$metadata = isset( $contact['metadata'] ) && is_array( $contact['metadata'] ) ? $contact['metadata'] : array();
+
+		$payload = array(
+			'email'                    => $email,
+			'name'                     => $name,
+			'status'                   => 'enabled',
+			'lists'                    => $list_ids,
+			'attribs'                  => $this->sanitize_subscriber_attribs( $metadata ),
+			'preconfirm_subscriptions' => (bool) apply_filters(
+				'newspack_listmonk_connector_preconfirm_subscriptions',
+				false,
+				$contact,
+				$list_ids
+			),
+		);
+
+		/**
+		 * Filter the Listmonk subscriber payload before create/update requests.
+		 *
+		 * @param array $payload Subscriber payload.
+		 * @param array $contact Newspack contact data.
+		 * @param int[] $list_ids List IDs.
+		 */
+		return apply_filters( 'newspack_listmonk_connector_subscriber_payload', $payload, $contact, $list_ids );
+	}
+
+	/**
+	 * Get the Listmonk list membership status used when adding an existing subscriber.
+	 *
+	 * @param string $email Email address.
+	 * @param int[]  $list_ids List IDs.
+	 * @return string
+	 */
+	private function get_subscriber_list_add_status( $email, array $list_ids ) {
+		$status = sanitize_key(
+			(string) apply_filters(
+				'newspack_listmonk_connector_subscriber_list_add_status',
+				'unconfirmed',
+				$email,
+				$list_ids
+			)
+		);
+
+		return in_array( $status, array( 'confirmed', 'unconfirmed', 'unsubscribed' ), true ) ? $status : 'unconfirmed';
+	}
+
+	/**
+	 * Sanitize subscriber attributes recursively.
+	 *
+	 * @param mixed $attribs Raw attributes.
+	 * @return array
+	 */
+	private function sanitize_subscriber_attribs( $attribs ) {
+		if ( ! is_array( $attribs ) ) {
+			return array();
+		}
+
+		$sanitized = array();
+		foreach ( $attribs as $key => $value ) {
+			$key = sanitize_key( $key );
+			if ( '' === $key ) {
+				continue;
+			}
+
+			if ( is_array( $value ) ) {
+				$sanitized[ $key ] = $this->sanitize_subscriber_attribs( $value );
+			} elseif ( is_bool( $value ) || is_int( $value ) || is_float( $value ) ) {
+				$sanitized[ $key ] = $value;
+			} elseif ( null === $value ) {
+				$sanitized[ $key ] = null;
+			} else {
+				$sanitized[ $key ] = sanitize_text_field( (string) $value );
+			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Extract numeric list IDs from a Listmonk subscriber response.
+	 *
+	 * @param array $subscriber Subscriber data.
+	 * @return int[]
+	 */
+	private function extract_subscriber_list_ids( array $subscriber ) {
+		$lists = $subscriber['lists'] ?? array();
+		if ( ! is_array( $lists ) ) {
+			return array();
+		}
+
+		$list_ids = array();
+		foreach ( $lists as $list ) {
+			$list_ids[] = is_array( $list ) ? absint( $list['id'] ?? 0 ) : absint( $list );
+		}
+
+		return newspack_listmonk_connector_normalize_list_ids( $list_ids );
 	}
 
 	/**

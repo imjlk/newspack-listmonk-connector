@@ -20,10 +20,12 @@ Minimum MVP permissions:
 - `lists:get_all`
 - `campaigns:manage`
 - `campaigns:send`
+- `subscribers:get`
+- `subscribers:manage`
 
-Keep `subscribers:sql_query` disabled. Subscriber sync is not part of this beta.
-Future subscriber sync work may require `subscribers:get` and
-`subscribers:manage`.
+Keep `subscribers:sql_query` disabled. The connector only uses subscriber list
+fetch, local exact email matching, subscriber create/update, and list membership
+APIs.
 
 ## Install The Plugin
 

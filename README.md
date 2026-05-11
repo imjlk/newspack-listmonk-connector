@@ -93,6 +93,7 @@ pnpm run listmonk:start
 pnpm run smoke:listmonk:local
 pnpm run smoke:listmonk:send:local
 pnpm run smoke:listmonk:archive:local
+pnpm run smoke:listmonk:subscribers:local
 pnpm run e2e:settings:local
 pnpm run e2e:editor:local
 ```

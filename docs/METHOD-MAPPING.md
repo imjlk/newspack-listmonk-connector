@@ -29,6 +29,10 @@ The active Newspack provider is stored in the
 | `save( $meta_id, $post_id, $meta_key )` | Syncs after Newspack refreshes stored email HTML. |
 | `trash( $post_id )` | Archives the active campaign reference without hard-deleting Listmonk data. |
 | `delete( $post_id )` | Applies the same archive policy before permanent post deletion. |
+| `add_contact( $contact, $list_id )` | Looks up by email, then `POST /api/subscribers` or `PATCH /api/subscribers/{id}` plus list membership add. |
+| `get_contact_data( $email )` | `GET /api/subscribers?per_page=all` followed by local exact email matching. |
+| `get_contact_lists( $email )` | Returns list IDs from the Listmonk subscriber response. |
+| `update_contact_lists( $email, $add, $remove )` | `PUT /api/subscribers/lists` with `add` and `remove` actions. |
 
 ## Campaign Payload
 
@@ -55,6 +59,23 @@ reverted to `draft`; paused campaigns are moved to `cancelled`; draft campaigns
 are preserved as remote drafts and detached locally because Listmonk does not
 cancel inactive drafts. Running campaigns are preserved for operator inspection.
 
+## Subscriber Sync
+
+Newspack contacts map to Listmonk subscribers:
+
+- `email` is lowercased and validated before any remote call.
+- `name` is sanitized from `name` or `first_name` / `last_name`.
+- `metadata` is recursively sanitized into Listmonk `attribs`.
+- Email lookup deliberately avoids Listmonk SQL query endpoints so the API user
+  does not need `subscribers:sql_query`.
+- Missing subscribers are created with `status: "enabled"`.
+- Existing subscribers are patched without replacing their full list set.
+- Existing subscriber list additions use `unconfirmed` by default, preserving
+  Listmonk's double opt-in posture unless a site changes the
+  `newspack_listmonk_connector_subscriber_list_add_status` filter.
+- `preconfirm_subscriptions` defaults to `false` and can be overridden with the
+  `newspack_listmonk_connector_preconfirm_subscriptions` filter.
+
 ## Stored Post Meta
 
 | Meta key | Purpose |
@@ -73,6 +94,5 @@ cancel inactive drafts. Running campaigns are preserved for operator inspection.
 
 ## Deferred Methods
 
-Subscriber and tag methods are present to satisfy the Newspack provider
-interface, but they intentionally return MVP "not implemented" errors or empty
-results. Subscriber sync is tracked as a later backlog phase.
+Tag methods remain present to satisfy the Newspack provider interface, but they
+intentionally return MVP "not implemented" errors or empty results.

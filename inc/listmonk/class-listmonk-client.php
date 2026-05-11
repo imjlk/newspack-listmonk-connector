@@ -201,6 +201,126 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 	}
 
 	/**
+	 * Get subscribers.
+	 *
+	 * @param array $query Query args.
+	 * @return array|WP_Error
+	 */
+	public function get_subscribers( array $query = array() ) {
+		$result = $this->request( 'GET', '/api/subscribers', null, $query );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return $this->extract_results( $result );
+	}
+
+	/**
+	 * Find a subscriber by email.
+	 *
+	 * @param string $email Email address.
+	 * @return array|WP_Error
+	 */
+	public function find_subscriber_by_email( $email ) {
+		$email = strtolower( sanitize_email( $email ) );
+		if ( '' === $email || ! is_email( $email ) ) {
+			return new WP_Error(
+				'newspack_listmonk_connector_invalid_subscriber_email',
+				__( 'A valid subscriber email is required.', 'newspack-listmonk-connector' )
+			);
+		}
+
+		$subscribers = $this->get_subscribers(
+			array(
+				'per_page' => 'all',
+			)
+		);
+		if ( is_wp_error( $subscribers ) ) {
+			return $subscribers;
+		}
+
+		foreach ( $subscribers as $subscriber ) {
+			if ( 0 === strcasecmp( (string) ( $subscriber['email'] ?? '' ), $email ) ) {
+				return $subscriber;
+			}
+		}
+
+		return new WP_Error(
+			'newspack_listmonk_connector_subscriber_not_found',
+			__( 'Listmonk subscriber was not found.', 'newspack-listmonk-connector' ),
+			array( 'email' => $email )
+		);
+	}
+
+	/**
+	 * Create a subscriber.
+	 *
+	 * @param array $payload Subscriber payload.
+	 * @return array|WP_Error
+	 */
+	public function create_subscriber( array $payload ) {
+		return $this->request( 'POST', '/api/subscribers', $payload );
+	}
+
+	/**
+	 * Partially update a subscriber.
+	 *
+	 * @param int   $subscriber_id Subscriber ID.
+	 * @param array $payload Subscriber payload.
+	 * @return array|WP_Error
+	 */
+	public function update_subscriber( $subscriber_id, array $payload ) {
+		return $this->request( 'PATCH', sprintf( '/api/subscribers/%d', absint( $subscriber_id ) ), $payload );
+	}
+
+	/**
+	 * Update subscriber list memberships.
+	 *
+	 * @param int[]  $subscriber_ids Subscriber IDs.
+	 * @param int[]  $list_ids List IDs.
+	 * @param string $action Action: add, remove, or unsubscribe.
+	 * @param string $status Subscription status for add actions.
+	 * @return array|WP_Error
+	 */
+	public function update_subscriber_lists( array $subscriber_ids, array $list_ids, $action = 'add', $status = 'unconfirmed' ) {
+		$action = sanitize_key( $action );
+		if ( ! in_array( $action, array( 'add', 'remove', 'unsubscribe' ), true ) ) {
+			return new WP_Error(
+				'newspack_listmonk_connector_invalid_subscriber_list_action',
+				__( 'Invalid Listmonk subscriber list action.', 'newspack-listmonk-connector' )
+			);
+		}
+
+		$subscriber_ids = $this->normalize_id_list( $subscriber_ids );
+		$list_ids       = $this->normalize_id_list( $list_ids );
+		if ( empty( $subscriber_ids ) || empty( $list_ids ) ) {
+			return new WP_Error(
+				'newspack_listmonk_connector_invalid_subscriber_list_payload',
+				__( 'Subscriber IDs and list IDs are required.', 'newspack-listmonk-connector' )
+			);
+		}
+
+		$payload = array(
+			'ids'             => $subscriber_ids,
+			'action'          => $action,
+			'target_list_ids' => $list_ids,
+		);
+
+		if ( 'add' === $action ) {
+			$status = sanitize_key( $status );
+			if ( ! in_array( $status, array( 'confirmed', 'unconfirmed', 'unsubscribed' ), true ) ) {
+				return new WP_Error(
+					'newspack_listmonk_connector_invalid_subscription_status',
+					__( 'Invalid Listmonk subscription status.', 'newspack-listmonk-connector' )
+				);
+			}
+			$payload['status'] = $status;
+		}
+
+		return $this->request( 'PUT', '/api/subscribers/lists', $payload );
+	}
+
+	/**
 	 * Create a campaign.
 	 *
 	 * @param array $payload Campaign payload.
@@ -335,6 +455,24 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 			);
 		}
 		return $this->request( 'PUT', sprintf( '/api/campaigns/%d/status', absint( $campaign_id ) ), array( 'status' => $status ) );
+	}
+
+	/**
+	 * Normalize integer ID arrays.
+	 *
+	 * @param array $ids Raw IDs.
+	 * @return int[]
+	 */
+	private function normalize_id_list( array $ids ) {
+		$ids = array_map( 'absint', $ids );
+		$ids = array_filter(
+			$ids,
+			static function ( $id ) {
+				return 0 < $id;
+			}
+		);
+
+		return array_values( array_unique( $ids ) );
 	}
 
 	/**

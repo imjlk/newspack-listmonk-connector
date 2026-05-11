@@ -158,6 +158,106 @@ class Newspack_Listmonk_Connector_Listmonk_Client_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Subscriber endpoint helpers issue the expected method, path, and JSON body.
+	 */
+	public function test_subscriber_endpoint_helpers_send_expected_requests() {
+		$client = $this->client();
+
+		$this->queue_response( 200, array( 'data' => array( 'id' => 20 ) ) );
+		$client->create_subscriber(
+			array(
+				'email'                    => 'reader@example.com',
+				'name'                     => 'Reader',
+				'status'                   => 'enabled',
+				'lists'                    => array( 1 ),
+				'attribs'                  => array( 'membership' => 'paid' ),
+				'preconfirm_subscriptions' => false,
+			)
+		);
+		$this->assert_request(
+			0,
+			'POST',
+			'http://listmonk.test:9000/api/subscribers',
+			array(
+				'email'                    => 'reader@example.com',
+				'name'                     => 'Reader',
+				'status'                   => 'enabled',
+				'lists'                    => array( 1 ),
+				'attribs'                  => array( 'membership' => 'paid' ),
+				'preconfirm_subscriptions' => false,
+			)
+		);
+
+		$this->queue_response( 200, array( 'data' => array( 'id' => 20 ) ) );
+		$client->update_subscriber( 20, array( 'name' => 'Updated Reader' ) );
+		$this->assert_request( 1, 'PATCH', 'http://listmonk.test:9000/api/subscribers/20', array( 'name' => 'Updated Reader' ) );
+
+		$this->queue_response( 200, array( 'data' => true ) );
+		$client->update_subscriber_lists( array( 20 ), array( 2, 3 ), 'add', 'unconfirmed' );
+		$this->assert_request(
+			2,
+			'PUT',
+			'http://listmonk.test:9000/api/subscribers/lists',
+			array(
+				'ids'             => array( 20 ),
+				'action'          => 'add',
+				'target_list_ids' => array( 2, 3 ),
+				'status'          => 'unconfirmed',
+			)
+		);
+	}
+
+	/**
+	 * Subscriber lookup uses Listmonk's query parameter and returns the matched subscriber.
+	 */
+	public function test_find_subscriber_by_email_queries_and_returns_match() {
+		$client = $this->client();
+
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results' => array(
+						array(
+							'id'    => 21,
+							'email' => 'reader@example.com',
+							'name'  => 'Reader',
+						),
+					),
+				),
+			)
+		);
+
+		$subscriber = $client->find_subscriber_by_email( 'Reader@Example.com' );
+
+		$this->assertSame( 21, $subscriber['id'] );
+		$this->assert_request_without_body(
+			0,
+			'GET',
+			add_query_arg(
+				array(
+					'per_page' => 'all',
+				),
+				'http://listmonk.test:9000/api/subscribers'
+			)
+		);
+	}
+
+	/**
+	 * Subscriber lookup returns a clear WP_Error when no matching email is found.
+	 */
+	public function test_find_subscriber_by_email_returns_not_found_error() {
+		$client = $this->client();
+
+		$this->queue_response( 200, array( 'data' => array( 'results' => array() ) ) );
+
+		$result = $client->find_subscriber_by_email( 'missing@example.com' );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'newspack_listmonk_connector_subscriber_not_found', $result->get_error_code() );
+	}
+
+	/**
 	 * Cancellable campaigns are archived by moving them to cancelled.
 	 */
 	public function test_archive_campaign_cancels_cancellable_campaign() {
