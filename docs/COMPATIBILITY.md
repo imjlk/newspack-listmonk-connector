@@ -40,6 +40,9 @@ Verified contract points:
 - `GET /api/lists?status=active&per_page=all` active list fetch
 - `POST /api/campaigns` draft campaign creation with `content_type: html`
 - `GET /api/campaigns/{id}` status confirmation
+- `PUT /api/campaigns/{id}/status` transition to `running`
+- `PUT /api/campaigns/{id}/status` transition to `scheduled`
+- scheduled campaign payload includes `send_at`
 
 Local Docker note: WordPress runs inside wp-env, so `.listmonk.env` points
 WordPress at `http://host.docker.internal:9000` instead of `localhost`.

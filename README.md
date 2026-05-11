@@ -74,6 +74,7 @@ pnpm run env:start
 pnpm run smoke:newspack
 pnpm run listmonk:start
 pnpm run smoke:listmonk:local
+pnpm run smoke:listmonk:send:local
 ```
 
 Local Listmonk runs at `http://localhost:9000`; wp-env reaches it through the

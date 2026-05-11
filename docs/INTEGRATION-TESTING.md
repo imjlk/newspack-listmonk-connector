@@ -74,6 +74,24 @@ Run the live smoke against the local stack:
 pnpm run smoke:listmonk:local
 ```
 
+Run the send/schedule transition smoke against the local stack:
+
+```bash
+pnpm run smoke:listmonk:send:local
+```
+
+The send/schedule smoke is intentionally local-only. It reads only
+`.listmonk.env` and refuses to run unless `LISTMONK_BASE_URL` points to
+`host.docker.internal`, `localhost`, or `127.0.0.1`.
+
+It verifies:
+
+- draft sync still creates a `draft` Listmonk campaign.
+- immediate `provider->send()` changes Listmonk status to `running`.
+- scheduled `provider->send()` changes Listmonk status to `scheduled`.
+- scheduled payload includes `send_at`.
+- WordPress `_wtnl_listmonk_last_status` matches the Listmonk campaign status.
+
 Useful local Listmonk commands:
 
 ```bash

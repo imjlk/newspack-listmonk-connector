@@ -85,7 +85,7 @@ Goal: Make Listmonk appear as a Newspack Newsletters ESP provider.
 - `[x]` Implement `send()`.
 - `[~]` Stub subscriber/tag methods with explicit MVP errors.
 - `[ ]` Confirm editor-side Newspack data expectations in a live Newspack site.
-- `[ ]` Confirm status transitions for publish and schedule in wp-env.
+- `[x]` Confirm status transitions for publish and schedule in wp-env.
 - `[ ]` Add compatibility fallback if Newspack changes provider method shape.
 
 ## Phase 4: Raw HTML Rendering Pipeline
@@ -119,7 +119,7 @@ Goal: Keep Newspack newsletter posts synced with Listmonk campaigns.
 - `[x]` Send test campaign after sync.
 - `[x]` Set status to `running` for immediate sends.
 - `[x]` Set status to `scheduled` when post status is `future`.
-- `[ ]` Verify Listmonk `send_at` behavior with scheduled Newspack posts.
+- `[x]` Verify Listmonk `send_at` behavior with scheduled Newspack posts.
 - `[ ]` Add retry/error UX around failed scheduled sends.
 - `[ ]` Add campaign deletion/archive policy.
 
@@ -168,7 +168,8 @@ Goal: Prove the plugin works across unit, integration, and E2E flows.
 - `[ ]` Add mocked Listmonk client tests.
 - `[x]` Add wp-env with Newspack Newsletters.
 - `[x]` Add Docker Listmonk integration.
-- `[ ]` Add E2E flow for create, preview, test, publish, and schedule.
+- `[x]` Add local smoke flow for draft sync, publish transition, and schedule transition.
+- `[~]` Add E2E flow for create, preview, test, publish, and schedule.
 
 ## Phase 9: Packaging And Beta Release
 
@@ -184,7 +185,7 @@ Goal: Prepare a beta plugin build for staging.
 
 ## Next Recommended Work
 
-1. Verify publish and scheduled send status transitions against local Listmonk.
-2. Add PHPUnit-style unit coverage for payload mapping and renderer fallbacks.
-3. Confirm Newspack editor-side data expectations in the live wp-env editor.
-4. Add the editor side panel after the backend publish/schedule path is proven.
+1. Confirm Newspack editor-side data expectations in the live wp-env editor.
+2. Add the editor side panel MVP for list selection, sync, test send, and status display.
+3. Add PHPUnit-style unit coverage for payload mapping and renderer fallbacks.
+4. Add retry/error UX around failed scheduled sends.

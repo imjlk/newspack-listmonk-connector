@@ -24,6 +24,7 @@
 		"smoke:newspack": "node scripts/smoke-newspack.mjs",
 		"smoke:listmonk": "node scripts/smoke-listmonk.mjs",
 		"smoke:listmonk:local": "node scripts/smoke-listmonk.mjs --env-file .listmonk.env",
+		"smoke:listmonk:send:local": "node scripts/smoke-listmonk-send-local.mjs",
 		"typecheck": "pnpm run sync --check && tsc --noEmit",
 		"lint:js": "wp-scripts lint-js",
 		"lint:css": "wp-scripts lint-style --allow-empty-input",
