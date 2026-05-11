@@ -76,7 +76,13 @@ pnpm run test:php
 pnpm run typecheck
 pnpm run lint
 pnpm run build
+pnpm run release:zip
 ```
+
+The beta zip is written to
+`artifacts/newspack-listmonk-connector-0.1.0.zip`. See
+[docs/SETUP.md](docs/SETUP.md) and
+[docs/STAGING-CHECKLIST.md](docs/STAGING-CHECKLIST.md) for staging validation.
 
 ## Integration Smoke Tests
 

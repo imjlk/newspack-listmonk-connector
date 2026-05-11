@@ -52,6 +52,19 @@ It verifies:
 - mocked Listmonk HTTP request, response, and error normalization
 - failed scheduled send error persistence and `retrySend` recovery behavior
 
+## Build A Beta Zip
+
+Create a staging-ready plugin zip:
+
+```bash
+pnpm run release:zip
+```
+
+The release script rebuilds assets, validates version consistency, copies only
+runtime files into a staging directory, runs PHP syntax checks on the staged
+package, creates `artifacts/newspack-listmonk-connector-0.1.0.zip`, and verifies
+that development-only files are excluded.
+
 ## Smoke: Newspack Provider Contract
 
 This smoke test does not require real Listmonk credentials.

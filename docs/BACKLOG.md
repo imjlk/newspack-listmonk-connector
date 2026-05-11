@@ -21,7 +21,7 @@ Status legend:
 | 6 | Admin and editor UI | `[~]` |
 | 7 | Subscriber/list integration | `[ ]` |
 | 8 | Test strategy and QA | `[~]` |
-| 9 | Packaging and beta release | `[ ]` |
+| 9 | Packaging and beta release | `[~]` |
 
 ## Phase 0: Technical Validation And Design
 
@@ -183,16 +183,16 @@ Goal: Prove the plugin works across unit, integration, and E2E flows.
 
 Goal: Prepare a beta plugin build for staging.
 
-- `[ ]` Add release packaging script.
-- `[ ]` Exclude development-only files from distribution.
-- `[ ]` Add plugin readme suitable for beta testers.
-- `[ ]` Add setup guide with required Listmonk permissions.
-- `[ ]` Add staging checklist.
-- `[ ]` Build beta zip.
+- `[x]` Add release packaging script.
+- `[x]` Exclude development-only files from distribution.
+- `[x]` Add plugin readme suitable for beta testers.
+- `[x]` Add setup guide with required Listmonk permissions.
+- `[x]` Add staging checklist.
+- `[x]` Build beta zip.
 - `[ ]` Run staging smoke test.
 
 ## Next Recommended Work
 
-1. Add packaging and beta release workflow.
-2. Add setup guide with required Listmonk permissions.
-3. Run staging smoke test.
+1. Run staging smoke test from the beta zip.
+2. Add campaign deletion/archive policy.
+3. Start subscriber endpoint design for Phase 7.

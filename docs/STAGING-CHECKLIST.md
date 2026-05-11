@@ -1,0 +1,52 @@
+# Staging Checklist
+
+Use this checklist before handing the beta build to editors or production
+operators.
+
+## Preflight
+
+- Staging has a recent database backup.
+- Newspack Newsletters is installed and active.
+- Newspack Listmonk Connector activates without PHP errors.
+- Listmonk API credentials belong to a dedicated API user.
+- The API user has `lists:get_all`, `campaigns:manage`, and `campaigns:send`.
+- The configured From email is allowed by the Listmonk mail setup.
+- The target Listmonk list IDs are staging-safe.
+
+## Settings Validation
+
+- Settings > Newspack Listmonk loads the React settings screen.
+- Save without entering a new token preserves the stored token.
+- Save and test connection succeeds.
+- Reloading the page shows the saved API URL, API user, From email, template ID,
+  and default list IDs.
+- `listmonk` is the active Newspack Newsletters service provider.
+
+## Newsletter Validation
+
+- A draft Newspack newsletter opens without editor errors.
+- The Listmonk editor panel appears.
+- List selection persists after save/reload.
+- Raw HTML preview contains the expected newsletter body.
+- Payload preview contains `sendMode: "campaign"` and the chosen list IDs.
+- Sync to Listmonk creates or updates a draft campaign.
+- Test send returns a success notice in the editor.
+- Publishing a staging newsletter changes the Listmonk campaign status to
+  `running`.
+- Scheduling a staging newsletter changes the Listmonk campaign status to
+  `scheduled` and includes a future send time.
+
+## Rollback
+
+- Deactivate Newspack Listmonk Connector.
+- Restore the previous Newspack Newsletters service provider.
+- Pause or cancel any staging Listmonk campaigns created during validation.
+- Keep the WordPress post meta in place unless a full cleanup is explicitly
+  required; it is useful for diagnosing campaign sync history.
+
+## Exit Criteria
+
+- Draft sync, test send, publish, and schedule all pass on staging.
+- No fatal errors or uncaught REST errors appear in PHP logs.
+- Editors can identify the Listmonk campaign ID/status from the editor panel.
+- Any remaining issues are documented before production use.
