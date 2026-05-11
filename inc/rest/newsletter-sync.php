@@ -107,7 +107,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_sync_get_provide
 			);
 		}
 
-		if ( 'listmonk' !== Newspack_Newsletters::service_provider() ) {
+		if ( 'listmonk' !== newspack_listmonk_connector_newspack_service_provider() ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_inactive_provider',
 				__( 'Listmonk is not the active Newspack Newsletters provider.', 'newspack-listmonk-connector' ),
@@ -115,7 +115,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_sync_get_provide
 			);
 		}
 
-		$provider = Newspack_Newsletters::get_service_provider_instance( 'listmonk' );
+		$provider = newspack_listmonk_connector_get_newspack_provider_instance( 'listmonk' );
 		if ( ! $provider instanceof Newspack_Listmonk_Connector_Provider ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_provider',

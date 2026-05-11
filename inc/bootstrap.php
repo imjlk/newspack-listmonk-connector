@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once __DIR__ . '/compat.php';
 require_once __DIR__ . '/options.php';
 require_once __DIR__ . '/listmonk/class-listmonk-client.php';
 require_once __DIR__ . '/render/class-plain-text-builder.php';
@@ -21,6 +22,10 @@ require_once __DIR__ . '/render/class-raw-html-builder.php';
  * @return array
  */
 function newspack_listmonk_connector_register_provider( array $providers ) {
+	if ( ! newspack_listmonk_connector_can_register_newspack_provider() ) {
+		return $providers;
+	}
+
 	$providers['listmonk'] = array(
 		'name'       => __( 'Listmonk', 'newspack-listmonk-connector' ),
 		'class'      => 'Newspack_Listmonk_Connector_Provider',

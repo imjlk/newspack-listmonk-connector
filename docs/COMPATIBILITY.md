@@ -17,7 +17,7 @@ The local verification environment reported:
 newspack-newsletters 3.32.0-alpha.1
 ```
 
-Verified contract points:
+Verified direct contract points:
 
 - provider registration through `newspack_newsletters_registered_providers`
 - active provider option `newspack_newsletters_service_provider`
@@ -32,6 +32,22 @@ Verified contract points:
 - newsletter CPT constant `Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT`
 - stored HTML meta constant `Newspack_Newsletters::EMAIL_HTML_META`
 - hookable provider methods `save()`, `send()`, and `trash()`
+
+Fallback policy:
+
+- Provider registration is skipped when Newspack's provider/controller base
+  classes are unavailable, preventing class-load fatals.
+- REST namespace resolution prefers
+  `Newspack_Newsletters_Service_Provider::BASE_NAMESPACE`, then
+  `Newspack_Newsletters::API_NAMESPACE`, then `newspack-newsletters/v1`.
+- Newsletter CPT and stored HTML meta helpers prefer Newspack constants and
+  fall back to `newspack_nl_cpt` and `newspack_email_html`.
+- Active provider and provider instance resolution prefer Newspack static
+  methods and fall back to the active provider option plus a cached Listmonk
+  provider instance when safe.
+- Newspack editor route permissions, ID validation, REST response wrapping,
+  sync-error transient naming, and campaign naming are routed through connector
+  compatibility helpers.
 
 ## Listmonk
 

@@ -89,7 +89,7 @@ Goal: Make Listmonk appear as a Newspack Newsletters ESP provider.
 - `[x]` Add `supports_multiple_test_recipients` to editor response payloads.
 - `[x]` Add editor-route smoke checks for retrieve/test response shape.
 - `[x]` Confirm status transitions for publish and schedule in wp-env.
-- `[ ]` Add compatibility fallback if Newspack changes provider method shape.
+- `[x]` Add compatibility fallback if Newspack changes provider method shape.
 
 ## Phase 4: Raw HTML Rendering Pipeline
 
@@ -193,6 +193,6 @@ Goal: Prepare a beta plugin build for staging.
 
 ## Next Recommended Work
 
-1. Add compatibility fallback if Newspack changes provider method shape.
-2. Add packaging and beta release workflow.
-3. Add setup guide with required Listmonk permissions.
+1. Add packaging and beta release workflow.
+2. Add setup guide with required Listmonk permissions.
+3. Run staging smoke test.

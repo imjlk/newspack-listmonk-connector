@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Newspack\Newsletters\Send_List;
 use Newspack\Newsletters\Send_Lists;
 
+require_once dirname( __DIR__ ) . '/compat.php';
 require_once __DIR__ . '/class-listmonk-controller.php';
 
 /**
@@ -265,7 +266,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 			);
 		}
 
-		delete_transient( $this->get_transient_name( $post->ID ) );
+		delete_transient( $this->get_sync_error_transient_name( $post->ID ) );
 
 		$campaign_id = absint( get_post_meta( $post->ID, '_wtnl_listmonk_campaign_id', true ) );
 		$payload     = $this->build_listmonk_campaign_payload( $post );
@@ -286,7 +287,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		if ( is_wp_error( $result ) ) {
 			$this->store_last_error( $post->ID, $result );
 			set_transient(
-				$this->get_transient_name( $post->ID ),
+				$this->get_sync_error_transient_name( $post->ID ),
 				__( 'Listmonk sync error: ', 'newspack-listmonk-connector' ) . $result->get_error_message(),
 				45
 			);
@@ -319,7 +320,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		if ( is_wp_error( $sync ) ) {
 			$this->store_last_error( $post->ID, $sync );
 			set_transient(
-				$this->get_transient_name( $post->ID ),
+				$this->get_sync_error_transient_name( $post->ID ),
 				__( 'Listmonk send error: ', 'newspack-listmonk-connector' ) . $sync->get_error_message(),
 				45
 			);
@@ -331,7 +332,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		if ( is_wp_error( $result ) ) {
 			$this->store_last_error( $post->ID, $result );
 			set_transient(
-				$this->get_transient_name( $post->ID ),
+				$this->get_sync_error_transient_name( $post->ID ),
 				__( 'Listmonk send error: ', 'newspack-listmonk-connector' ) . $result->get_error_message(),
 				45
 			);
@@ -340,7 +341,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 
 		update_post_meta( $post->ID, '_wtnl_listmonk_last_status', $status );
 		$this->clear_last_error( $post->ID );
-		delete_transient( $this->get_transient_name( $post->ID ) );
+		delete_transient( $this->get_sync_error_transient_name( $post->ID ) );
 		return true;
 	}
 
@@ -356,10 +357,10 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
-		if ( Newspack_Newsletters::EMAIL_HTML_META !== $meta_key ) {
+		if ( newspack_listmonk_connector_newspack_email_html_meta_key() !== $meta_key ) {
 			return;
 		}
-		if ( Newspack_Newsletters::service_provider() !== $this->service ) {
+		if ( newspack_listmonk_connector_newspack_service_provider() !== $this->service ) {
 			return;
 		}
 
@@ -381,11 +382,11 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	 * @return void
 	 */
 	public function trash( $post_id ) {
-		if ( Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT !== get_post_type( $post_id ) ) {
+		if ( newspack_listmonk_connector_newspack_newsletter_post_type() !== get_post_type( $post_id ) ) {
 			return;
 		}
 
-		delete_transient( $this->get_transient_name( absint( $post_id ) ) );
+		delete_transient( $this->get_sync_error_transient_name( absint( $post_id ) ) );
 	}
 
 	/**
@@ -645,7 +646,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		$template_id   = absint( get_post_meta( $post->ID, '_wtnl_listmonk_template_id', true ) );
 		$template_id   = $template_id ? $template_id : absint( $settings['default_template_id'] );
 		$list_ids      = $this->get_post_list_ids( $post );
-		$campaign_name = $this->get_campaign_name( $post );
+		$campaign_name = $this->get_newspack_campaign_name( $post );
 
 		$payload = array(
 			'name'         => $campaign_name,
@@ -736,6 +737,34 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 			'lists'                              => is_wp_error( $lists ) ? array() : $lists,
 			'supports_multiple_test_recipients' => true,
 		);
+	}
+
+	/**
+	 * Resolve a Newspack-compatible campaign name.
+	 *
+	 * @param WP_Post $post Newsletter post.
+	 * @return string
+	 */
+	private function get_newspack_campaign_name( WP_Post $post ) {
+		if ( method_exists( $this, 'get_campaign_name' ) ) {
+			return (string) $this->get_campaign_name( $post );
+		}
+
+		return newspack_listmonk_connector_newspack_campaign_name( $post );
+	}
+
+	/**
+	 * Resolve the Newspack sync-error transient name.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return string
+	 */
+	private function get_sync_error_transient_name( $post_id ) {
+		if ( method_exists( $this, 'get_transient_name' ) ) {
+			return (string) $this->get_transient_name( $post_id );
+		}
+
+		return newspack_listmonk_connector_newspack_sync_error_transient_name( $post_id );
 	}
 
 	/**

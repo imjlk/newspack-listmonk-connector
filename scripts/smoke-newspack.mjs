@@ -45,11 +45,11 @@ if ( empty( $errors ) ) {
 	}
 
 	Newspack_Newsletters::set_service_provider( 'listmonk' );
-	if ( 'listmonk' !== Newspack_Newsletters::service_provider() ) {
+	if ( 'listmonk' !== newspack_listmonk_connector_newspack_service_provider() ) {
 		$errors[] = 'The active Newspack service provider is not listmonk.';
 	}
 
-	$provider = Newspack_Newsletters::get_service_provider_instance( 'listmonk' );
+	$provider = newspack_listmonk_connector_get_newspack_provider_instance( 'listmonk' );
 	if ( ! $provider instanceof Newspack_Listmonk_Connector_Provider ) {
 		$errors[] = 'The listmonk provider instance has the wrong class.';
 	}
@@ -64,18 +64,46 @@ if ( empty( $errors ) ) {
 	}
 
 	$routes = rest_get_server()->get_routes();
-	$expected_routes = array(
-		${phpString('/newspack-newsletters/v1/(?P<id>[\\a-z]+)/sync-error')},
-		${phpString('/newspack-newsletters/v1/listmonk/(?P<id>[\\d]+)/retrieve')},
-		${phpString('/newspack-newsletters/v1/listmonk/(?P<id>[\\d]+)/test')},
-		'/newspack-listmonk-connector/v1/listmonk-settings/item',
-		'/newspack-listmonk-connector/v1/newsletter-preview/item',
-		'/newspack-listmonk-connector/v1/newsletter-sync',
+	$route_namespaces = array(
+		'newspack' => '/' . newspack_listmonk_connector_newspack_rest_namespace(),
+		'listmonk' => '/' . newspack_listmonk_connector_newspack_rest_namespace( 'listmonk' ),
 	);
-	foreach ( $expected_routes as $route ) {
-		if ( empty( $routes[ $route ] ) ) {
-			$errors[] = sprintf( 'Missing REST route: %s', $route );
+	$route_checks = array(
+		'sync-error' => static function ( $route ) use ( $route_namespaces ) {
+			return 0 === strpos( $route, $route_namespaces['newspack'] . '/' ) && false !== strpos( $route, 'sync-error' );
+		},
+		'retrieve' => static function ( $route ) use ( $route_namespaces ) {
+			return 0 === strpos( $route, $route_namespaces['listmonk'] . '/' ) && false !== strpos( $route, 'retrieve' );
+		},
+		'test' => static function ( $route ) use ( $route_namespaces ) {
+			return 0 === strpos( $route, $route_namespaces['listmonk'] . '/' ) && false !== strpos( $route, 'test' );
+		},
+		'listmonk-settings' => static function ( $route ) {
+			return '/newspack-listmonk-connector/v1/listmonk-settings/item' === $route;
+		},
+		'newsletter-preview' => static function ( $route ) {
+			return '/newspack-listmonk-connector/v1/newsletter-preview/item' === $route;
+		},
+		'newsletter-sync' => static function ( $route ) {
+			return '/newspack-listmonk-connector/v1/newsletter-sync' === $route;
+		},
+	);
+	$matched_routes = array();
+	foreach ( $route_checks as $label => $check ) {
+		foreach ( array_keys( $routes ) as $route ) {
+			if ( $check( $route ) ) {
+				$matched_routes[ $label ] = $route;
+				continue 2;
+			}
 		}
+		$errors[] = sprintf( 'Missing REST route for %s.', $label );
+	}
+
+	if ( newspack_listmonk_connector_newspack_newsletter_post_type() !== Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT ) {
+		$errors[] = 'Compatibility helper resolved an unexpected newsletter post type.';
+	}
+	if ( newspack_listmonk_connector_newspack_email_html_meta_key() !== Newspack_Newsletters::EMAIL_HTML_META ) {
+		$errors[] = 'Compatibility helper resolved an unexpected email HTML meta key.';
 	}
 
 	if ( $provider instanceof Newspack_Listmonk_Connector_Provider ) {
@@ -97,17 +125,16 @@ echo wp_json_encode(
 	array(
 		'ok' => true,
 		'provider' => 'listmonk',
-		'providerClass' => get_class( Newspack_Newsletters::get_service_provider_instance( 'listmonk' ) ),
+		'providerClass' => get_class( newspack_listmonk_connector_get_newspack_provider_instance( 'listmonk' ) ),
 		'controllerClass' => get_class( $controller ),
 		'serviceProviderOption' => get_option( 'newspack_newsletters_service_provider' ),
-		'routes' => array(
-			${phpString('/newspack-newsletters/v1/(?P<id>[\\a-z]+)/sync-error')},
-			${phpString('/newspack-newsletters/v1/listmonk/(?P<id>[\\d]+)/retrieve')},
-			${phpString('/newspack-newsletters/v1/listmonk/(?P<id>[\\d]+)/test')},
-			${phpString('/newspack-listmonk-connector/v1/listmonk-settings/item')},
-			${phpString('/newspack-listmonk-connector/v1/newsletter-preview/item')},
-			${phpString('/newspack-listmonk-connector/v1/newsletter-sync')}
+		'compat' => array(
+			'newspackNamespace' => newspack_listmonk_connector_newspack_rest_namespace(),
+			'listmonkNamespace' => newspack_listmonk_connector_newspack_rest_namespace( 'listmonk' ),
+			'newsletterPostType' => newspack_listmonk_connector_newspack_newsletter_post_type(),
+			'emailHtmlMetaKey' => newspack_listmonk_connector_newspack_email_html_meta_key(),
 		),
+		'routes' => $matched_routes,
 	),
 	JSON_PRETTY_PRINT
 ) . PHP_EOL;

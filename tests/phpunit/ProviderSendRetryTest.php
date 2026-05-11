@@ -98,7 +98,10 @@ if ( ! class_exists( 'Newspack_Newsletters_Service_Provider_Controller' ) ) {
 		 * @return mixed
 		 */
 		public static function get_api_response( $response ) {
-			return $response;
+			if ( is_wp_error( $response ) ) {
+				$response->add_data( array( 'status' => 400 ) );
+			}
+			return rest_ensure_response( $response );
 		}
 
 		/**
@@ -107,7 +110,7 @@ if ( ! class_exists( 'Newspack_Newsletters_Service_Provider_Controller' ) ) {
 		 * @param array $emails Emails.
 		 * @return void
 		 */
-		protected function update_user_test_emails( $emails ) {}
+		public function update_user_test_emails( $emails ) {}
 	}
 }
 

@@ -47,6 +47,8 @@ It verifies:
 - raw HTML fallback rendering and root-relative URL rewriting
 - plain text `altbody` generation
 - newsletter preview payload mapping and payload hash stability
+- Newspack compatibility helper fallbacks for namespace, constants, REST
+  responses, and guarded provider registration
 - mocked Listmonk HTTP request, response, and error normalization
 - failed scheduled send error persistence and `retrySend` recovery behavior
 
@@ -65,6 +67,8 @@ It verifies:
 - `listmonk` can be selected as the active provider.
 - the provider instance has the expected class.
 - the provider has a `Newspack_Listmonk_Connector_Controller`.
+- connector compatibility helpers resolve the current Newspack namespace, CPT,
+  meta key, active provider, and provider instance.
 - Newspack editor routes for retrieve, test send, and sync errors are registered.
 - plugin REST routes for settings, preview, and newsletter sync are registered.
 - missing Listmonk credentials return a `WP_Error`, not a fatal.
