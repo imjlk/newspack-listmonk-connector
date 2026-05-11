@@ -136,7 +136,7 @@ Goal: Let operators manage the connection and preview/sync campaigns without cod
 - `[x]` Add typed settings REST resource.
 - `[x]` Add typed newsletter preview REST resource.
 - `[x]` Add typed newsletter sync REST resource.
-- `[ ]` Build React settings screen.
+- `[x]` Build React settings screen.
 - `[x]` Add Newspack editor side panel.
 - `[x]` Add list selector in editor.
 - `[x]` Add raw HTML preview in editor.
@@ -144,6 +144,7 @@ Goal: Let operators manage the connection and preview/sync campaigns without cod
 - `[x]` Add "Sync to Listmonk" action.
 - `[x]` Add "Send test" action.
 - `[x]` Show campaign ID/status/error in editor.
+- `[ ]` Preserve display-name From email values such as `Newsroom <news@example.com>` through settings sanitization and campaign payloads.
 
 ## Phase 7: Subscriber And List Integration
 
@@ -174,6 +175,7 @@ Goal: Prove the plugin works across unit, integration, and E2E flows.
 - `[x]` Add Docker Listmonk integration.
 - `[x]` Add local smoke flow for draft sync, publish transition, and schedule transition.
 - `[x]` Add editor-side E2E coverage for Listmonk panel preview, sync, and test send.
+- `[x]` Add settings screen E2E coverage for hydrate, save, token preservation, and connection test.
 - `[~]` Add E2E flow for create, preview, test, publish, and schedule.
 
 ## Phase 9: Packaging And Beta Release
@@ -190,7 +192,8 @@ Goal: Prepare a beta plugin build for staging.
 
 ## Next Recommended Work
 
-1. Add React settings screen for the existing typed settings REST resource.
-2. Add editor-side E2E coverage for list selection, preview, sync, and test send.
-3. Add PHPUnit-style unit coverage for payload mapping and renderer fallbacks.
-4. Add retry/error UX around failed scheduled sends.
+1. Add PHPUnit-style unit coverage for payload mapping and renderer fallbacks.
+2. Preserve display-name From email settings end to end.
+3. Add retry/error UX around failed scheduled sends.
+4. Add compatibility fallback if Newspack changes provider method shape.
+5. Add packaging and beta release workflow.

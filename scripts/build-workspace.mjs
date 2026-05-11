@@ -28,6 +28,7 @@ function hasSharedEditorEntries() {
 		'src/editor-plugins/index.tsx',
 		'src/editor-plugins/index.ts',
 		'src/editor-plugins/index.js',
+		'src/admin-views/index.tsx',
 		'src/admin-views/index.ts',
 		'src/admin-views/index.js',
 	] ) {

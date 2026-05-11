@@ -1,0 +1,32 @@
+.newspack-listmonk-connector-settings {
+	max-width: 720px;
+}
+
+.newspack-listmonk-connector-settings__loading {
+	align-items: center;
+	display: flex;
+	gap: 8px;
+	margin-top: 24px;
+}
+
+.newspack-listmonk-connector-settings__form {
+	display: grid;
+	gap: 18px;
+	margin-top: 24px;
+}
+
+.newspack-listmonk-connector-settings__form .components-base-control {
+	max-width: 560px;
+}
+
+.newspack-listmonk-connector-settings__actions {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.newspack-listmonk-connector-settings__token-status {
+	color: #50575e;
+	margin: 0;
+}

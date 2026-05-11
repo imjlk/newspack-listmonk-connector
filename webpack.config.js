@@ -204,7 +204,11 @@ function getSharedEditorEntries() {
 		],
 		[
 			'admin-views/index',
-			[ 'src/admin-views/index.ts', 'src/admin-views/index.js' ],
+			[
+				'src/admin-views/index.tsx',
+				'src/admin-views/index.ts',
+				'src/admin-views/index.js',
+			],
 		],
 	] ) {
 		for ( const relativePath of candidates ) {

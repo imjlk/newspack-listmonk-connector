@@ -24,6 +24,65 @@ function newspack_listmonk_connector_register_settings_page() {
 add_action( 'admin_menu', 'newspack_listmonk_connector_register_settings_page' );
 
 /**
+ * Enqueue the React settings screen.
+ *
+ * @param string $hook_suffix Current admin page hook.
+ */
+function newspack_listmonk_connector_enqueue_settings_page( $hook_suffix ) {
+	if ( 'settings_page_newspack-listmonk-connector' !== $hook_suffix ) {
+		return;
+	}
+
+	$script_path    = NEWSPACK_LISTMONK_CONNECTOR_DIR . '/build/admin-views/index.js';
+	$asset_path     = NEWSPACK_LISTMONK_CONNECTOR_DIR . '/build/admin-views/index.asset.php';
+	$style_path     = NEWSPACK_LISTMONK_CONNECTOR_DIR . '/build/admin-views/style-index.css';
+	$style_rtl_path = NEWSPACK_LISTMONK_CONNECTOR_DIR . '/build/admin-views/style-index-rtl.css';
+
+	if ( ! file_exists( $script_path ) || ! file_exists( $asset_path ) ) {
+		return;
+	}
+
+	$asset = require $asset_path;
+	if ( ! is_array( $asset ) ) {
+		$asset = array();
+	}
+
+	$handle = 'newspack-listmonk-connector-admin-views';
+
+	wp_enqueue_script(
+		$handle,
+		plugins_url( 'build/admin-views/index.js', NEWSPACK_LISTMONK_CONNECTOR_FILE ),
+		isset( $asset['dependencies'] ) && is_array( $asset['dependencies'] ) ? $asset['dependencies'] : array(),
+		isset( $asset['version'] ) ? $asset['version'] : filemtime( $script_path ),
+		true
+	);
+
+	wp_add_inline_script(
+		$handle,
+		'window.wpApiSettings = Object.assign( {}, window.wpApiSettings || {}, ' . wp_json_encode(
+			array(
+				'root'  => esc_url_raw( rest_url() ),
+				'nonce' => wp_create_nonce( 'wp_rest' ),
+			)
+		) . ' );',
+		'before'
+	);
+
+	if ( file_exists( $style_path ) ) {
+		wp_enqueue_style(
+			$handle,
+			plugins_url( 'build/admin-views/style-index.css', NEWSPACK_LISTMONK_CONNECTOR_FILE ),
+			array( 'wp-components' ),
+			isset( $asset['version'] ) ? $asset['version'] : filemtime( $style_path )
+		);
+		if ( file_exists( $style_rtl_path ) ) {
+			wp_style_add_data( $handle, 'rtl', 'replace' );
+		}
+	}
+}
+add_action( 'admin_enqueue_scripts', 'newspack_listmonk_connector_enqueue_settings_page' );
+
+/**
  * Handle settings submission.
  */
 function newspack_listmonk_connector_maybe_save_settings() {
@@ -66,48 +125,13 @@ function newspack_listmonk_connector_render_settings_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
-
-	$settings = newspack_listmonk_connector_get_settings( true );
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'Newspack Listmonk Connector', 'newspack-listmonk-connector' ); ?></h1>
 		<?php settings_errors( 'newspack_listmonk_connector' ); ?>
-		<form method="post">
-			<?php wp_nonce_field( 'newspack_listmonk_connector_settings', 'newspack_listmonk_connector_settings_nonce' ); ?>
-			<table class="form-table" role="presentation">
-				<tr>
-					<th scope="row"><label for="base_url"><?php esc_html_e( 'Listmonk API URL', 'newspack-listmonk-connector' ); ?></label></th>
-					<td><input class="regular-text" id="base_url" name="base_url" type="url" value="<?php echo esc_attr( $settings['base_url'] ); ?>" placeholder="https://listmonk.example.com" /></td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="api_user"><?php esc_html_e( 'API user', 'newspack-listmonk-connector' ); ?></label></th>
-					<td><input class="regular-text" id="api_user" name="api_user" type="text" value="<?php echo esc_attr( $settings['api_user'] ); ?>" autocomplete="off" /></td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="api_token"><?php esc_html_e( 'API token', 'newspack-listmonk-connector' ); ?></label></th>
-					<td>
-						<input class="regular-text" id="api_token" name="api_token" type="password" value="" autocomplete="new-password" />
-						<?php if ( ! empty( $settings['api_token'] ) ) : ?>
-							<p class="description"><?php esc_html_e( 'A token is saved. Leave this blank to keep it unchanged.', 'newspack-listmonk-connector' ); ?></p>
-						<?php endif; ?>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="default_from_email"><?php esc_html_e( 'Default From email', 'newspack-listmonk-connector' ); ?></label></th>
-					<td><input class="regular-text" id="default_from_email" name="default_from_email" type="text" value="<?php echo esc_attr( $settings['default_from_email'] ); ?>" placeholder="Newsroom <news@example.com>" /></td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="default_template_id"><?php esc_html_e( 'Default template ID', 'newspack-listmonk-connector' ); ?></label></th>
-					<td><input id="default_template_id" name="default_template_id" type="number" min="0" value="<?php echo esc_attr( $settings['default_template_id'] ); ?>" /></td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="default_list_ids"><?php esc_html_e( 'Default list IDs', 'newspack-listmonk-connector' ); ?></label></th>
-					<td><input class="regular-text" id="default_list_ids" name="default_list_ids" type="text" value="<?php echo esc_attr( implode( ',', $settings['default_list_ids'] ) ); ?>" placeholder="1,2" /></td>
-				</tr>
-			</table>
-			<?php submit_button( __( 'Save settings', 'newspack-listmonk-connector' ) ); ?>
-			<?php submit_button( __( 'Save and test connection', 'newspack-listmonk-connector' ), 'secondary', 'test_connection', false ); ?>
-		</form>
+		<div id="newspack-listmonk-connector-settings-root">
+			<p><?php esc_html_e( 'Loading Listmonk settings...', 'newspack-listmonk-connector' ); ?></p>
+		</div>
 	</div>
 	<?php
 }

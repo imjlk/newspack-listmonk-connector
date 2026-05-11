@@ -88,9 +88,20 @@ Run the browser E2E for the Newspack editor Listmonk panel:
 pnpm run e2e:editor:local
 ```
 
+Run the browser E2E for the React settings screen:
+
+```bash
+pnpm run e2e:settings:local
+```
+
 The editor E2E builds the editor bundle, starts local Listmonk, starts/reuses
 wp-env, creates a draft newsletter fixture, and verifies list selection, raw
 HTML preview, payload preview, sync, and test send in Chromium.
+
+The settings E2E builds the admin bundle, starts local Listmonk, starts/reuses
+wp-env, opens `Settings > Newspack Listmonk`, verifies REST hydration, saves
+without replacing the stored token, tests the Listmonk connection, and confirms
+saved values persist after reload.
 
 The send/schedule smoke is intentionally local-only. It reads only
 `.listmonk.env` and refuses to run unless `LISTMONK_BASE_URL` points to
