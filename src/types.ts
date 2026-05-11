@@ -86,6 +86,7 @@ export interface NewsletterPreviewResponse {
 
 export interface NewsletterSyncRequest {
 	postId: number & tags.Type< 'uint32' >;
+	retrySend?: boolean;
 }
 
 export interface NewsletterSyncResponse {
@@ -125,6 +126,8 @@ export interface NewspackEditorRetrieveResponse {
 	listmonk_last_status?: string & tags.MaxLength< 40 >;
 	listmonk_last_synced_at?: string;
 	listmonk_last_error?: string & tags.MaxLength< 1000 >;
+	listmonk_last_error_code?: string & tags.MaxLength< 120 >;
+	listmonk_last_error_at?: string;
 	send_list_id: string & tags.MaxLength< 80 >;
 	lists: NewspackSendList[];
 	senderName?: string & tags.MaxLength< 200 >;

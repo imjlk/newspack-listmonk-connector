@@ -159,9 +159,26 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_sync_build_respo
 			return $provider;
 		}
 
-		$sync = $provider->sync( $post );
-		if ( is_wp_error( $sync ) ) {
-			return $sync;
+		$retry_send = ! empty( $payload['retrySend'] );
+		if ( $retry_send && ! in_array( $post->post_status, array( 'publish', 'future' ), true ) ) {
+			return new WP_Error(
+				'newspack_listmonk_connector_invalid_retry_status',
+				__( 'Only published or scheduled newsletters can retry a Listmonk send.', 'newspack-listmonk-connector' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		if ( $retry_send ) {
+			$result = $provider->send( $post );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+			$sync = array();
+		} else {
+			$sync = $provider->sync( $post );
+			if ( is_wp_error( $sync ) ) {
+				return $sync;
+			}
 		}
 
 		$retrieve = $provider->retrieve( $post_id );
@@ -174,7 +191,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_sync_build_respo
 
 		return array(
 			'postId'               => $post_id,
-			'message'              => __( 'Newsletter synced to Listmonk.', 'newspack-listmonk-connector' ),
+			'message'              => $retry_send ? __( 'Listmonk send retried.', 'newspack-listmonk-connector' ) : __( 'Newsletter synced to Listmonk.', 'newspack-listmonk-connector' ),
 			'campaignId'           => $campaign_id,
 			'listmonkCampaignId'   => $campaign_id,
 			'listmonkCampaignUuid' => (string) ( $retrieve['listmonk_campaign_uuid'] ?? '' ),

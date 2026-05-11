@@ -10,6 +10,9 @@
 						"minimum": 0,
 						"maximum": 4294967295,
 						"multipleOf": 1
+					},
+					"retrySend": {
+						"type": "boolean"
 					}
 				},
 				"required": [
@@ -90,6 +93,13 @@
 							"listmonk_last_error": {
 								"type": "string",
 								"maxLength": 1000
+							},
+							"listmonk_last_error_code": {
+								"type": "string",
+								"maxLength": 120
+							},
+							"listmonk_last_error_at": {
+								"type": "string"
 							},
 							"send_list_id": {
 								"type": "string",

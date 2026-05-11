@@ -10,6 +10,9 @@
 						"minimum": 0,
 						"maximum": 4294967295,
 						"multipleOf": 1
+					},
+					"retrySend": {
+						"type": "boolean"
 					}
 				},
 				"required": [

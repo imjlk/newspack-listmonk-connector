@@ -184,6 +184,8 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 			'listmonk_last_status'               => get_post_meta( $post_id, '_wtnl_listmonk_last_status', true ),
 			'listmonk_last_synced_at'            => get_post_meta( $post_id, '_wtnl_listmonk_last_synced_at', true ),
 			'listmonk_last_error'                => get_post_meta( $post_id, '_wtnl_listmonk_last_error', true ),
+			'listmonk_last_error_code'           => get_post_meta( $post_id, '_wtnl_listmonk_last_error_code', true ),
+			'listmonk_last_error_at'             => get_post_meta( $post_id, '_wtnl_listmonk_last_error_at', true ),
 			'send_list_id'                       => ! empty( $list_ids ) ? (string) $list_ids[0] : '',
 			'lists'                              => $lists,
 			'senderName'                         => get_post_meta( $post_id, 'senderName', true ),
@@ -301,7 +303,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		update_post_meta( $post->ID, '_wtnl_listmonk_payload_hash', $hash );
 		update_post_meta( $post->ID, '_wtnl_listmonk_last_synced_at', gmdate( 'c' ) );
 		update_post_meta( $post->ID, '_wtnl_listmonk_last_status', sanitize_text_field( $data['status'] ?? 'draft' ) );
-		delete_post_meta( $post->ID, '_wtnl_listmonk_last_error' );
+		$this->clear_last_error( $post->ID );
 
 		return $this->build_sync_response( $post, $campaign_id, $data );
 	}
@@ -315,6 +317,12 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	public function send( $post ) {
 		$sync = $this->sync( $post );
 		if ( is_wp_error( $sync ) ) {
+			$this->store_last_error( $post->ID, $sync );
+			set_transient(
+				$this->get_transient_name( $post->ID ),
+				__( 'Listmonk send error: ', 'newspack-listmonk-connector' ) . $sync->get_error_message(),
+				45
+			);
 			return $sync;
 		}
 
@@ -322,10 +330,17 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		$result = $this->client()->set_status( absint( $sync['campaign_id'] ), $status );
 		if ( is_wp_error( $result ) ) {
 			$this->store_last_error( $post->ID, $result );
+			set_transient(
+				$this->get_transient_name( $post->ID ),
+				__( 'Listmonk send error: ', 'newspack-listmonk-connector' ) . $result->get_error_message(),
+				45
+			);
 			return $result;
 		}
 
 		update_post_meta( $post->ID, '_wtnl_listmonk_last_status', $status );
+		$this->clear_last_error( $post->ID );
+		delete_transient( $this->get_transient_name( $post->ID ) );
 		return true;
 	}
 
@@ -731,7 +746,21 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	 * @return void
 	 */
 	private function store_last_error( $post_id, WP_Error $error ) {
-		update_post_meta( $post_id, '_wtnl_listmonk_last_error', $error->get_error_message() );
+		update_post_meta( $post_id, '_wtnl_listmonk_last_error', sanitize_text_field( $error->get_error_message() ) );
+		update_post_meta( $post_id, '_wtnl_listmonk_last_error_code', sanitize_key( $error->get_error_code() ) );
+		update_post_meta( $post_id, '_wtnl_listmonk_last_error_at', gmdate( 'c' ) );
+	}
+
+	/**
+	 * Clear stored Listmonk error details.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return void
+	 */
+	private function clear_last_error( $post_id ) {
+		delete_post_meta( $post_id, '_wtnl_listmonk_last_error' );
+		delete_post_meta( $post_id, '_wtnl_listmonk_last_error_code' );
+		delete_post_meta( $post_id, '_wtnl_listmonk_last_error_at' );
 	}
 
 	/**

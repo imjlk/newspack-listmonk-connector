@@ -72,6 +72,13 @@
 					"type": "string",
 					"maxLength": 1000
 				},
+				"listmonk_last_error_code": {
+					"type": "string",
+					"maxLength": 120
+				},
+				"listmonk_last_error_at": {
+					"type": "string"
+				},
 				"send_list_id": {
 					"type": "string",
 					"maxLength": 80

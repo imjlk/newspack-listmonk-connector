@@ -48,6 +48,7 @@ It verifies:
 - plain text `altbody` generation
 - newsletter preview payload mapping and payload hash stability
 - mocked Listmonk HTTP request, response, and error normalization
+- failed scheduled send error persistence and `retrySend` recovery behavior
 
 ## Smoke: Newspack Provider Contract
 

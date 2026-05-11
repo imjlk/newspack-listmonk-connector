@@ -65,6 +65,7 @@ type NoticeDispatch = {
 type EditorData = {
 	meta: Record< string, unknown >;
 	postId: number;
+	postStatus: string;
 	postType: string;
 	isSaving: boolean;
 };
@@ -240,6 +241,9 @@ function ListmonkPanel() {
 				editor.getEditedPostAttribute?.( 'meta' )
 			),
 			postId: Number( editor.getCurrentPostId?.() ?? 0 ),
+			postStatus: String(
+				editor.getEditedPostAttribute?.( 'status' ) ?? ''
+			),
 			postType: String( editor.getCurrentPostType?.() ?? '' ),
 			isSaving: Boolean(
 				editor.isSavingPost?.() || editor.isAutosavingPost?.()
@@ -262,6 +266,7 @@ function ListmonkPanel() {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ isPreviewing, setIsPreviewing ] = useState( false );
 	const [ isSyncing, setIsSyncing ] = useState( false );
+	const [ isRetryingSend, setIsRetryingSend ] = useState( false );
 	const [ isTesting, setIsTesting ] = useState( false );
 
 	const isActiveEditor = isListmonkNewsletterEditor( editorData.postType );
@@ -273,6 +278,10 @@ function ListmonkPanel() {
 	const campaignId =
 		retrieveData?.listmonk_campaign_id || retrieveData?.campaign_id || '';
 	const lastStatus = retrieveData?.listmonk_last_status || '';
+	const canRetrySend =
+		Boolean( retrieveData?.listmonk_last_error ) &&
+		( editorData.postStatus === 'publish' ||
+			editorData.postStatus === 'future' );
 
 	const listOptions = useMemo(
 		() => [
@@ -423,6 +432,45 @@ function ListmonkPanel() {
 		saveCurrentPost,
 	] );
 
+	const handleRetrySend = useCallback( async () => {
+		if ( ! editorData.postId ) {
+			return;
+		}
+
+		setIsRetryingSend( true );
+		setErrorMessage( '' );
+
+		try {
+			const result = await createSyncResource( {
+				postId: editorData.postId,
+				retrySend: true,
+			} );
+			const data = unwrapEndpointData<
+				NewsletterSyncCreateRequest,
+				NewsletterSyncResponse
+			>( result );
+			setRetrieveData( data.retrieve );
+			await refreshPreview();
+			createSuccessNotice?.( data.message, { type: 'snackbar' } );
+		} catch ( error ) {
+			const message = getErrorMessage( error );
+			setErrorMessage( message );
+			createErrorNotice?.( message, { type: 'snackbar' } );
+			try {
+				setRetrieveData( await fetchRetrieve( editorData.postId ) );
+			} catch {
+				// Keep the direct REST error visible if retrieve also fails.
+			}
+		} finally {
+			setIsRetryingSend( false );
+		}
+	}, [
+		createErrorNotice,
+		createSuccessNotice,
+		editorData.postId,
+		refreshPreview,
+	] );
+
 	const handleSendTest = useCallback( async () => {
 		if ( ! editorData.postId || ! testEmail.trim() ) {
 			const message = __(
@@ -467,6 +515,7 @@ function ListmonkPanel() {
 		isLoading ||
 		isPreviewing ||
 		isSyncing ||
+		isRetryingSend ||
 		isTesting;
 	const payloadPreview = preview?.listmonkPayload
 		? JSON.stringify( preview.listmonkPayload, null, 2 )
@@ -525,7 +574,30 @@ function ListmonkPanel() {
 			),
 			retrieveData?.listmonk_last_error
 				? createElement( Notice, {
-						children: retrieveData.listmonk_last_error,
+						children: [
+							createElement(
+								'p',
+								{ key: 'message' },
+								retrieveData.listmonk_last_error
+							),
+							canRetrySend
+								? createElement(
+										Button,
+										{
+											disabled: isBusy,
+											isBusy: isRetryingSend,
+											key: 'retry-send',
+											onClick: () =>
+												void handleRetrySend(),
+											variant: 'secondary',
+										},
+										__(
+											'Retry send',
+											'newspack-listmonk-connector'
+										)
+								  )
+								: null,
+						],
 						isDismissible: false,
 						key: 'last-error',
 						status: 'warning',

@@ -81,6 +81,7 @@ The minified Newspack editor bundle uses these provider routes:
 | Send lists | `GET /newspack-newsletters/v1/send-lists?provider=${provider}&type=list...` | Calls the active provider's `get_send_lists( $args, true )`. |
 | MJML preview | `POST /newspack-newsletters/v1/post-mjml` | Converts current editor content to MJML/HTML for preview. |
 | Connector sync | `POST /newspack-listmonk-connector/v1/newsletter-sync` | Type-validated route used by the connector side panel's "Sync" action. |
+| Connector retry send | `POST /newspack-listmonk-connector/v1/newsletter-sync` | Sends `{ "retrySend": true }` for failed published/scheduled sends and reuses the same typed response shape. |
 
 The current route table with `listmonk` active includes:
 
@@ -121,6 +122,8 @@ base shape for the editor store:
   "listmonk_last_status": "draft",
   "listmonk_last_synced_at": "2026-05-11T01:32:26+00:00",
   "listmonk_last_error": "",
+  "listmonk_last_error_code": "",
+  "listmonk_last_error_at": "",
   "send_list_id": "1",
   "lists": [
     {
