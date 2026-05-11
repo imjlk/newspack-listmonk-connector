@@ -84,7 +84,10 @@ Goal: Make Listmonk appear as a Newspack Newsletters ESP provider.
 - `[x]` Implement `test()`.
 - `[x]` Implement `send()`.
 - `[~]` Stub subscriber/tag methods with explicit MVP errors.
-- `[ ]` Confirm editor-side Newspack data expectations in a live Newspack site.
+- `[x]` Confirm editor-side Newspack data expectations in a live Newspack site.
+- `[ ]` Add Listmonk Newspack provider REST controller for retrieve/test/sync-error routes.
+- `[ ]` Add `supports_multiple_test_recipients` to editor response payloads.
+- `[ ]` Add editor-route smoke checks for retrieve/test response shape.
 - `[x]` Confirm status transitions for publish and schedule in wp-env.
 - `[ ]` Add compatibility fallback if Newspack changes provider method shape.
 
@@ -185,7 +188,7 @@ Goal: Prepare a beta plugin build for staging.
 
 ## Next Recommended Work
 
-1. Confirm Newspack editor-side data expectations in the live wp-env editor.
-2. Add the editor side panel MVP for list selection, sync, test send, and status display.
-3. Add PHPUnit-style unit coverage for payload mapping and renderer fallbacks.
-4. Add retry/error UX around failed scheduled sends.
+1. Add the Listmonk Newspack provider REST controller for retrieve/test/sync-error route support.
+2. Add smoke checks for the Newspack editor retrieve/test route contract.
+3. Add the editor side panel MVP for list selection, sync, test send, and status display.
+4. Add PHPUnit-style unit coverage for payload mapping and renderer fallbacks.
