@@ -42,6 +42,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 
 		add_action( 'updated_post_meta', array( $this, 'save' ), 10, 3 );
 		add_action( 'wp_trash_post', array( $this, 'trash' ), 10, 1 );
+		add_action( 'before_delete_post', array( $this, 'delete' ), 10, 1 );
 
 		parent::__construct();
 	}
@@ -375,18 +376,21 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	/**
 	 * Handle newsletter trash cleanup.
 	 *
-	 * Campaign deletion/archive policy is deferred; for now, clear transient
-	 * sync errors and preserve remote drafts for operator inspection.
-	 *
 	 * @param string $post_id Post ID.
 	 * @return void
 	 */
 	public function trash( $post_id ) {
-		if ( newspack_listmonk_connector_newspack_newsletter_post_type() !== get_post_type( $post_id ) ) {
-			return;
-		}
+		$this->archive_post_campaign( absint( $post_id ), 'trash' );
+	}
 
-		delete_transient( $this->get_sync_error_transient_name( absint( $post_id ) ) );
+	/**
+	 * Handle permanent newsletter deletion cleanup.
+	 *
+	 * @param string $post_id Post ID.
+	 * @return void
+	 */
+	public function delete( $post_id ) {
+		$this->archive_post_campaign( absint( $post_id ), 'delete' );
 	}
 
 	/**
@@ -790,6 +794,86 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		delete_post_meta( $post_id, '_wtnl_listmonk_last_error' );
 		delete_post_meta( $post_id, '_wtnl_listmonk_last_error_code' );
 		delete_post_meta( $post_id, '_wtnl_listmonk_last_error_at' );
+	}
+
+	/**
+	 * Archive a post's active campaign reference.
+	 *
+	 * @param int    $post_id Post ID.
+	 * @param string $event Archive event.
+	 * @return void
+	 */
+	private function archive_post_campaign( $post_id, $event ) {
+		if ( newspack_listmonk_connector_newspack_newsletter_post_type() !== get_post_type( $post_id ) ) {
+			return;
+		}
+
+		delete_transient( $this->get_sync_error_transient_name( $post_id ) );
+
+		$campaign_id = absint( get_post_meta( $post_id, '_wtnl_listmonk_campaign_id', true ) );
+		if ( ! $campaign_id ) {
+			return;
+		}
+
+		$campaign_uuid = (string) get_post_meta( $post_id, '_wtnl_listmonk_campaign_uuid', true );
+		$result        = $this->client()->archive_campaign( $campaign_id );
+		if ( is_wp_error( $result ) ) {
+			$this->store_last_error( $post_id, $result );
+			set_transient(
+				$this->get_sync_error_transient_name( $post_id ),
+				__( 'Listmonk archive error: ', 'newspack-listmonk-connector' ) . $result->get_error_message(),
+				45
+			);
+			return;
+		}
+
+		$archived_status = sanitize_text_field( $result['archived_status'] ?? $result['previous_status'] ?? '' );
+		$policy          = sanitize_key( $result['policy'] ?? 'preserved_unknown_status' );
+		$this->store_archive_meta( $post_id, $campaign_id, $campaign_uuid, $archived_status, $policy, $event );
+
+		if ( in_array( $archived_status, array( 'cancelled', 'draft' ), true ) ) {
+			$this->clear_active_campaign_meta( $post_id );
+		}
+
+		$this->clear_last_error( $post_id );
+		delete_transient( $this->get_sync_error_transient_name( $post_id ) );
+	}
+
+	/**
+	 * Store campaign archive metadata.
+	 *
+	 * @param int    $post_id Post ID.
+	 * @param int    $campaign_id Campaign ID.
+	 * @param string $campaign_uuid Campaign UUID.
+	 * @param string $status Archived status.
+	 * @param string $policy Archive policy.
+	 * @param string $event Archive event.
+	 * @return void
+	 */
+	private function store_archive_meta( $post_id, $campaign_id, $campaign_uuid, $status, $policy, $event ) {
+		update_post_meta( $post_id, '_wtnl_listmonk_archived_campaign_id', absint( $campaign_id ) );
+		if ( '' !== $campaign_uuid ) {
+			update_post_meta( $post_id, '_wtnl_listmonk_archived_campaign_uuid', sanitize_text_field( $campaign_uuid ) );
+		} else {
+			delete_post_meta( $post_id, '_wtnl_listmonk_archived_campaign_uuid' );
+		}
+		update_post_meta( $post_id, '_wtnl_listmonk_archived_status', sanitize_text_field( $status ) );
+		update_post_meta( $post_id, '_wtnl_listmonk_archived_at', gmdate( 'c' ) );
+		update_post_meta( $post_id, '_wtnl_listmonk_archive_policy', sanitize_key( $policy . '_' . $event ) );
+	}
+
+	/**
+	 * Clear active campaign metadata so future sync creates a new campaign.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return void
+	 */
+	private function clear_active_campaign_meta( $post_id ) {
+		delete_post_meta( $post_id, '_wtnl_listmonk_campaign_id' );
+		delete_post_meta( $post_id, '_wtnl_listmonk_campaign_uuid' );
+		delete_post_meta( $post_id, '_wtnl_listmonk_payload_hash' );
+		delete_post_meta( $post_id, '_wtnl_listmonk_last_synced_at' );
+		delete_post_meta( $post_id, '_wtnl_listmonk_last_status' );
 	}
 
 	/**

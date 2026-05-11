@@ -35,6 +35,13 @@ operators.
   `running`.
 - Scheduling a staging newsletter changes the Listmonk campaign status to
   `scheduled` and includes a future send time.
+- Trashing a draft staging newsletter preserves the remote Listmonk draft,
+  clears the active campaign link, and records archive metadata in WordPress.
+- Trashing a scheduled staging newsletter reverts the Listmonk campaign status
+  to `draft`, clears the active campaign link, and records archive metadata in
+  WordPress.
+- Trashing a running staging newsletter leaves the Listmonk campaign `running`
+  and records a preserved-running archive policy.
 
 ## Rollback
 

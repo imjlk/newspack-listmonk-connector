@@ -158,6 +158,88 @@ class Newspack_Listmonk_Connector_Listmonk_Client_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Cancellable campaigns are archived by moving them to cancelled.
+	 */
+	public function test_archive_campaign_cancels_cancellable_campaign() {
+		$client = $this->client();
+
+		$this->queue_response( 200, array( 'data' => array( 'id' => 14, 'status' => 'paused' ) ) );
+		$this->queue_response( 200, array( 'data' => array( 'id' => 14, 'status' => 'cancelled' ) ) );
+
+		$result = $client->archive_campaign( 14 );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 14, $result['campaign_id'] );
+		$this->assertSame( 'paused', $result['previous_status'] );
+		$this->assertSame( 'cancelled', $result['archived_status'] );
+		$this->assertTrue( $result['changed'] );
+		$this->assertSame( 'cancelled_cancellable_campaign', $result['policy'] );
+		$this->assert_request_without_body( 0, 'GET', 'http://listmonk.test:9000/api/campaigns/14' );
+		$this->assert_request( 1, 'PUT', 'http://listmonk.test:9000/api/campaigns/14/status', array( 'status' => 'cancelled' ) );
+	}
+
+	/**
+	 * Scheduled campaigns are reverted to draft because Listmonk cannot cancel inactive scheduled campaigns.
+	 */
+	public function test_archive_campaign_reverts_scheduled_campaign_to_draft() {
+		$client = $this->client();
+
+		$this->queue_response( 200, array( 'data' => array( 'id' => 17, 'status' => 'scheduled' ) ) );
+		$this->queue_response( 200, array( 'data' => array( 'id' => 17, 'status' => 'draft' ) ) );
+
+		$result = $client->archive_campaign( 17 );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 17, $result['campaign_id'] );
+		$this->assertSame( 'scheduled', $result['previous_status'] );
+		$this->assertSame( 'draft', $result['archived_status'] );
+		$this->assertTrue( $result['changed'] );
+		$this->assertSame( 'reverted_scheduled_campaign_to_draft', $result['policy'] );
+		$this->assert_request_without_body( 0, 'GET', 'http://listmonk.test:9000/api/campaigns/17' );
+		$this->assert_request( 1, 'PUT', 'http://listmonk.test:9000/api/campaigns/17/status', array( 'status' => 'draft' ) );
+	}
+
+	/**
+	 * Draft campaigns are preserved because Listmonk cannot cancel inactive drafts.
+	 */
+	public function test_archive_campaign_preserves_draft_campaign() {
+		$client = $this->client();
+
+		$this->queue_response( 200, array( 'data' => array( 'id' => 16, 'status' => 'draft' ) ) );
+
+		$result = $client->archive_campaign( 16 );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 16, $result['campaign_id'] );
+		$this->assertSame( 'draft', $result['previous_status'] );
+		$this->assertSame( 'draft', $result['archived_status'] );
+		$this->assertFalse( $result['changed'] );
+		$this->assertSame( 'preserved_draft_campaign', $result['policy'] );
+		$this->assertCount( 1, $this->requests );
+		$this->assert_request_without_body( 0, 'GET', 'http://listmonk.test:9000/api/campaigns/16' );
+	}
+
+	/**
+	 * Running campaigns are preserved for operator inspection.
+	 */
+	public function test_archive_campaign_preserves_running_campaign() {
+		$client = $this->client();
+
+		$this->queue_response( 200, array( 'data' => array( 'id' => 15, 'status' => 'running' ) ) );
+
+		$result = $client->archive_campaign( 15 );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 15, $result['campaign_id'] );
+		$this->assertSame( 'running', $result['previous_status'] );
+		$this->assertSame( 'running', $result['archived_status'] );
+		$this->assertFalse( $result['changed'] );
+		$this->assertSame( 'preserved_running_campaign', $result['policy'] );
+		$this->assertCount( 1, $this->requests );
+		$this->assert_request_without_body( 0, 'GET', 'http://listmonk.test:9000/api/campaigns/15' );
+	}
+
+	/**
 	 * Invalid status changes fail before making an HTTP request.
 	 */
 	public function test_invalid_status_returns_wp_error_without_http_request() {
@@ -260,5 +342,22 @@ class Newspack_Listmonk_Connector_Listmonk_Client_Test extends WP_UnitTestCase {
 		$this->assertSame( $url, $request['url'] );
 		$this->assertSame( 'application/json; charset=utf-8', $request['args']['headers']['Content-Type'] );
 		$this->assertSame( $body, json_decode( $request['args']['body'], true ) );
+	}
+
+	/**
+	 * Assert a captured request with no JSON body.
+	 *
+	 * @param int    $index Request index.
+	 * @param string $method HTTP method.
+	 * @param string $url URL.
+	 * @return void
+	 */
+	private function assert_request_without_body( $index, $method, $url ) {
+		$this->assertArrayHasKey( $index, $this->requests );
+
+		$request = $this->requests[ $index ];
+		$this->assertSame( $method, $request['args']['method'] );
+		$this->assertSame( $url, $request['url'] );
+		$this->assertTrue( ! isset( $request['args']['body'] ) || '' === $request['args']['body'] );
 	}
 }

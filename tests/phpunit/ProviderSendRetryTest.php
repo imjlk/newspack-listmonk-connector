@@ -240,6 +240,7 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 		if ( $this->provider ) {
 			remove_action( 'updated_post_meta', array( $this->provider, 'save' ), 10 );
 			remove_action( 'wp_trash_post', array( $this->provider, 'trash' ), 10 );
+			remove_action( 'before_delete_post', array( $this->provider, 'delete' ), 10 );
 		}
 		delete_option( newspack_listmonk_connector_get_option_name() );
 		wp_set_current_user( 0 );
@@ -307,6 +308,131 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 	}
 
 	/**
+	 * Newsletter trash without an active campaign clears transient errors only.
+	 */
+	public function test_trash_without_campaign_id_clears_transient_without_http_request() {
+		$post_id = $this->create_draft_post();
+		set_transient( 'newspack_listmonk_connector_sync_error_' . $post_id, 'Stale error.', 45 );
+
+		$this->provider->trash( $post_id );
+
+		$this->assertFalse( get_transient( 'newspack_listmonk_connector_sync_error_' . $post_id ) );
+		$this->assertCount( 0, $this->requests );
+	}
+
+	/**
+	 * Trash cancels cancellable Listmonk campaign statuses and clears active campaign meta.
+	 *
+	 * @dataProvider cancellable_campaign_status_provider
+	 *
+	 * @param string $status Campaign status.
+	 */
+	public function test_trash_cancels_cancellable_campaign_statuses( $status ) {
+		$post_id = $this->create_draft_post_with_campaign( 88, $status );
+		$this->queue_response( 200, array( 'data' => array( 'id' => 88, 'status' => $status ) ) );
+		$this->queue_response( 200, array( 'data' => array( 'id' => 88, 'status' => 'cancelled' ) ) );
+
+		$this->provider->trash( $post_id );
+
+		$this->assert_request_without_body( 0, 'GET', 'http://listmonk.test:9000/api/campaigns/88' );
+		$this->assert_request( 1, 'PUT', 'http://listmonk.test:9000/api/campaigns/88/status', array( 'status' => 'cancelled' ) );
+		$this->assertSame( '', get_post_meta( $post_id, '_wtnl_listmonk_campaign_id', true ) );
+		$this->assertSame( '', get_post_meta( $post_id, '_wtnl_listmonk_campaign_uuid', true ) );
+		$this->assertSame( '', get_post_meta( $post_id, '_wtnl_listmonk_payload_hash', true ) );
+		$this->assertSame( '', get_post_meta( $post_id, '_wtnl_listmonk_last_synced_at', true ) );
+		$this->assertSame( '', get_post_meta( $post_id, '_wtnl_listmonk_last_status', true ) );
+		$this->assertSame( 88, absint( get_post_meta( $post_id, '_wtnl_listmonk_archived_campaign_id', true ) ) );
+		$this->assertSame( 'uuid-88', get_post_meta( $post_id, '_wtnl_listmonk_archived_campaign_uuid', true ) );
+		$this->assertSame( 'cancelled', get_post_meta( $post_id, '_wtnl_listmonk_archived_status', true ) );
+		$this->assertSame( 'cancelled_cancellable_campaign_trash', get_post_meta( $post_id, '_wtnl_listmonk_archive_policy', true ) );
+		$this->assertNotEmpty( get_post_meta( $post_id, '_wtnl_listmonk_archived_at', true ) );
+		$this->assertSame( '', get_post_meta( $post_id, '_wtnl_listmonk_last_error', true ) );
+	}
+
+	/**
+	 * Running campaigns are preserved remotely and keep active meta for inspection.
+	 */
+	public function test_trash_preserves_running_campaign() {
+		$post_id = $this->create_draft_post_with_campaign( 89, 'running' );
+		$this->queue_response( 200, array( 'data' => array( 'id' => 89, 'status' => 'running' ) ) );
+
+		$this->provider->trash( $post_id );
+
+		$this->assertCount( 1, $this->requests );
+		$this->assert_request_without_body( 0, 'GET', 'http://listmonk.test:9000/api/campaigns/89' );
+		$this->assertSame( 89, absint( get_post_meta( $post_id, '_wtnl_listmonk_campaign_id', true ) ) );
+		$this->assertSame( 'running', get_post_meta( $post_id, '_wtnl_listmonk_last_status', true ) );
+		$this->assertSame( 89, absint( get_post_meta( $post_id, '_wtnl_listmonk_archived_campaign_id', true ) ) );
+		$this->assertSame( 'running', get_post_meta( $post_id, '_wtnl_listmonk_archived_status', true ) );
+		$this->assertSame( 'preserved_running_campaign_trash', get_post_meta( $post_id, '_wtnl_listmonk_archive_policy', true ) );
+	}
+
+	/**
+	 * Archive failures are stored without clearing active campaign meta.
+	 */
+	public function test_trash_archive_failure_stores_error_and_preserves_active_meta() {
+		$post_id = $this->create_draft_post_with_campaign( 90, 'paused' );
+		$this->queue_response( 200, array( 'data' => array( 'id' => 90, 'status' => 'paused' ) ) );
+		$this->queue_response( 500, array( 'message' => 'Unable to cancel campaign.' ), 'Server Error' );
+
+		$this->provider->trash( $post_id );
+
+		$this->assertSame( 90, absint( get_post_meta( $post_id, '_wtnl_listmonk_campaign_id', true ) ) );
+		$this->assertSame( 'Unable to cancel campaign.', get_post_meta( $post_id, '_wtnl_listmonk_last_error', true ) );
+		$this->assertSame( 'newspack_listmonk_connector_api_error', get_post_meta( $post_id, '_wtnl_listmonk_last_error_code', true ) );
+		$this->assertStringContainsString( 'Listmonk archive error: Unable to cancel campaign.', get_transient( 'newspack_listmonk_connector_sync_error_' . $post_id ) );
+		$this->assertSame( '', get_post_meta( $post_id, '_wtnl_listmonk_archived_campaign_id', true ) );
+	}
+
+	/**
+	 * Cancellable campaign statuses.
+	 *
+	 * @return array
+	 */
+	public function cancellable_campaign_status_provider() {
+		return array(
+			'paused' => array( 'paused' ),
+		);
+	}
+
+	/**
+	 * Scheduled campaigns are reverted to draft and detached locally.
+	 */
+	public function test_trash_reverts_scheduled_campaign_to_draft_and_clears_active_meta() {
+		$post_id = $this->create_draft_post_with_campaign( 92, 'scheduled' );
+		$this->queue_response( 200, array( 'data' => array( 'id' => 92, 'status' => 'scheduled' ) ) );
+		$this->queue_response( 200, array( 'data' => array( 'id' => 92, 'status' => 'draft' ) ) );
+
+		$this->provider->trash( $post_id );
+
+		$this->assert_request_without_body( 0, 'GET', 'http://listmonk.test:9000/api/campaigns/92' );
+		$this->assert_request( 1, 'PUT', 'http://listmonk.test:9000/api/campaigns/92/status', array( 'status' => 'draft' ) );
+		$this->assertSame( '', get_post_meta( $post_id, '_wtnl_listmonk_campaign_id', true ) );
+		$this->assertSame( '', get_post_meta( $post_id, '_wtnl_listmonk_payload_hash', true ) );
+		$this->assertSame( 92, absint( get_post_meta( $post_id, '_wtnl_listmonk_archived_campaign_id', true ) ) );
+		$this->assertSame( 'draft', get_post_meta( $post_id, '_wtnl_listmonk_archived_status', true ) );
+		$this->assertSame( 'reverted_scheduled_campaign_to_draft_trash', get_post_meta( $post_id, '_wtnl_listmonk_archive_policy', true ) );
+	}
+
+	/**
+	 * Draft campaigns are preserved remotely but detached locally.
+	 */
+	public function test_trash_preserves_draft_campaign_and_clears_active_meta() {
+		$post_id = $this->create_draft_post_with_campaign( 91, 'draft' );
+		$this->queue_response( 200, array( 'data' => array( 'id' => 91, 'status' => 'draft' ) ) );
+
+		$this->provider->trash( $post_id );
+
+		$this->assertCount( 1, $this->requests );
+		$this->assert_request_without_body( 0, 'GET', 'http://listmonk.test:9000/api/campaigns/91' );
+		$this->assertSame( '', get_post_meta( $post_id, '_wtnl_listmonk_campaign_id', true ) );
+		$this->assertSame( '', get_post_meta( $post_id, '_wtnl_listmonk_payload_hash', true ) );
+		$this->assertSame( 91, absint( get_post_meta( $post_id, '_wtnl_listmonk_archived_campaign_id', true ) ) );
+		$this->assertSame( 'draft', get_post_meta( $post_id, '_wtnl_listmonk_archived_status', true ) );
+		$this->assertSame( 'preserved_draft_campaign_trash', get_post_meta( $post_id, '_wtnl_listmonk_archive_policy', true ) );
+	}
+
+	/**
 	 * Create a future newsletter post.
 	 *
 	 * @return int
@@ -327,6 +453,47 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 		update_post_meta( $post_id, 'send_list_id', 1 );
 		update_post_meta( $post_id, 'senderEmail', 'news@example.com' );
 		update_post_meta( $post_id, 'senderName', 'Newsroom' );
+
+		return $post_id;
+	}
+
+	/**
+	 * Create a draft newsletter post.
+	 *
+	 * @return int
+	 */
+	private function create_draft_post() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_content' => '<!-- wp:paragraph --><p>Draft body.</p><!-- /wp:paragraph -->',
+				'post_status'  => 'draft',
+				'post_title'   => 'Draft Newsletter',
+				'post_type'    => Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT,
+			)
+		);
+
+		update_post_meta( $post_id, 'send_list_id', 1 );
+		update_post_meta( $post_id, 'senderEmail', 'news@example.com' );
+		update_post_meta( $post_id, 'senderName', 'Newsroom' );
+
+		return $post_id;
+	}
+
+	/**
+	 * Create a draft newsletter post with active Listmonk campaign meta.
+	 *
+	 * @param int    $campaign_id Campaign ID.
+	 * @param string $status Campaign status.
+	 * @return int
+	 */
+	private function create_draft_post_with_campaign( $campaign_id, $status ) {
+		$post_id = $this->create_draft_post();
+
+		update_post_meta( $post_id, '_wtnl_listmonk_campaign_id', absint( $campaign_id ) );
+		update_post_meta( $post_id, '_wtnl_listmonk_campaign_uuid', 'uuid-' . absint( $campaign_id ) );
+		update_post_meta( $post_id, '_wtnl_listmonk_payload_hash', 'hash-' . absint( $campaign_id ) );
+		update_post_meta( $post_id, '_wtnl_listmonk_last_synced_at', gmdate( 'c' ) );
+		update_post_meta( $post_id, '_wtnl_listmonk_last_status', sanitize_text_field( $status ) );
 
 		return $post_id;
 	}
@@ -405,5 +572,22 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 		$this->assertSame( $method, $request['args']['method'] );
 		$this->assertSame( $url, $request['url'] );
 		$this->assertSame( $body, json_decode( $request['args']['body'], true ) );
+	}
+
+	/**
+	 * Assert a captured request with no JSON body.
+	 *
+	 * @param int    $index Request index.
+	 * @param string $method HTTP method.
+	 * @param string $url URL.
+	 * @return void
+	 */
+	private function assert_request_without_body( $index, $method, $url ) {
+		$this->assertArrayHasKey( $index, $this->requests );
+
+		$request = $this->requests[ $index ];
+		$this->assertSame( $method, $request['args']['method'] );
+		$this->assertSame( $url, $request['url'] );
+		$this->assertTrue( ! isset( $request['args']['body'] ) || '' === $request['args']['body'] );
 	}
 }

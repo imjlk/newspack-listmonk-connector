@@ -27,7 +27,8 @@ The active Newspack provider is stored in the
 | `test( $post_id, $emails )` | Syncs first, then `POST /api/campaigns/{id}/test`. |
 | `send( $post )` | Syncs first, then `PUT /api/campaigns/{id}/status`. |
 | `save( $meta_id, $post_id, $meta_key )` | Syncs after Newspack refreshes stored email HTML. |
-| `trash( $post_id )` | Clears local transient errors and preserves remote drafts. |
+| `trash( $post_id )` | Archives the active campaign reference without hard-deleting Listmonk data. |
+| `delete( $post_id )` | Applies the same archive policy before permanent post deletion. |
 
 ## Campaign Payload
 
@@ -49,6 +50,11 @@ status during `send()`:
 - immediate publish: `running`
 - scheduled post: `scheduled`
 
+Trash/delete never hard-deletes Listmonk campaigns. Scheduled campaigns are
+reverted to `draft`; paused campaigns are moved to `cancelled`; draft campaigns
+are preserved as remote drafts and detached locally because Listmonk does not
+cancel inactive drafts. Running campaigns are preserved for operator inspection.
+
 ## Stored Post Meta
 
 | Meta key | Purpose |
@@ -59,6 +65,11 @@ status during `send()`:
 | `_wtnl_listmonk_last_synced_at` | Last successful sync timestamp. |
 | `_wtnl_listmonk_last_error` | Last sync/test/send error message. |
 | `_wtnl_listmonk_last_status` | Last known Listmonk campaign status. |
+| `_wtnl_listmonk_archived_campaign_id` | Last archived Listmonk campaign ID. |
+| `_wtnl_listmonk_archived_campaign_uuid` | Last archived Listmonk campaign UUID. |
+| `_wtnl_listmonk_archived_status` | Last archived Listmonk campaign status. |
+| `_wtnl_listmonk_archived_at` | Archive timestamp. |
+| `_wtnl_listmonk_archive_policy` | Archive policy applied during trash/delete. |
 
 ## Deferred Methods
 

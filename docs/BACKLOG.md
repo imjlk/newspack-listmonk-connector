@@ -124,7 +124,7 @@ Goal: Keep Newspack newsletter posts synced with Listmonk campaigns.
 - `[x]` Set status to `scheduled` when post status is `future`.
 - `[x]` Verify Listmonk `send_at` behavior with scheduled Newspack posts.
 - `[x]` Add retry/error UX around failed scheduled sends.
-- `[ ]` Add campaign deletion/archive policy.
+- `[x]` Add campaign deletion/archive policy.
 
 ## Phase 6: Admin And Editor UI
 
@@ -194,5 +194,5 @@ Goal: Prepare a beta plugin build for staging.
 ## Next Recommended Work
 
 1. Run staging smoke test from the beta zip.
-2. Add campaign deletion/archive policy.
-3. Start subscriber endpoint design for Phase 7.
+2. Start subscriber endpoint design for Phase 7.
+3. Add CSS inlining and email-safe cleanup policy.

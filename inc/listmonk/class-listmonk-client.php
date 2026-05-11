@@ -232,6 +232,81 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 	}
 
 	/**
+	 * Archive a campaign without hard-deleting it from Listmonk.
+	 *
+	 * @param int $campaign_id Campaign ID.
+	 * @return array|WP_Error
+	 */
+	public function archive_campaign( $campaign_id ) {
+		$campaign_id = absint( $campaign_id );
+		if ( ! $campaign_id ) {
+			return new WP_Error(
+				'newspack_listmonk_connector_invalid_campaign_id',
+				__( 'Invalid Listmonk campaign ID.', 'newspack-listmonk-connector' )
+			);
+		}
+
+		$campaign = $this->get_campaign( $campaign_id );
+		if ( is_wp_error( $campaign ) ) {
+			return $campaign;
+		}
+
+		$campaign_data   = $campaign['data'] ?? $campaign;
+		$previous_status = sanitize_text_field( $campaign_data['status'] ?? '' );
+		if ( 'scheduled' === $previous_status ) {
+			$result = $this->request( 'PUT', sprintf( '/api/campaigns/%d/status', $campaign_id ), array( 'status' => 'draft' ) );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			return array(
+				'campaign_id'     => $campaign_id,
+				'previous_status' => $previous_status,
+				'archived_status' => 'draft',
+				'changed'         => true,
+				'policy'          => 'reverted_scheduled_campaign_to_draft',
+				'result'          => $result,
+			);
+		}
+
+		$cancellable = array( 'paused' );
+
+		if ( in_array( $previous_status, $cancellable, true ) ) {
+			$result = $this->set_status( $campaign_id, 'cancelled' );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			return array(
+				'campaign_id'     => $campaign_id,
+				'previous_status' => $previous_status,
+				'archived_status' => 'cancelled',
+				'changed'         => true,
+				'policy'          => 'cancelled_cancellable_campaign',
+				'result'          => $result,
+			);
+		}
+
+		$policy = 'preserved_unknown_status';
+		if ( 'draft' === $previous_status ) {
+			$policy = 'preserved_draft_campaign';
+		} elseif ( 'running' === $previous_status ) {
+			$policy = 'preserved_running_campaign';
+		} elseif ( 'cancelled' === $previous_status ) {
+			$policy = 'preserved_cancelled_campaign';
+		}
+
+		return array(
+			'campaign_id'     => $campaign_id,
+			'previous_status' => $previous_status,
+			'archived_status' => $previous_status,
+			'changed'         => false,
+			'policy'          => $policy,
+			'result'          => $campaign,
+		);
+	}
+
+	/**
 	 * Send a test campaign.
 	 *
 	 * @param int   $campaign_id Campaign ID.

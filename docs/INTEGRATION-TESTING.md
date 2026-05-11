@@ -121,6 +121,12 @@ Run the send/schedule transition smoke against the local stack:
 pnpm run smoke:listmonk:send:local
 ```
 
+Run the campaign archive policy smoke against the local stack:
+
+```bash
+pnpm run smoke:listmonk:archive:local
+```
+
 Run the browser E2E for the Newspack editor Listmonk panel:
 
 ```bash
@@ -156,6 +162,11 @@ It verifies:
 - scheduled `provider->send()` changes Listmonk status to `scheduled`.
 - scheduled payload includes `send_at`.
 - WordPress `_wtnl_listmonk_last_status` matches the Listmonk campaign status.
+
+The archive smoke is also local-only. It verifies that draft campaigns are
+preserved remotely but detached locally, scheduled campaigns are reverted to
+draft, and running campaigns are preserved with a preserved-running archive
+policy.
 
 Useful local Listmonk commands:
 
