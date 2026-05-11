@@ -1,0 +1,74 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"additionalProperties": false,
+	"properties": {
+		"baseUrl": {
+			"type": "string",
+			"maxLength": 300
+		},
+		"apiUser": {
+			"type": "string",
+			"maxLength": 120
+		},
+		"defaultFromEmail": {
+			"type": "string",
+			"maxLength": 200
+		},
+		"defaultTemplateId": {
+			"type": "integer",
+			"x-typeTag": "uint32",
+			"minimum": 0,
+			"maximum": 4294967295,
+			"multipleOf": 1
+		},
+		"defaultListIds": {
+			"type": "array",
+			"items": {
+				"type": "integer",
+				"x-typeTag": "uint32",
+				"minimum": 0,
+				"maximum": 4294967295,
+				"multipleOf": 1
+			}
+		},
+		"sendMode": {
+			"enum": [
+				"campaign"
+			],
+			"type": "string"
+		},
+		"hasApiToken": {
+			"type": "boolean"
+		},
+		"connection": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"ok": {
+					"type": "boolean"
+				},
+				"message": {
+					"type": "string",
+					"maxLength": 500
+				},
+				"checkedAt": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"ok",
+				"message",
+				"checkedAt"
+			]
+		}
+	},
+	"required": [
+		"baseUrl",
+		"apiUser",
+		"defaultListIds",
+		"sendMode",
+		"hasApiToken"
+	],
+	"title": "ListmonkSettingsCreateResponse",
+	"type": "object"
+}

@@ -1,0 +1,39 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"additionalProperties": false,
+	"properties": {
+		"postId": {
+			"type": "integer",
+			"x-typeTag": "uint32",
+			"minimum": 0,
+			"maximum": 4294967295,
+			"multipleOf": 1
+		},
+		"listIds": {
+			"type": "array",
+			"items": {
+				"type": "integer",
+				"x-typeTag": "uint32",
+				"minimum": 0,
+				"maximum": 4294967295,
+				"multipleOf": 1
+			}
+		},
+		"fromEmail": {
+			"type": "string",
+			"maxLength": 200
+		},
+		"templateId": {
+			"type": "integer",
+			"x-typeTag": "uint32",
+			"minimum": 0,
+			"maximum": 4294967295,
+			"multipleOf": 1
+		}
+	},
+	"required": [
+		"postId"
+	],
+	"title": "NewsletterPreviewCreateRequest",
+	"type": "object"
+}

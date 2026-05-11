@@ -1,0 +1,294 @@
+{
+	"components": {
+		"schemas": {
+			"ListmonkSettingsReadQuery": {
+				"additionalProperties": false,
+				"properties": {},
+				"required": [],
+				"title": "ListmonkSettingsReadQuery",
+				"type": "object"
+			},
+			"ListmonkSettingsReadResponse": {
+				"additionalProperties": false,
+				"properties": {
+					"baseUrl": {
+						"type": "string",
+						"maxLength": 300
+					},
+					"apiUser": {
+						"type": "string",
+						"maxLength": 120
+					},
+					"defaultFromEmail": {
+						"type": "string",
+						"maxLength": 200
+					},
+					"defaultTemplateId": {
+						"type": "integer",
+						"x-typeTag": "uint32",
+						"minimum": 0,
+						"maximum": 4294967295,
+						"multipleOf": 1
+					},
+					"defaultListIds": {
+						"type": "array",
+						"items": {
+							"type": "integer",
+							"x-typeTag": "uint32",
+							"minimum": 0,
+							"maximum": 4294967295,
+							"multipleOf": 1
+						}
+					},
+					"sendMode": {
+						"enum": [
+							"campaign"
+						],
+						"type": "string"
+					},
+					"hasApiToken": {
+						"type": "boolean"
+					},
+					"connection": {
+						"type": "object",
+						"additionalProperties": false,
+						"properties": {
+							"ok": {
+								"type": "boolean"
+							},
+							"message": {
+								"type": "string",
+								"maxLength": 500
+							},
+							"checkedAt": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"ok",
+							"message",
+							"checkedAt"
+						]
+					}
+				},
+				"required": [
+					"baseUrl",
+					"apiUser",
+					"defaultListIds",
+					"sendMode",
+					"hasApiToken"
+				],
+				"title": "ListmonkSettingsReadResponse",
+				"type": "object"
+			},
+			"ListmonkSettingsCreateRequest": {
+				"additionalProperties": false,
+				"properties": {
+					"baseUrl": {
+						"type": "string",
+						"maxLength": 300
+					},
+					"apiUser": {
+						"type": "string",
+						"maxLength": 120
+					},
+					"apiToken": {
+						"type": "string",
+						"maxLength": 300
+					},
+					"defaultFromEmail": {
+						"type": "string",
+						"maxLength": 200
+					},
+					"defaultTemplateId": {
+						"type": "integer",
+						"x-typeTag": "uint32",
+						"minimum": 0,
+						"maximum": 4294967295,
+						"multipleOf": 1
+					},
+					"defaultListIds": {
+						"type": "array",
+						"items": {
+							"type": "integer",
+							"x-typeTag": "uint32",
+							"minimum": 0,
+							"maximum": 4294967295,
+							"multipleOf": 1
+						}
+					},
+					"testConnection": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"baseUrl",
+					"apiUser",
+					"defaultListIds"
+				],
+				"title": "ListmonkSettingsCreateRequest",
+				"type": "object"
+			},
+			"ListmonkSettingsCreateResponse": {
+				"additionalProperties": false,
+				"properties": {
+					"baseUrl": {
+						"type": "string",
+						"maxLength": 300
+					},
+					"apiUser": {
+						"type": "string",
+						"maxLength": 120
+					},
+					"defaultFromEmail": {
+						"type": "string",
+						"maxLength": 200
+					},
+					"defaultTemplateId": {
+						"type": "integer",
+						"x-typeTag": "uint32",
+						"minimum": 0,
+						"maximum": 4294967295,
+						"multipleOf": 1
+					},
+					"defaultListIds": {
+						"type": "array",
+						"items": {
+							"type": "integer",
+							"x-typeTag": "uint32",
+							"minimum": 0,
+							"maximum": 4294967295,
+							"multipleOf": 1
+						}
+					},
+					"sendMode": {
+						"enum": [
+							"campaign"
+						],
+						"type": "string"
+					},
+					"hasApiToken": {
+						"type": "boolean"
+					},
+					"connection": {
+						"type": "object",
+						"additionalProperties": false,
+						"properties": {
+							"ok": {
+								"type": "boolean"
+							},
+							"message": {
+								"type": "string",
+								"maxLength": 500
+							},
+							"checkedAt": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"ok",
+							"message",
+							"checkedAt"
+						]
+					}
+				},
+				"required": [
+					"baseUrl",
+					"apiUser",
+					"defaultListIds",
+					"sendMode",
+					"hasApiToken"
+				],
+				"title": "ListmonkSettingsCreateResponse",
+				"type": "object"
+			}
+		},
+		"securitySchemes": {
+			"wpRestNonce": {
+				"description": "WordPress REST nonce sent in the X-WP-Nonce header.",
+				"in": "header",
+				"name": "X-WP-Nonce",
+				"type": "apiKey"
+			}
+		}
+	},
+	"info": {
+		"title": "Listmonk Settings REST API",
+		"version": "1.0.0"
+	},
+	"openapi": "3.1.0",
+	"paths": {
+		"/newspack-listmonk-connector/v1/listmonk-settings/item": {
+			"get": {
+				"operationId": "readListmonkSettingsResource",
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ListmonkSettingsReadResponse"
+								}
+							}
+						},
+						"description": "Successful response"
+					}
+				},
+				"tags": [
+					"Listmonk Settings"
+				],
+				"x-typia-authIntent": "authenticated",
+				"x-wp-typia-authPolicy": "authenticated-rest-nonce",
+				"summary": "Read one Listmonk Settings resource.",
+				"parameters": [],
+				"security": [
+					{
+						"wpRestNonce": []
+					}
+				]
+			}
+		},
+		"/newspack-listmonk-connector/v1/listmonk-settings": {
+			"post": {
+				"operationId": "createListmonkSettingsResource",
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ListmonkSettingsCreateResponse"
+								}
+							}
+						},
+						"description": "Successful response"
+					}
+				},
+				"tags": [
+					"Listmonk Settings"
+				],
+				"x-typia-authIntent": "authenticated",
+				"x-wp-typia-authPolicy": "authenticated-rest-nonce",
+				"summary": "Create one Listmonk Settings resource.",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ListmonkSettingsCreateRequest"
+							}
+						}
+					},
+					"required": true
+				},
+				"security": [
+					{
+						"wpRestNonce": []
+					}
+				]
+			}
+		}
+	},
+	"tags": [
+		{
+			"name": "Listmonk Settings"
+		}
+	]
+}

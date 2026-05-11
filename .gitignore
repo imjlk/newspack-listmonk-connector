@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+.yarn/
+.pnp.*
+
+# Build
+build/
+dist/
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# WordPress
+*.log
+.env
+.listmonk.env
+.wp-env/

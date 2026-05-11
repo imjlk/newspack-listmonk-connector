@@ -1,0 +1,156 @@
+{
+	"components": {
+		"schemas": {
+			"NewsletterPreviewCreateResponse": {
+				"additionalProperties": false,
+				"properties": {
+					"postId": {
+						"type": "integer",
+						"x-typeTag": "uint32",
+						"minimum": 0,
+						"maximum": 4294967295,
+						"multipleOf": 1
+					},
+					"campaignName": {
+						"type": "string",
+						"minLength": 1,
+						"maxLength": 200
+					},
+					"subject": {
+						"type": "string",
+						"maxLength": 300
+					},
+					"rawHtml": {
+						"type": "string",
+						"minLength": 1
+					},
+					"plainText": {
+						"type": "string"
+					},
+					"listIds": {
+						"type": "array",
+						"items": {
+							"type": "integer",
+							"x-typeTag": "uint32",
+							"minimum": 0,
+							"maximum": 4294967295,
+							"multipleOf": 1
+						}
+					},
+					"fromEmail": {
+						"type": "string",
+						"maxLength": 200
+					},
+					"templateId": {
+						"type": "integer",
+						"x-typeTag": "uint32",
+						"minimum": 0,
+						"maximum": 4294967295,
+						"multipleOf": 1
+					},
+					"tags": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"payloadHash": {
+						"type": "string",
+						"minLength": 32,
+						"maxLength": 32
+					},
+					"listmonkPayload": {
+						"type": "object",
+						"additionalProperties": false,
+						"properties": {
+							"postId": {
+								"type": "integer",
+								"x-typeTag": "uint32",
+								"minimum": 0,
+								"maximum": 4294967295,
+								"multipleOf": 1
+							},
+							"campaignName": {
+								"type": "string",
+								"minLength": 1,
+								"maxLength": 200
+							},
+							"subject": {
+								"type": "string",
+								"maxLength": 300
+							},
+							"rawHtml": {
+								"type": "string",
+								"minLength": 1
+							},
+							"plainText": {
+								"type": "string"
+							},
+							"listIds": {
+								"type": "array",
+								"items": {
+									"type": "integer",
+									"x-typeTag": "uint32",
+									"minimum": 0,
+									"maximum": 4294967295,
+									"multipleOf": 1
+								}
+							},
+							"fromEmail": {
+								"type": "string",
+								"maxLength": 200
+							},
+							"templateId": {
+								"type": "integer",
+								"x-typeTag": "uint32",
+								"minimum": 0,
+								"maximum": 4294967295,
+								"multipleOf": 1
+							},
+							"tags": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							},
+							"sendAt": {
+								"type": "string"
+							},
+							"sendMode": {
+								"enum": [
+									"campaign"
+								],
+								"type": "string"
+							}
+						},
+						"required": [
+							"postId",
+							"campaignName",
+							"subject",
+							"rawHtml",
+							"listIds",
+							"sendMode"
+						]
+					}
+				},
+				"required": [
+					"postId",
+					"campaignName",
+					"subject",
+					"rawHtml",
+					"listIds",
+					"payloadHash",
+					"listmonkPayload"
+				],
+				"title": "NewsletterPreviewCreateResponse",
+				"type": "object"
+			}
+		}
+	},
+	"info": {
+		"title": "NewsletterPreviewCreateResponse",
+		"version": "1.0.0"
+	},
+	"openapi": "3.1.0",
+	"paths": {}
+}

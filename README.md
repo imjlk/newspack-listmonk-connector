@@ -1,0 +1,86 @@
+# Newspack Listmonk Connector
+
+Newspack Newsletters ESP provider for Listmonk campaign delivery.
+
+This plugin was scaffolded with the published `wp-typia` CLI and keeps the
+settings/preview REST contracts in TypeScript:
+
+- `src/types.ts`
+- `src/rest/listmonk-settings/api-types.ts`
+- `src/rest/newsletter-preview/api-types.ts`
+
+## MVP Scope
+
+- Registers `listmonk` through `newspack_newsletters_registered_providers`.
+- Stores Listmonk API URL, API user, token, default From email, template ID,
+  and default list IDs.
+- Exposes typed REST resources for settings and raw newsletter preview.
+- Renders Newspack newsletter HTML through `Newspack_Newsletters_Renderer`
+  when available, with a WordPress content fallback.
+- Creates or updates Listmonk draft campaigns with `content_type: "html"`.
+- Sends Listmonk test campaigns through `/api/campaigns/{id}/test`.
+- Starts or schedules campaigns with `/api/campaigns/{id}/status`.
+- Stores Listmonk campaign ID, UUID, payload hash, last sync time, last status,
+  and last error in newsletter post meta.
+
+Subscriber/list-membership sync is intentionally left for a later milestone.
+
+Track phase-by-phase progress in [docs/BACKLOG.md](docs/BACKLOG.md).
+
+## Settings
+
+Admin screen:
+
+```text
+Settings > Newspack Listmonk
+```
+
+Optional constants can override stored credentials:
+
+```php
+define( 'NEWSPACK_LISTMONK_CONNECTOR_BASE_URL', 'https://listmonk.example.com' );
+define( 'NEWSPACK_LISTMONK_CONNECTOR_API_USER', 'api_user' );
+define( 'NEWSPACK_LISTMONK_CONNECTOR_API_TOKEN', 'token' );
+```
+
+## REST Resources
+
+Namespace:
+
+```text
+newspack-listmonk-connector/v1
+```
+
+Routes:
+
+- `GET /listmonk-settings/item`
+- `POST /listmonk-settings`
+- `GET /newsletter-preview/item?postId=123`
+- `POST /newsletter-preview`
+
+## Development
+
+```bash
+pnpm run sync
+pnpm run typecheck
+pnpm run lint
+pnpm run build
+```
+
+## Integration Smoke Tests
+
+```bash
+pnpm run env:start
+pnpm run smoke:newspack
+pnpm run listmonk:start
+pnpm run smoke:listmonk:local
+```
+
+Local Listmonk runs at `http://localhost:9000`; wp-env reaches it through the
+generated `.listmonk.env` file. See
+[docs/INTEGRATION-TESTING.md](docs/INTEGRATION-TESTING.md) for the full flow.
+
+`wp-typia doctor` passes the workspace checks in Node fallback mode. On a
+machine without Bun installed, the global environment check reports Bun as
+missing even though create/add/sync/build work through the published CLI's Node
+fallback runtime.

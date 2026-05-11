@@ -1,0 +1,59 @@
+name: newspack-listmonk-connector
+
+x-db-credentials: &db-credentials
+  POSTGRES_USER: listmonk
+  POSTGRES_PASSWORD: listmonk
+  POSTGRES_DB: listmonk
+
+services:
+  listmonk:
+    image: listmonk/listmonk:latest
+    container_name: newspack-listmonk-connector-listmonk
+    restart: unless-stopped
+    depends_on:
+      listmonk-db:
+        condition: service_healthy
+    network_mode: service:listmonk-db
+    command:
+      - sh
+      - -c
+      - ./listmonk --install --idempotent --yes --config '' && ./listmonk --upgrade --yes --config '' && ./listmonk --config ''
+    environment:
+      LISTMONK_app__address: 0.0.0.0:9000
+      LISTMONK_db__user: listmonk
+      LISTMONK_db__password: listmonk
+      LISTMONK_db__database: listmonk
+      LISTMONK_db__host: 127.0.0.1
+      LISTMONK_db__port: 5432
+      LISTMONK_db__ssl_mode: disable
+      LISTMONK_db__max_open: 25
+      LISTMONK_db__max_idle: 25
+      LISTMONK_db__max_lifetime: 300s
+      LISTMONK_ADMIN_USER: ${LISTMONK_ADMIN_USER:-admin}
+      LISTMONK_ADMIN_PASSWORD: ${LISTMONK_ADMIN_PASSWORD:-listmonk123}
+      LISTMONK_ADMIN_API_USER: ${LISTMONK_ADMIN_API_USER:-wp_typia_smoke}
+      TZ: ${TZ:-Etc/UTC}
+    volumes:
+      - listmonk-uploads:/listmonk/uploads
+
+  listmonk-db:
+    image: postgres:17-alpine
+    container_name: newspack-listmonk-connector-listmonk-db
+    restart: unless-stopped
+    ports:
+      - "${LISTMONK_DOCKER_PORT:-9000}:9000"
+      - "127.0.0.1:${LISTMONK_POSTGRES_PORT:-15432}:5432"
+    network_mode: bridge
+    environment:
+      <<: *db-credentials
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U listmonk"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    volumes:
+      - listmonk-data:/var/lib/postgresql/data
+
+volumes:
+  listmonk-data:
+  listmonk-uploads:
