@@ -218,6 +218,47 @@ export const REST_RESOURCES: WorkspaceRestResourceConfig[] = [
 		typesFile: 'src/rest/newsletter-preview/api-types.ts',
 		validatorsFile: 'src/rest/newsletter-preview/api-validators.ts',
 	},
+	{
+		apiFile: 'src/rest/newsletter-sync/api.ts',
+		clientFile: 'src/rest/newsletter-sync/api-client.ts',
+		dataFile: 'src/rest/newsletter-sync/data.ts',
+		methods: [ 'create' ],
+		namespace: 'newspack-listmonk-connector/v1',
+		openApiFile: 'src/rest/newsletter-sync/api.openapi.json',
+		phpFile: 'inc/rest/newsletter-sync.php',
+		restManifest: defineEndpointManifest( {
+			contracts: {
+				'create-request': {
+					sourceTypeName: 'NewsletterSyncCreateRequest',
+				},
+				'create-response': {
+					sourceTypeName: 'NewsletterSyncCreateResponse',
+				},
+			},
+			endpoints: [
+				{
+					auth: 'authenticated',
+					bodyContract: 'create-request',
+					method: 'POST',
+					operationId: 'createNewsletterSyncResource',
+					path: '/newspack-listmonk-connector/v1/newsletter-sync',
+					responseContract: 'create-response',
+					summary: 'Sync one newsletter to Listmonk.',
+					tags: [ 'Newsletter Sync' ],
+					wordpressAuth: {
+						mechanism: 'rest-nonce',
+					},
+				},
+			],
+			info: {
+				title: 'Newsletter Sync REST API',
+				version: '1.0.0',
+			},
+		} ),
+		slug: 'newsletter-sync',
+		typesFile: 'src/rest/newsletter-sync/api-types.ts',
+		validatorsFile: 'src/rest/newsletter-sync/api-validators.ts',
+	},
 	// wp-typia add rest-resource entries
 ];
 

@@ -3,11 +3,12 @@
 Newspack Newsletters ESP provider for Listmonk campaign delivery.
 
 This plugin was scaffolded with the published `wp-typia` CLI and keeps the
-settings/preview REST contracts in TypeScript:
+settings, preview, and editor sync REST contracts in TypeScript:
 
 - `src/types.ts`
 - `src/rest/listmonk-settings/api-types.ts`
 - `src/rest/newsletter-preview/api-types.ts`
+- `src/rest/newsletter-sync/api-types.ts`
 
 ## MVP Scope
 
@@ -15,6 +16,8 @@ settings/preview REST contracts in TypeScript:
 - Stores Listmonk API URL, API user, token, default From email, template ID,
   and default list IDs.
 - Exposes typed REST resources for settings and raw newsletter preview.
+- Adds a Newspack editor side panel for list selection, campaign status, raw
+  HTML/payload preview, sync, and test send.
 - Renders Newspack newsletter HTML through `Newspack_Newsletters_Renderer`
   when available, with a WordPress content fallback.
 - Creates or updates Listmonk draft campaigns with `content_type: "html"`.
@@ -57,6 +60,13 @@ Routes:
 - `POST /listmonk-settings`
 - `GET /newsletter-preview/item?postId=123`
 - `POST /newsletter-preview`
+- `POST /newsletter-sync`
+
+The connector also registers Newspack editor provider routes under
+`newspack-newsletters/v1`:
+
+- `GET /listmonk/{post_id}/retrieve`
+- `POST /listmonk/{post_id}/test`
 
 ## Development
 
@@ -75,6 +85,7 @@ pnpm run smoke:newspack
 pnpm run listmonk:start
 pnpm run smoke:listmonk:local
 pnpm run smoke:listmonk:send:local
+pnpm run e2e:editor:local
 ```
 
 Local Listmonk runs at `http://localhost:9000`; wp-env reaches it through the

@@ -135,14 +135,15 @@ Goal: Let operators manage the connection and preview/sync campaigns without cod
 - `[x]` Add connection test action.
 - `[x]` Add typed settings REST resource.
 - `[x]` Add typed newsletter preview REST resource.
+- `[x]` Add typed newsletter sync REST resource.
 - `[ ]` Build React settings screen.
-- `[ ]` Add Newspack editor side panel.
-- `[ ]` Add list selector in editor.
-- `[ ]` Add raw HTML preview in editor.
-- `[ ]` Add payload preview in editor.
-- `[ ]` Add "Sync to Listmonk" action.
-- `[ ]` Add "Send test" action.
-- `[ ]` Show campaign ID/status/error in editor.
+- `[x]` Add Newspack editor side panel.
+- `[x]` Add list selector in editor.
+- `[x]` Add raw HTML preview in editor.
+- `[x]` Add payload preview in editor.
+- `[x]` Add "Sync to Listmonk" action.
+- `[x]` Add "Send test" action.
+- `[x]` Show campaign ID/status/error in editor.
 
 ## Phase 7: Subscriber And List Integration
 
@@ -172,6 +173,7 @@ Goal: Prove the plugin works across unit, integration, and E2E flows.
 - `[x]` Add wp-env with Newspack Newsletters.
 - `[x]` Add Docker Listmonk integration.
 - `[x]` Add local smoke flow for draft sync, publish transition, and schedule transition.
+- `[x]` Add editor-side E2E coverage for Listmonk panel preview, sync, and test send.
 - `[~]` Add E2E flow for create, preview, test, publish, and schedule.
 
 ## Phase 9: Packaging And Beta Release
@@ -188,7 +190,7 @@ Goal: Prepare a beta plugin build for staging.
 
 ## Next Recommended Work
 
-1. Add the editor side panel MVP for list selection, sync, test send, and status display.
-2. Add React settings screen for the existing typed settings REST resource.
+1. Add React settings screen for the existing typed settings REST resource.
+2. Add editor-side E2E coverage for list selection, preview, sync, and test send.
 3. Add PHPUnit-style unit coverage for payload mapping and renderer fallbacks.
 4. Add retry/error UX around failed scheduled sends.

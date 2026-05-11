@@ -1,0 +1,66 @@
+.newspack-listmonk-connector-panel {
+
+	.components-notice {
+		margin: 0 0 12px;
+	}
+
+	.components-base-control {
+		margin-bottom: 16px;
+	}
+}
+
+.newspack-listmonk-connector-panel__status {
+	border: 1px solid #dcdcde;
+	margin-bottom: 16px;
+
+	div {
+		align-items: center;
+		display: flex;
+		gap: 8px;
+		justify-content: space-between;
+		min-height: 34px;
+		padding: 8px 10px;
+
+		+ div {
+			border-top: 1px solid #dcdcde;
+		}
+	}
+
+	span {
+		color: #646970;
+	}
+
+	strong {
+		color: #1e1e1e;
+		font-weight: 600;
+		min-width: 0;
+		overflow-wrap: anywhere;
+		text-align: right;
+	}
+}
+
+.newspack-listmonk-connector-panel__actions {
+	display: grid;
+	gap: 8px;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	margin-bottom: 16px;
+
+	.components-button {
+		justify-content: center;
+		width: 100%;
+	}
+}
+
+.newspack-listmonk-connector-panel__full-button {
+	justify-content: center;
+	margin-bottom: 16px;
+	width: 100%;
+}
+
+.newspack-listmonk-connector-panel__loading {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	margin: 8px 0 16px;
+	min-height: 24px;
+}

@@ -13,6 +13,9 @@ dependencies:
     '@wordpress/components':
         specifier: ^30.2.0
         version: 30.2.0(@types/react@18.3.28)(react-dom@18.3.1)(react@18.3.1)
+    '@wordpress/data':
+        specifier: ^10.44.0
+        version: 10.45.0(react@18.3.1)
     '@wordpress/editor':
         specifier: ^14.44.0
         version: 14.44.0(@types/react@18.3.28)(react-dom@18.3.1)(react@18.3.1)(stylelint@16.26.1)
@@ -25,11 +28,17 @@ dependencies:
     '@wordpress/interactivity':
         specifier: ^6.29.0
         version: 6.29.0
+    '@wordpress/notices':
+        specifier: ^5.44.0
+        version: 5.45.0(react-dom@18.3.1)(react@18.3.1)
     '@wordpress/plugins':
         specifier: ^7.44.0
         version: 7.44.0(react-dom@18.3.1)(react@18.3.1)
 
 devDependencies:
+    '@playwright/test':
+        specifier: ^1.59.1
+        version: 1.59.1
     '@types/node':
         specifier: ^24.5.2
         version: 24.5.2

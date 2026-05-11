@@ -84,6 +84,22 @@ export interface NewsletterPreviewResponse {
 	listmonkPayload: NewsletterPayload;
 }
 
+export interface NewsletterSyncRequest {
+	postId: number & tags.Type< 'uint32' >;
+}
+
+export interface NewsletterSyncResponse {
+	postId: number & tags.Type< 'uint32' >;
+	message: string & tags.MaxLength< 500 >;
+	campaignId?: number & tags.Type< 'uint32' >;
+	listmonkCampaignId?: number & tags.Type< 'uint32' >;
+	listmonkCampaignUuid?: string & tags.MaxLength< 80 >;
+	status?: string & tags.MaxLength< 40 >;
+	sendListId?: string & tags.MaxLength< 80 >;
+	lastSyncedAt?: string;
+	retrieve: NewspackEditorRetrieveResponse;
+}
+
 export interface ListmonkCampaignRef {
 	campaignId: number & tags.Type< 'uint32' >;
 	uuid?: string;
@@ -103,10 +119,10 @@ export interface NewspackSendList {
 
 export interface NewspackEditorRetrieveResponse {
 	campaign: boolean;
-	campaign_id?: string | ( number & tags.Type< 'uint32' > );
-	listmonk_campaign_id?: string | ( number & tags.Type< 'uint32' > );
+	campaign_id?: string & tags.MaxLength< 80 >;
+	listmonk_campaign_id?: string & tags.MaxLength< 80 >;
 	listmonk_campaign_uuid?: string & tags.MaxLength< 80 >;
-	listmonk_last_status?: ListmonkCampaignStatus | '';
+	listmonk_last_status?: string & tags.MaxLength< 40 >;
 	listmonk_last_synced_at?: string;
 	listmonk_last_error?: string & tags.MaxLength< 1000 >;
 	send_list_id: string & tags.MaxLength< 80 >;

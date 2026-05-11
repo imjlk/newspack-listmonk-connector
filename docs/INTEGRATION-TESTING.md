@@ -44,7 +44,7 @@ It verifies:
 - the provider instance has the expected class.
 - the provider has a `Newspack_Listmonk_Connector_Controller`.
 - Newspack editor routes for retrieve, test send, and sync errors are registered.
-- plugin REST routes are registered.
+- plugin REST routes for settings, preview, and newsletter sync are registered.
 - missing Listmonk credentials return a `WP_Error`, not a fatal.
 
 ## Smoke: Live Listmonk Sync
@@ -81,6 +81,16 @@ Run the send/schedule transition smoke against the local stack:
 ```bash
 pnpm run smoke:listmonk:send:local
 ```
+
+Run the browser E2E for the Newspack editor Listmonk panel:
+
+```bash
+pnpm run e2e:editor:local
+```
+
+The editor E2E builds the editor bundle, starts local Listmonk, starts/reuses
+wp-env, creates a draft newsletter fixture, and verifies list selection, raw
+HTML preview, payload preview, sync, and test send in Chromium.
 
 The send/schedule smoke is intentionally local-only. It reads only
 `.listmonk.env` and refuses to run unless `LISTMONK_BASE_URL` points to
@@ -138,6 +148,8 @@ It verifies:
 - `get_lists()` returns at least one active list.
 - a `newspack_nl_cpt` draft post can sync into a Listmonk draft campaign.
 - the Newspack editor retrieve route returns the expected campaign payload shape.
+- the connector editor sync route returns a typed response with the nested
+  retrieve payload.
 - `_wtnl_listmonk_campaign_id`, `_wtnl_listmonk_payload_hash`, and
   `_wtnl_listmonk_last_synced_at` are stored.
 - the synced Listmonk campaign remains in `draft` status.

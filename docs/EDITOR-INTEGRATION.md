@@ -23,6 +23,13 @@ POST /newspack-newsletters/v1/listmonk/{post_id}/test
 GET  /newspack-newsletters/v1/{post_id}/sync-error
 ```
 
+The connector's own editor panel uses the typed connector namespace for manual
+sync:
+
+```text
+POST /newspack-listmonk-connector/v1/newsletter-sync
+```
+
 The final `sync-error` route is inherited from
 `Newspack_Newsletters_Service_Provider_Controller`, so the connector needs a
 controller instance even though the custom route methods only proxy to the
@@ -73,6 +80,7 @@ The minified Newspack editor bundle uses these provider routes:
 | Sync error | `GET /newspack-newsletters/v1/${postId}/sync-error` | Reads a transient message through the provider controller. |
 | Send lists | `GET /newspack-newsletters/v1/send-lists?provider=${provider}&type=list...` | Calls the active provider's `get_send_lists( $args, true )`. |
 | MJML preview | `POST /newspack-newsletters/v1/post-mjml` | Converts current editor content to MJML/HTML for preview. |
+| Connector sync | `POST /newspack-listmonk-connector/v1/newsletter-sync` | Type-validated route used by the connector side panel's "Sync" action. |
 
 The current route table with `listmonk` active includes:
 
@@ -93,6 +101,7 @@ The current route table with `listmonk` active includes:
 /newspack-listmonk-connector/v1/listmonk-settings/item
 /newspack-listmonk-connector/v1/newsletter-preview
 /newspack-listmonk-connector/v1/newsletter-preview/item
+/newspack-listmonk-connector/v1/newsletter-sync
 ```
 
 The provider's protected `controller` property is set to
@@ -204,18 +213,19 @@ For `listmonk`, the built-in editor can still render generic controls:
 - Sender Name
 - Sender Email
 
-Listmonk-specific controls still need connector-side editor JavaScript:
+The connector now adds a `Listmonk` document settings panel with:
 
 - List selector bound to `send_list_id`
-- Campaign ID/status display
+- Campaign ID/status/last sync display
 - Last sync error display
-- Manual "Sync to Listmonk" action
-- Raw HTML/payload preview
+- Manual sync through the typed `newsletter-sync` route
+- Test send through the Newspack `listmonk/{post_id}/test` route
+- Raw HTML and Listmonk payload preview
 
 ## Next Backend Tasks
 
-1. Add the connector editor side panel for list selection, sync/test actions,
-   campaign status, and raw HTML/payload preview.
+1. Add an editor E2E smoke that opens a newsletter post and verifies the
+   Listmonk panel renders against the local Listmonk stack.
 2. Keep the Newspack namespace REST routes as thin controller proxies; new
    typed connector-specific APIs should continue to live under
    `newspack-listmonk-connector/v1`.

@@ -196,7 +196,11 @@ function getSharedEditorEntries() {
 		],
 		[
 			'editor-plugins/index',
-			[ 'src/editor-plugins/index.ts', 'src/editor-plugins/index.js' ],
+			[
+				'src/editor-plugins/index.tsx',
+				'src/editor-plugins/index.ts',
+				'src/editor-plugins/index.js',
+			],
 		],
 		[
 			'admin-views/index',

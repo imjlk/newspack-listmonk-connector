@@ -136,6 +136,28 @@ if ( empty( $errors ) ) {
 }
 
 if ( empty( $errors ) ) {
+	$sync_request = new WP_REST_Request( 'POST', '/newspack-listmonk-connector/v1/newsletter-sync' );
+	$sync_request->set_header( 'Content-Type', 'application/json' );
+	$sync_request->set_body( wp_json_encode( array( 'postId' => $post_id ) ) );
+	$sync_route_response = rest_do_request( $sync_request );
+	if ( is_wp_error( $sync_route_response ) ) {
+		$errors[] = 'Newsletter sync REST route returned WP_Error: ' . $sync_route_response->get_error_message();
+	} elseif ( 200 !== $sync_route_response->get_status() ) {
+		$errors[] = 'Newsletter sync REST route returned HTTP ' . $sync_route_response->get_status() . ': ' . wp_json_encode( $sync_route_response->get_data() );
+	} else {
+		$sync_route_data = $sync_route_response->get_data();
+		foreach ( array( 'postId', 'message', 'campaignId', 'listmonkCampaignId', 'retrieve' ) as $required_key ) {
+			if ( ! array_key_exists( $required_key, $sync_route_data ) ) {
+				$errors[] = 'Newsletter sync REST route response is missing key: ' . $required_key;
+			}
+		}
+		if ( empty( $sync_route_data['retrieve']['supports_multiple_test_recipients'] ) ) {
+			$errors[] = 'Newsletter sync REST route retrieve payload does not advertise multiple test recipients.';
+		}
+	}
+}
+
+if ( empty( $errors ) ) {
 	$campaign_id = absint( get_post_meta( $post_id, '_wtnl_listmonk_campaign_id', true ) );
 	$payload_hash = (string) get_post_meta( $post_id, '_wtnl_listmonk_payload_hash', true );
 	$last_synced_at = (string) get_post_meta( $post_id, '_wtnl_listmonk_last_synced_at', true );
@@ -180,6 +202,7 @@ echo wp_json_encode(
 		'lastSyncedAt' => $last_synced_at,
 		'listCount' => count( $lists ),
 		'retrieveRouteSupportsMultipleTestRecipients' => (bool) ( $retrieve_data['supports_multiple_test_recipients'] ?? false ),
+		'syncRouteCampaignId' => absint( $sync_route_data['campaignId'] ?? 0 ),
 	),
 	JSON_PRETTY_PRINT
 ) . PHP_EOL;

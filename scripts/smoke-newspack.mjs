@@ -70,6 +70,7 @@ if ( empty( $errors ) ) {
 		${phpString('/newspack-newsletters/v1/listmonk/(?P<id>[\\d]+)/test')},
 		'/newspack-listmonk-connector/v1/listmonk-settings/item',
 		'/newspack-listmonk-connector/v1/newsletter-preview/item',
+		'/newspack-listmonk-connector/v1/newsletter-sync',
 	);
 	foreach ( $expected_routes as $route ) {
 		if ( empty( $routes[ $route ] ) ) {
@@ -104,7 +105,8 @@ echo wp_json_encode(
 			${phpString('/newspack-newsletters/v1/listmonk/(?P<id>[\\d]+)/retrieve')},
 			${phpString('/newspack-newsletters/v1/listmonk/(?P<id>[\\d]+)/test')},
 			${phpString('/newspack-listmonk-connector/v1/listmonk-settings/item')},
-			${phpString('/newspack-listmonk-connector/v1/newsletter-preview/item')}
+			${phpString('/newspack-listmonk-connector/v1/newsletter-preview/item')},
+			${phpString('/newspack-listmonk-connector/v1/newsletter-sync')}
 		),
 	),
 	JSON_PRETTY_PRINT

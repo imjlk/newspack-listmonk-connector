@@ -25,6 +25,7 @@ function hasSharedEditorEntries() {
 	for ( const relativePath of [
 		'src/bindings/index.ts',
 		'src/bindings/index.js',
+		'src/editor-plugins/index.tsx',
 		'src/editor-plugins/index.ts',
 		'src/editor-plugins/index.js',
 		'src/admin-views/index.ts',

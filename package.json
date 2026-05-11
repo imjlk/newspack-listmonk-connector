@@ -25,6 +25,7 @@
 		"smoke:listmonk": "node scripts/smoke-listmonk.mjs",
 		"smoke:listmonk:local": "node scripts/smoke-listmonk.mjs --env-file .listmonk.env",
 		"smoke:listmonk:send:local": "node scripts/smoke-listmonk-send-local.mjs",
+		"e2e:editor:local": "pnpm run build && pnpm run listmonk:start && pnpm exec playwright install chromium && pnpm exec playwright test --config=playwright.config.js tests/e2e/editor-listmonk.spec.ts",
 		"typecheck": "pnpm run sync --check && tsc --noEmit",
 		"lint:js": "wp-scripts lint-js",
 		"lint:css": "wp-scripts lint-style --allow-empty-input",
@@ -39,6 +40,7 @@
 		"phpPrefix": "newspack_listmonk_connector"
 	},
 	"devDependencies": {
+		"@playwright/test": "^1.59.1",
 		"@types/node": "^24.5.2",
 		"@types/wordpress__block-editor": "^11.5.17",
 		"@types/wordpress__blocks": "^12.5.18",
@@ -61,10 +63,12 @@
 		"@wordpress/block-editor": "^15.2.0",
 		"@wordpress/blocks": "^15.2.0",
 		"@wordpress/components": "^30.2.0",
+		"@wordpress/data": "^10.44.0",
 		"@wordpress/editor": "^14.44.0",
 		"@wordpress/element": "^6.29.0",
 		"@wordpress/i18n": "^6.2.0",
 		"@wordpress/interactivity": "^6.29.0",
+		"@wordpress/notices": "^5.44.0",
 		"@wordpress/plugins": "^7.44.0"
 	}
 }
