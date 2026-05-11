@@ -1,9 +1,11 @@
 # Dependencies
 node_modules/
+vendor/
 .yarn/
 .pnp.*
 
 # Build
+.phpunit.result.cache
 artifacts/
 build/
 dist/

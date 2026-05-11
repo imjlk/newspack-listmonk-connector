@@ -60,6 +60,36 @@ function newspack_listmonk_connector_normalize_list_ids( $value ) {
 }
 
 /**
+ * Sanitize a Listmonk From email value while preserving display-name syntax.
+ *
+ * @param mixed $value Raw From email value.
+ * @return string
+ */
+function newspack_listmonk_connector_sanitize_from_email( $value ) {
+	$value = trim( preg_replace( '/[\r\n]+/', ' ', (string) $value ) );
+	$value = preg_replace( '/\s+/', ' ', $value );
+
+	if ( '' === $value ) {
+		return '';
+	}
+
+	if ( preg_match( '/^(.+?)<([^<>]+)>$/', $value, $matches ) ) {
+		$name  = trim( wp_strip_all_tags( $matches[1], true ) );
+		$email = sanitize_email( trim( $matches[2] ) );
+		if ( '' !== $email && is_email( $email ) ) {
+			return '' !== $name ? sprintf( '%s <%s>', $name, $email ) : $email;
+		}
+	}
+
+	$email = sanitize_email( $value );
+	if ( '' !== $email && is_email( $email ) ) {
+		return $email;
+	}
+
+	return sanitize_text_field( $value );
+}
+
+/**
  * Sanitize settings while preserving the existing API token when the payload
  * intentionally leaves it blank.
  *
@@ -75,7 +105,7 @@ function newspack_listmonk_connector_sanitize_settings( array $settings, array $
 		'base_url'            => isset( $settings['base_url'] ) ? esc_url_raw( trim( (string) $settings['base_url'] ) ) : $existing['base_url'],
 		'api_user'            => isset( $settings['api_user'] ) ? sanitize_text_field( (string) $settings['api_user'] ) : $existing['api_user'],
 		'api_token'           => array_key_exists( 'api_token', $settings ) && '' !== (string) $settings['api_token'] ? sanitize_text_field( (string) $settings['api_token'] ) : $existing['api_token'],
-		'default_from_email'  => isset( $settings['default_from_email'] ) ? sanitize_text_field( (string) $settings['default_from_email'] ) : $existing['default_from_email'],
+		'default_from_email'  => isset( $settings['default_from_email'] ) ? newspack_listmonk_connector_sanitize_from_email( $settings['default_from_email'] ) : $existing['default_from_email'],
 		'default_template_id' => isset( $settings['default_template_id'] ) ? absint( $settings['default_template_id'] ) : absint( $existing['default_template_id'] ),
 		'default_list_ids'    => array_key_exists( 'default_list_ids', $settings ) ? newspack_listmonk_connector_normalize_list_ids( $settings['default_list_ids'] ) : newspack_listmonk_connector_normalize_list_ids( $existing['default_list_ids'] ),
 		'send_mode'           => 'campaign',

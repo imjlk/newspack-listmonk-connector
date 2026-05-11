@@ -144,7 +144,7 @@ Goal: Let operators manage the connection and preview/sync campaigns without cod
 - `[x]` Add "Sync to Listmonk" action.
 - `[x]` Add "Send test" action.
 - `[x]` Show campaign ID/status/error in editor.
-- `[ ]` Preserve display-name From email values such as `Newsroom <news@example.com>` through settings sanitization and campaign payloads.
+- `[x]` Preserve display-name From email values such as `Newsroom <news@example.com>` through settings sanitization and campaign payloads.
 
 ## Phase 7: Subscriber And List Integration
 
@@ -168,8 +168,9 @@ Goal: Prove the plugin works across unit, integration, and E2E flows.
 - `[x]` Run `pnpm run typecheck`.
 - `[x]` Run `pnpm run build`.
 - `[~]` Run `wp-typia doctor`; workspace checks pass, Bun environment check fails when Bun is missing.
-- `[ ]` Add PHPUnit tests for payload mapping.
-- `[ ]` Add unit tests for HTML/plain text builders.
+- `[x]` Add PHPUnit tests for payload mapping.
+- `[x]` Add unit tests for HTML/plain text builders.
+- `[x]` Add unit tests for settings sanitization.
 - `[ ]` Add mocked Listmonk client tests.
 - `[x]` Add wp-env with Newspack Newsletters.
 - `[x]` Add Docker Listmonk integration.
@@ -192,8 +193,7 @@ Goal: Prepare a beta plugin build for staging.
 
 ## Next Recommended Work
 
-1. Add PHPUnit-style unit coverage for payload mapping and renderer fallbacks.
-2. Preserve display-name From email settings end to end.
-3. Add retry/error UX around failed scheduled sends.
-4. Add compatibility fallback if Newspack changes provider method shape.
-5. Add packaging and beta release workflow.
+1. Add mocked Listmonk client tests.
+2. Add retry/error UX around failed scheduled sends.
+3. Add compatibility fallback if Newspack changes provider method shape.
+4. Add packaging and beta release workflow.

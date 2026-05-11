@@ -284,10 +284,7 @@ async function loginAsAdmin( page: Page ) {
 
 async function prepareEditorUi( page: Page ) {
 	await page.waitForFunction( () => Boolean( window.wp?.data ) );
-	await page
-		.getByRole( 'button', { name: 'Blank newsletter' } )
-		.click( { timeout: 3000 } )
-		.catch( () => undefined );
+	await dismissLayoutModal( page );
 	for ( let index = 0; index < 2; index++ ) {
 		await page.keyboard.press( 'Escape' );
 		await page.waitForTimeout( 300 );
@@ -309,6 +306,24 @@ async function prepareEditorUi( page: Page ) {
 			?.dispatch( 'core/edit-post' )
 			?.openGeneralSidebar?.( 'edit-post/document' );
 	} );
+	await dismissLayoutModal( page );
+}
+
+async function dismissLayoutModal( page: Page ) {
+	await page
+		.getByRole( 'button', { name: /Blank newsletter/i } )
+		.click( { timeout: 3000 } )
+		.catch( () => undefined );
+
+	await page
+		.locator( '.components-modal__screen-overlay' )
+		.filter( { hasText: 'Choose a layout' } )
+		.evaluateAll( ( overlays ) => {
+			for ( const overlay of overlays ) {
+				overlay.remove();
+			}
+		} )
+		.catch( () => undefined );
 }
 
 test.describe.configure( { mode: 'serial' } );

@@ -72,6 +72,7 @@ The connector also registers Newspack editor provider routes under
 
 ```bash
 pnpm run sync
+pnpm run test:php
 pnpm run typecheck
 pnpm run lint
 pnpm run build

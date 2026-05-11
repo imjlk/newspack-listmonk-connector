@@ -28,6 +28,26 @@ pnpm run env:stop
 pnpm run env:destroy
 ```
 
+## PHPUnit Unit Tests
+
+Run the PHP unit suite:
+
+```bash
+pnpm run test:php
+```
+
+The script starts/reuses wp-env, installs Composer dependencies inside the
+plugin directory, and runs the Composer-installed PHPUnit 9 binary in the
+`tests-cli` container.
+
+It verifies:
+
+- settings sanitization and API token masking
+- display-name From email preservation
+- raw HTML fallback rendering and root-relative URL rewriting
+- plain text `altbody` generation
+- newsletter preview payload mapping and payload hash stability
+
 ## Smoke: Newspack Provider Contract
 
 This smoke test does not require real Listmonk credentials.

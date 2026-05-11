@@ -126,7 +126,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_preview_build_re
 		$list_ids     = ! empty( $payload['listIds'] ) ? newspack_listmonk_connector_normalize_list_ids( $payload['listIds'] ) : newspack_listmonk_connector_normalize_list_ids( get_post_meta( $post_id, 'send_list_id', true ) );
 		$list_ids     = ! empty( $list_ids ) ? $list_ids : newspack_listmonk_connector_normalize_list_ids( $settings['default_list_ids'] );
 		$template_id  = isset( $payload['templateId'] ) && null !== $payload['templateId'] ? absint( $payload['templateId'] ) : absint( $settings['default_template_id'] );
-		$from_email   = ! empty( $payload['fromEmail'] ) ? sanitize_text_field( $payload['fromEmail'] ) : (string) $settings['default_from_email'];
+		$from_email   = ! empty( $payload['fromEmail'] ) ? newspack_listmonk_connector_sanitize_from_email( $payload['fromEmail'] ) : (string) $settings['default_from_email'];
 		$tags         = array( 'newspack', 'wp-post:' . $post_id );
 		$subject      = html_entity_decode( wp_strip_all_tags( $post->post_title ), ENT_QUOTES, get_bloginfo( 'charset' ) );
 		$campaign     = array(

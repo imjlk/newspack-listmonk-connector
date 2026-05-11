@@ -21,6 +21,7 @@ class Newspack_Listmonk_Connector_Plain_Text_Builder {
 	 */
 	public function build( $html ) {
 		$text = html_entity_decode( wp_strip_all_tags( (string) $html, true ), ENT_QUOTES, get_bloginfo( 'charset' ) );
+		$text = str_replace( "\xc2\xa0", ' ', $text );
 		$text = preg_replace( "/[ \t]+/", ' ', $text );
 		$text = preg_replace( "/\n{3,}/", "\n\n", $text );
 
