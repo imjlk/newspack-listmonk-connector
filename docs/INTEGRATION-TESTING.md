@@ -47,6 +47,7 @@ It verifies:
 - raw HTML fallback rendering and root-relative URL rewriting
 - plain text `altbody` generation
 - newsletter preview payload mapping and payload hash stability
+- mocked Listmonk HTTP request, response, and error normalization
 
 ## Smoke: Newspack Provider Contract
 

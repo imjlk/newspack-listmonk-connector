@@ -171,7 +171,7 @@ Goal: Prove the plugin works across unit, integration, and E2E flows.
 - `[x]` Add PHPUnit tests for payload mapping.
 - `[x]` Add unit tests for HTML/plain text builders.
 - `[x]` Add unit tests for settings sanitization.
-- `[ ]` Add mocked Listmonk client tests.
+- `[x]` Add mocked Listmonk client tests.
 - `[x]` Add wp-env with Newspack Newsletters.
 - `[x]` Add Docker Listmonk integration.
 - `[x]` Add local smoke flow for draft sync, publish transition, and schedule transition.
@@ -193,7 +193,6 @@ Goal: Prepare a beta plugin build for staging.
 
 ## Next Recommended Work
 
-1. Add mocked Listmonk client tests.
-2. Add retry/error UX around failed scheduled sends.
-3. Add compatibility fallback if Newspack changes provider method shape.
-4. Add packaging and beta release workflow.
+1. Add retry/error UX around failed scheduled sends.
+2. Add compatibility fallback if Newspack changes provider method shape.
+3. Add packaging and beta release workflow.
