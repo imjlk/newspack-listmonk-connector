@@ -19,6 +19,27 @@ function newspack_listmonk_connector_get_option_name() {
 }
 
 /**
+ * Read a local JSON file using WordPress' JSON file helper.
+ *
+ * @param string $path Absolute file path.
+ * @return array|null
+ */
+function newspack_listmonk_connector_read_json_file( $path ) {
+	if ( ! file_exists( $path ) ) {
+		return null;
+	}
+
+	$decoded = wp_json_file_decode(
+		$path,
+		array(
+			'associative' => true,
+		)
+	);
+
+	return is_array( $decoded ) ? $decoded : null;
+}
+
+/**
  * Default settings.
  *
  * @return array

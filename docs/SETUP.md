@@ -12,6 +12,10 @@ This guide is for beta validation on a staging WordPress site.
 - A reachable Listmonk server.
 - The beta zip built with `pnpm run release:zip`.
 
+Review [PRIVACY.md](PRIVACY.md) before connecting production subscriber data.
+Uninstall deletes local Listmonk credential settings and connector sync-error
+transients, but it does not delete remote Listmonk data or newsletter post meta.
+
 ## Listmonk API User
 
 Create a Listmonk API user for the connector instead of reusing an administrator

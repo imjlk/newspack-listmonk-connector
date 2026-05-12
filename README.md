@@ -85,14 +85,21 @@ pnpm run typecheck
 pnpm run lint
 pnpm run build
 pnpm run release:zip
+pnpm run release:wporg
+pnpm run review:plugin-check
 ```
 
 The beta zip is written to
 `artifacts/newspack-listmonk-connector-0.1.0.zip`. See
 [docs/SETUP.md](docs/SETUP.md) and
 [docs/STAGING-CHECKLIST.md](docs/STAGING-CHECKLIST.md) for staging validation.
+The WordPress.org source zip is written to
+`artifacts/newspack-listmonk-connector-0.1.0-wporg.zip`.
 Webhook direction and bounce ownership are documented in
 [docs/WEBHOOK-POLICY.md](docs/WEBHOOK-POLICY.md).
+Privacy and uninstall behavior are documented in
+[docs/PRIVACY.md](docs/PRIVACY.md), and review checks are tracked in
+[docs/PLUGIN-REVIEW-CHECKLIST.md](docs/PLUGIN-REVIEW-CHECKLIST.md).
 
 ## Integration Smoke Tests
 

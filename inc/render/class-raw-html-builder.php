@@ -31,6 +31,7 @@ class Newspack_Listmonk_Connector_Raw_HTML_Builder {
 		}
 
 		if ( '' === trim( $html ) ) {
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Use the core content pipeline as the fallback renderer.
 			$content = apply_filters( 'the_content', $post->post_content );
 			$html    = $this->wrap_document( $post, (string) $content );
 		}

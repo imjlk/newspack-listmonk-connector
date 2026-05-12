@@ -28,7 +28,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_campaign_analytics_load_res
 				continue;
 			}
 
-			$decoded = json_decode( file_get_contents( $schema_path ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$decoded = newspack_listmonk_connector_read_json_file( $schema_path );
 			return is_array( $decoded ) ? $decoded : null;
 		}
 

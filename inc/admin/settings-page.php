@@ -95,12 +95,13 @@ function newspack_listmonk_connector_maybe_save_settings() {
 	check_admin_referer( 'newspack_listmonk_connector_settings', 'newspack_listmonk_connector_settings_nonce' );
 
 	$settings = array(
-		'base_url'            => isset( $_POST['base_url'] ) ? wp_unslash( $_POST['base_url'] ) : '',
-		'api_user'            => isset( $_POST['api_user'] ) ? wp_unslash( $_POST['api_user'] ) : '',
-		'api_token'           => isset( $_POST['api_token'] ) ? wp_unslash( $_POST['api_token'] ) : '',
-		'default_from_email'  => isset( $_POST['default_from_email'] ) ? wp_unslash( $_POST['default_from_email'] ) : '',
-		'default_template_id' => isset( $_POST['default_template_id'] ) ? wp_unslash( $_POST['default_template_id'] ) : '',
-		'default_list_ids'    => isset( $_POST['default_list_ids'] ) ? wp_unslash( $_POST['default_list_ids'] ) : '',
+		'base_url'            => isset( $_POST['base_url'] ) ? esc_url_raw( wp_unslash( $_POST['base_url'] ) ) : '',
+		'api_user'            => isset( $_POST['api_user'] ) ? sanitize_text_field( wp_unslash( $_POST['api_user'] ) ) : '',
+		'api_token'           => isset( $_POST['api_token'] ) ? sanitize_text_field( wp_unslash( $_POST['api_token'] ) ) : '',
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Custom sanitizer preserves display-name email syntax.
+		'default_from_email'  => isset( $_POST['default_from_email'] ) ? newspack_listmonk_connector_sanitize_from_email( wp_unslash( $_POST['default_from_email'] ) ) : '',
+		'default_template_id' => isset( $_POST['default_template_id'] ) ? absint( wp_unslash( $_POST['default_template_id'] ) ) : '',
+		'default_list_ids'    => isset( $_POST['default_list_ids'] ) ? sanitize_text_field( wp_unslash( $_POST['default_list_ids'] ) ) : '',
 	);
 
 	newspack_listmonk_connector_save_settings( $settings );

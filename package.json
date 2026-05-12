@@ -11,6 +11,8 @@
 		"sync-rest": "tsx scripts/sync-rest-contracts.ts",
 		"build": "pnpm run sync --check && node scripts/build-workspace.mjs build",
 		"release:zip": "node scripts/release-zip.mjs",
+		"release:wporg": "node scripts/release-wporg.mjs",
+		"review:plugin-check": "node scripts/review-plugin-check.mjs",
 		"start": "pnpm run sync && node scripts/build-workspace.mjs start",
 		"dev": "pnpm run start",
 		"env:start": "wp-env start",

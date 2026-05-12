@@ -78,4 +78,29 @@ class Newspack_Listmonk_Connector_Settings_Test extends WP_UnitTestCase {
 
 		$this->assertSame( 'Newsroom', $settings['default_from_email'] );
 	}
+
+	/**
+	 * Uninstall cleanup removes local credentials and sync error transients only.
+	 */
+	public function test_uninstall_cleanup_removes_local_credentials_and_preserves_post_meta() {
+		$post_id = self::factory()->post->create();
+
+		newspack_listmonk_connector_save_settings(
+			array(
+				'base_url'           => 'https://listmonk.example.com',
+				'api_user'           => 'api-user',
+				'api_token'          => 'secret-token',
+				'default_from_email' => 'news@example.com',
+				'default_list_ids'   => array( 1 ),
+			)
+		);
+		set_transient( 'newspack_listmonk_connector_sync_error_' . $post_id, 'Sync failed.', HOUR_IN_SECONDS );
+		update_post_meta( $post_id, '_wtnl_listmonk_campaign_id', 123 );
+
+		newspack_listmonk_connector_cleanup_local_data();
+
+		$this->assertFalse( get_option( newspack_listmonk_connector_get_option_name(), false ) );
+		$this->assertFalse( get_transient( 'newspack_listmonk_connector_sync_error_' . $post_id ) );
+		$this->assertSame( 123, absint( get_post_meta( $post_id, '_wtnl_listmonk_campaign_id', true ) ) );
+	}
 }

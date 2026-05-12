@@ -24,16 +24,8 @@ define( 'NEWSPACK_LISTMONK_CONNECTOR_DIR', __DIR__ );
 
 require_once __DIR__ . '/inc/bootstrap.php';
 
-foreach ( glob( __DIR__ . '/src/blocks/*/server.php' ) ?: array() as $server_module ) {
-	require_once $server_module;
-}
-
-function newspack_listmonk_connector_load_textdomain() {
-	load_plugin_textdomain(
-		'newspack-listmonk-connector',
-		false,
-		dirname( plugin_basename( __FILE__ ) ) . '/languages'
-	);
+foreach ( glob( __DIR__ . '/src/blocks/*/server.php' ) ?: array() as $newspack_listmonk_connector_server_module ) {
+	require_once $newspack_listmonk_connector_server_module;
 }
 
 function newspack_listmonk_connector_get_build_root() {
@@ -163,10 +155,7 @@ function newspack_listmonk_connector_register_pattern_category() {
 		register_block_pattern_category(
 			'newspack-listmonk-connector',
 			array(
-				'label' => sprintf(
-					__( '%s Patterns', 'newspack-listmonk-connector' ),
-					"Newspack Listmonk Connector"
-				),
+				'label' => __( 'Newspack Listmonk Connector Patterns', 'newspack-listmonk-connector' ),
 			)
 		);
 	}
@@ -186,7 +175,6 @@ function newspack_listmonk_connector_register_rest_resources() {
 	}
 }
 
-add_action( 'init', 'newspack_listmonk_connector_load_textdomain' );
 add_action( 'init', 'newspack_listmonk_connector_register_blocks' );
 add_action( 'init', 'newspack_listmonk_connector_register_binding_sources', 20 );
 add_action( 'init', 'newspack_listmonk_connector_register_pattern_category' );

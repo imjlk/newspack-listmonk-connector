@@ -85,7 +85,13 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 
 				$result = method_exists( $this, 'send_newsletter' ) ? $this->send_newsletter( $post ) : $this->send( $post );
 				if ( is_wp_error( $result ) ) {
-					wp_die( esc_html( $result->get_error_message() ), '', esc_html( $result->get_error_code() ) );
+					wp_die(
+						esc_html( $result->get_error_message() ),
+						esc_html( $result->get_error_code() ),
+						array(
+							'response' => 500,
+						)
+					);
 				}
 			}
 

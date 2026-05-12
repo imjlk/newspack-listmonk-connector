@@ -24,12 +24,14 @@ const restSchemaResources = [
 
 const runtimePaths = [
 	pluginFile,
+	'uninstall.php',
 	'inc',
-	'languages',
 	'build',
 	'README.md',
 	'readme.txt',
+	'LICENSE',
 	'docs/SETUP.md',
+	'docs/PRIVACY.md',
 	'docs/STAGING-CHECKLIST.md',
 	'docs/WEBHOOK-POLICY.md',
 	'docs/COMPATIBILITY.md',
@@ -38,9 +40,11 @@ const runtimePaths = [
 
 const requiredFiles = [
 	pluginFile,
+	'uninstall.php',
 	'inc/bootstrap.php',
 	'inc/compat.php',
 	'inc/options.php',
+	'inc/uninstall.php',
 	'inc/admin/settings-page.php',
 	'inc/listmonk/class-listmonk-client.php',
 	'inc/provider/class-listmonk-controller.php',
@@ -60,7 +64,9 @@ const requiredFiles = [
 	'build/editor-plugins/style-index.css',
 	'README.md',
 	'readme.txt',
+	'LICENSE',
 	'docs/SETUP.md',
+	'docs/PRIVACY.md',
 	'docs/STAGING-CHECKLIST.md',
 	'docs/WEBHOOK-POLICY.md',
 ];
@@ -88,6 +94,7 @@ const forbiddenZipPatterns = [
 	/^newspack-listmonk-connector\/\.env(?:\.|$)/,
 	/^newspack-listmonk-connector\/\.listmonk\.env$/,
 	/^newspack-listmonk-connector\/\.wp-env(?:\.|\/|$)/,
+	/^newspack-listmonk-connector\/.*\/\.gitkeep$/,
 	/^newspack-listmonk-connector\/docker-compose\.listmonk\.yml$/,
 	/^newspack-listmonk-connector\/playwright\.config\.js$/,
 	/^newspack-listmonk-connector\/phpunit\.xml\.dist$/,
