@@ -145,6 +145,13 @@ Run the browser E2E for the React settings screen:
 pnpm run e2e:settings:local
 ```
 
+Run the browser visual regression fixture for representative rendered newsletter
+blocks:
+
+```bash
+pnpm run e2e:visual:local
+```
+
 The editor E2E builds the editor bundle, starts local Listmonk, starts/reuses
 wp-env, creates a draft newsletter fixture, and verifies list selection, raw
 HTML preview, payload preview, sync, and test send in Chromium.
@@ -153,6 +160,10 @@ The settings E2E builds the admin bundle, starts local Listmonk, starts/reuses
 wp-env, opens `Settings > Newspack Listmonk`, verifies REST hydration, saves
 without replacing the stored token, tests the Listmonk connection, and confirms
 saved values persist after reload.
+
+The visual E2E builds the plugin assets, starts/reuses wp-env, renders a stable
+newsletter fixture with representative blocks through the raw HTML builder, and
+compares the Chromium screenshot against the committed baseline.
 
 The send/schedule smoke is intentionally local-only. It reads only
 `.listmonk.env` and refuses to run unless `LISTMONK_BASE_URL` points to

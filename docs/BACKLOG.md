@@ -104,7 +104,7 @@ Goal: Convert a Newspack newsletter post into Listmonk-ready HTML and plain text
 - `[x]` Add email-safe cleanup pass.
 - `[x]` Add unsubscribe/footer placeholder policy.
 - `[ ]` Add Listmonk merge tag helper policy.
-- `[ ]` Add visual regression fixtures for representative newsletter blocks.
+- `[x]` Add visual regression fixtures for representative newsletter blocks.
 
 ## Phase 5: Campaign Sync And Send Flow
 
@@ -194,5 +194,5 @@ Goal: Prepare a beta plugin build for staging.
 ## Next Recommended Work
 
 1. Run staging smoke test from the beta zip.
-2. Add visual regression fixtures for representative newsletter blocks.
-3. Add Listmonk merge tag helper policy.
+2. Add Listmonk merge tag helper policy.
+3. Add publish/schedule browser E2E coverage.

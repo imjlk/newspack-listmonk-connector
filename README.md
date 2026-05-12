@@ -96,6 +96,7 @@ pnpm run smoke:listmonk:archive:local
 pnpm run smoke:listmonk:subscribers:local
 pnpm run e2e:settings:local
 pnpm run e2e:editor:local
+pnpm run e2e:visual:local
 ```
 
 Local Listmonk runs at `http://localhost:9000`; wp-env reaches it through the
