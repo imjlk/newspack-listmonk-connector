@@ -1037,6 +1037,60 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 	}
 
 	/**
+	 * Tag bridge methods return a tag-specific compatibility error.
+	 *
+	 * @dataProvider unsupported_tag_method_provider
+	 *
+	 * @param string $method Method name.
+	 * @param array  $args Method arguments.
+	 */
+	public function test_tag_methods_return_tags_not_supported_error( $method, array $args ) {
+		$result = $this->provider->{$method}( ...$args );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'newspack_listmonk_connector_tags_not_supported', $result->get_error_code() );
+	}
+
+	/**
+	 * Contact tag IDs remain empty for editor/contact-flow safety.
+	 */
+	public function test_get_contact_tags_ids_returns_empty_array() {
+		$this->assertSame( array(), $this->provider->get_contact_tags_ids( 'reader@example.com' ) );
+	}
+
+	/**
+	 * Conditional tag support remains available as a Listmonk template helper.
+	 */
+	public function test_conditional_tag_support_remains_available() {
+		$support = Newspack_Listmonk_Connector_Provider::get_conditional_tag_support();
+
+		$this->assertIsArray( $support );
+		$this->assertArrayHasKey( 'support_url', $support );
+		$this->assertArrayHasKey( 'example', $support );
+		$this->assertArrayHasKey( 'before', $support['example'] );
+		$this->assertArrayHasKey( 'after', $support['example'] );
+		$this->assertStringContainsString( 'listmonk.app/docs/templating', $support['support_url'] );
+		$this->assertStringContainsString( '{{ if', $support['example']['before'] );
+		$this->assertStringContainsString( '{{ end', $support['example']['after'] );
+	}
+
+	/**
+	 * Unsupported tag method provider.
+	 *
+	 * @return array
+	 */
+	public function unsupported_tag_method_provider() {
+		return array(
+			'get_tag_id'              => array( 'get_tag_id', array( 'Paid Readers' ) ),
+			'get_tag_by_id'           => array( 'get_tag_by_id', array( 12 ) ),
+			'create_tag'              => array( 'create_tag', array( 'Paid Readers' ) ),
+			'update_tag'              => array( 'update_tag', array( 12, 'Members' ) ),
+			'add_tag_to_contact'      => array( 'add_tag_to_contact', array( 'reader@example.com', 'Members' ) ),
+			'remove_tag_from_contact' => array( 'remove_tag_from_contact', array( 'reader@example.com', 'Members' ) ),
+		);
+	}
+
+	/**
 	 * Create a future newsletter post.
 	 *
 	 * @return int

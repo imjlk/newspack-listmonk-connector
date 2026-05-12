@@ -712,7 +712,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	 * @return WP_Error
 	 */
 	public function get_tag_id( $tag_name, $create_if_not_found = true, $list_id = null ) {
-		return $this->not_implemented();
+		return $this->tags_not_supported_error();
 	}
 
 	/**
@@ -723,7 +723,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	 * @return WP_Error
 	 */
 	public function get_tag_by_id( $tag_id, $list_id = null ) {
-		return $this->not_implemented();
+		return $this->tags_not_supported_error();
 	}
 
 	/**
@@ -734,7 +734,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	 * @return WP_Error
 	 */
 	public function create_tag( $tag, $list_id = null ) {
-		return $this->not_implemented();
+		return $this->tags_not_supported_error();
 	}
 
 	/**
@@ -746,7 +746,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	 * @return WP_Error
 	 */
 	public function update_tag( $tag_id, $tag, $list_id = null ) {
-		return $this->not_implemented();
+		return $this->tags_not_supported_error();
 	}
 
 	/**
@@ -758,7 +758,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	 * @return WP_Error
 	 */
 	public function add_tag_to_contact( $email, $tag, $list_id = null ) {
-		return $this->not_implemented();
+		return $this->tags_not_supported_error();
 	}
 
 	/**
@@ -770,7 +770,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	 * @return WP_Error
 	 */
 	public function remove_tag_from_contact( $email, $tag, $list_id = null ) {
-		return $this->not_implemented();
+		return $this->tags_not_supported_error();
 	}
 
 	/**
@@ -1257,6 +1257,18 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		return new WP_Error(
 			'newspack_listmonk_connector_not_implemented',
 			$message ? $message : __( 'This Listmonk provider method is not implemented yet.', 'newspack-listmonk-connector' )
+		);
+	}
+
+	/**
+	 * Build a tag-not-supported error.
+	 *
+	 * @return WP_Error
+	 */
+	private function tags_not_supported_error() {
+		return new WP_Error(
+			'newspack_listmonk_connector_tags_not_supported',
+			__( 'Listmonk subscriber tags are not mapped to Newspack local tags. Use Listmonk lists, subscriber attributes, or campaign template merge tags instead.', 'newspack-listmonk-connector' )
 		);
 	}
 }

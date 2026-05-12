@@ -172,7 +172,19 @@ Newspack contacts map to Listmonk subscribers:
 | `_wtnl_listmonk_archived_at` | Archive timestamp. |
 | `_wtnl_listmonk_archive_policy` | Archive policy applied during trash/delete. |
 
-## Deferred Methods
+## Tag Method Compatibility Policy
 
-Tag methods remain present to satisfy the Newspack provider interface, but they
-intentionally return MVP "not implemented" errors or empty results.
+Tag methods remain present to satisfy the Newspack provider interface, but the
+connector does not map Newspack local tags to Listmonk subscriber tags.
+
+Listmonk segmentation should use:
+
+- Listmonk lists for audience selection.
+- Subscriber `attribs` for Reader Activation metadata and custom fields.
+- Listmonk campaign or template merge tags for conditional rendering.
+
+Tag mutation/read methods return
+`newspack_listmonk_connector_tags_not_supported`. `get_contact_tags_ids()`
+returns an empty array so editor and contact flows can continue without a fatal.
+`get_conditional_tag_support()` remains available only as a Listmonk Go template
+helper for operators writing template conditionals.

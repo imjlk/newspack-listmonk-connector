@@ -15,10 +15,10 @@ Status legend:
 | 0 | Technical validation and design | `[x]` |
 | 1 | wp-typia scaffold | `[x]` |
 | 2 | Listmonk API client | `[x]` |
-| 3 | Newspack provider adapter | `[~]` |
-| 4 | Raw HTML rendering pipeline | `[~]` |
-| 5 | Campaign sync/send flow | `[~]` |
-| 6 | Admin and editor UI | `[~]` |
+| 3 | Newspack provider adapter | `[x]` |
+| 4 | Raw HTML rendering pipeline | `[x]` |
+| 5 | Campaign sync/send flow | `[x]` |
+| 6 | Admin and editor UI | `[x]` |
 | 7 | Subscriber/list integration | `[x]` |
 | 8 | Test strategy and QA | `[~]` |
 | 9 | Packaging and beta release | `[~]` |
@@ -83,7 +83,7 @@ Goal: Make Listmonk appear as a Newspack Newsletters ESP provider.
 - `[x]` Implement `sync()`.
 - `[x]` Implement `test()`.
 - `[x]` Implement `send()`.
-- `[~]` Implement subscriber methods; keep tag methods as explicit MVP stubs.
+- `[x]` Implement subscriber methods and document tag method compatibility policy.
 - `[x]` Confirm editor-side Newspack data expectations in a live Newspack site.
 - `[x]` Add Listmonk Newspack provider REST controller for retrieve/test/sync-error routes.
 - `[x]` Add `supports_multiple_test_recipients` to editor response payloads.
@@ -196,5 +196,5 @@ Goal: Prepare a beta plugin build for staging.
 ## Next Recommended Work
 
 1. Run `pnpm run smoke:staging:zip` against a real staging site and mark Phase 9 complete.
-2. Clean up provider tag method stubs or document their long-term compatibility stance.
-3. Clarify the `wp-typia doctor` environment note for machines without Bun.
+2. Clarify the `wp-typia doctor` environment note for machines without Bun.
+3. Decide whether `get_usage_report()` should stay an explicit MVP stub or become a lightweight analytics alias.

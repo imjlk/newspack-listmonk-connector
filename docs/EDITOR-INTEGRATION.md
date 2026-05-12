@@ -69,6 +69,11 @@ mailchimp,constant_contact,active_campaign,listmonk,manual
 That means the editor treats `listmonk` as a supported ESP and will attempt the
 Newspack provider REST flow.
 
+The `conditional_tag_support` payload is intentionally scoped to Listmonk Go
+template examples. It does not mean the connector syncs Newspack local tags into
+Listmonk; subscriber segmentation is handled through Listmonk lists, subscriber
+attributes, and template merge tags.
+
 ## Editor REST Flow
 
 The minified Newspack editor bundle uses these provider routes:
