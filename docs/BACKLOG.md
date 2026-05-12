@@ -196,4 +196,3 @@ Goal: Prepare a beta plugin build for staging.
 ## Next Recommended Work
 
 1. Run `pnpm run smoke:staging:zip` against a real staging site and mark Phase 9 complete.
-2. Decide whether `get_usage_report()` should stay an explicit MVP stub or become a lightweight analytics alias.

@@ -13,6 +13,7 @@ use Newspack\Newsletters\Send_List;
 use Newspack\Newsletters\Send_Lists;
 
 require_once dirname( __DIR__ ) . '/compat.php';
+require_once dirname( __DIR__ ) . '/rest/campaign-analytics.php';
 require_once __DIR__ . '/class-listmonk-controller.php';
 
 /**
@@ -786,10 +787,42 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	/**
 	 * Get usage report.
 	 *
-	 * @return WP_Error
+	 * @param int    $post_id Newsletter post ID.
+	 * @param string $from Start date.
+	 * @param string $to End date.
+	 * @return array|WP_Error
 	 */
-	public function get_usage_report() {
-		return $this->not_implemented( __( 'Listmonk usage reports are not implemented yet.', 'newspack-listmonk-connector' ) );
+	public function get_usage_report( $post_id = 0, $from = '', $to = '' ) {
+		$post_id = absint( $post_id );
+		if ( ! $post_id ) {
+			return new WP_Error(
+				'newspack_listmonk_connector_missing_campaign_id',
+				__( 'A synced newsletter post ID is required to read Listmonk usage data.', 'newspack-listmonk-connector' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		$to   = $to ? sanitize_text_field( (string) $to ) : gmdate( 'Y-m-d' );
+		$from = $from ? sanitize_text_field( (string) $from ) : gmdate( 'Y-m-d', strtotime( $to . ' -30 days' ) );
+
+		$analytics = newspack_listmonk_connector_campaign_analytics_build_response(
+			array(
+				'postId' => $post_id,
+				'from'   => $from,
+				'to'     => $to,
+			)
+		);
+		if ( is_wp_error( $analytics ) ) {
+			return $analytics;
+		}
+
+		return array(
+			'campaignId' => absint( $analytics['campaignId'] ?? 0 ),
+			'status'     => sanitize_text_field( (string) ( $analytics['status'] ?? '' ) ),
+			'totals'     => is_array( $analytics['totals'] ?? null ) ? $analytics['totals'] : array(),
+			'links'      => is_array( $analytics['links'] ?? null ) ? $analytics['links'] : array(),
+			'checkedAt'  => sanitize_text_field( (string) ( $analytics['checkedAt'] ?? '' ) ),
+		);
 	}
 
 	/**

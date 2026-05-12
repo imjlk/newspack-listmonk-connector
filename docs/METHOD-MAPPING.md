@@ -33,6 +33,7 @@ The active Newspack provider is stored in the
 | `get_contact_data( $email )` | Paginated `GET /api/subscribers?page=N&per_page=100` followed by local exact email matching. |
 | `get_contact_lists( $email )` | Returns list IDs from the Listmonk subscriber response. |
 | `update_contact_lists( $email, $add, $remove )` | `PUT /api/subscribers/lists` with `add` and `remove` actions. |
+| `get_usage_report( $post_id, $from, $to )` | Lightweight alias for the campaign analytics read helper. |
 
 ## Campaign Analytics
 
@@ -48,6 +49,13 @@ and reads:
 
 The editor retrieve payload remains unchanged; analytics are exposed only
 through the dedicated connector REST resource.
+
+`get_usage_report()` is available for Newspack provider compatibility and
+returns a lightweight campaign-level summary for a synced newsletter post. It
+uses the same analytics reads as the REST resource, defaults to the previous 30
+UTC days when no date range is supplied, and returns
+`newspack_listmonk_connector_missing_campaign_id` until the newsletter has a
+Listmonk campaign ID.
 
 ## Webhook And Bounce Policy
 

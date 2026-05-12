@@ -1075,6 +1075,97 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 	}
 
 	/**
+	 * Usage reports return a lightweight campaign analytics summary.
+	 */
+	public function test_usage_report_returns_campaign_analytics_summary() {
+		$post_id = $this->create_draft_post();
+		update_post_meta( $post_id, '_wtnl_listmonk_campaign_id', 88 );
+		update_post_meta( $post_id, '_wtnl_listmonk_last_status', 'running' );
+
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'id'       => 88,
+					'status'   => 'running',
+					'sent'     => 120,
+					'to_send'  => 0,
+					'views'    => 40,
+					'clicks'   => 12,
+					'bounces'  => 2,
+				),
+			)
+		);
+		$this->queue_response( 200, array( 'data' => array() ) );
+		$this->queue_response( 200, array( 'data' => array() ) );
+		$this->queue_response( 200, array( 'data' => array() ) );
+		$this->queue_response( 200, array( 'data' => array() ) );
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					array(
+						'url'   => 'https://example.com/story',
+						'count' => 7,
+					),
+				),
+			)
+		);
+
+		$result = $this->provider->get_usage_report( $post_id );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 88, $result['campaignId'] );
+		$this->assertSame( 'running', $result['status'] );
+		$this->assertSame( 120, $result['totals']['sent'] );
+		$this->assertSame( 40, $result['totals']['views'] );
+		$this->assertSame( 12, $result['totals']['clicks'] );
+		$this->assertSame( 2, $result['totals']['bounces'] );
+		$this->assertSame( 'https://example.com/story', $result['links'][0]['url'] );
+		$this->assertNotEmpty( $result['checkedAt'] );
+
+		$to   = gmdate( 'Y-m-d' );
+		$from = gmdate( 'Y-m-d', strtotime( $to . ' -30 days' ) );
+
+		$this->assert_request_without_body( 0, 'GET', 'http://listmonk.test:9000/api/campaigns/88' );
+		$this->assert_request_without_body( 1, 'GET', 'http://listmonk.test:9000/api/campaigns/running/stats?campaign_id=88' );
+		$this->assert_request_without_body( 2, 'GET', sprintf( 'http://listmonk.test:9000/api/campaigns/analytics/views?id=88&from=%s&to=%s', $from, $to ) );
+		$this->assert_request_without_body( 3, 'GET', sprintf( 'http://listmonk.test:9000/api/campaigns/analytics/clicks?id=88&from=%s&to=%s', $from, $to ) );
+		$this->assert_request_without_body( 4, 'GET', sprintf( 'http://listmonk.test:9000/api/campaigns/analytics/bounces?id=88&from=%s&to=%s', $from, $to ) );
+		$this->assert_request_without_body( 5, 'GET', sprintf( 'http://listmonk.test:9000/api/campaigns/analytics/links?id=88&from=%s&to=%s', $from, $to ) );
+	}
+
+	/**
+	 * Usage reports require a synced campaign.
+	 */
+	public function test_usage_report_requires_synced_campaign() {
+		$post_id = $this->create_draft_post();
+
+		$result = $this->provider->get_usage_report( $post_id );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'newspack_listmonk_connector_missing_campaign_id', $result->get_error_code() );
+		$this->assertCount( 0, $this->requests );
+	}
+
+	/**
+	 * Usage reports preserve Listmonk API failures.
+	 */
+	public function test_usage_report_returns_listmonk_api_failure() {
+		$post_id = $this->create_draft_post();
+		update_post_meta( $post_id, '_wtnl_listmonk_campaign_id', 88 );
+
+		$this->queue_response( 500, array( 'message' => 'Usage lookup failed.' ), 'Server Error' );
+
+		$result = $this->provider->get_usage_report( $post_id, '2026-05-01', '2026-05-12' );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'newspack_listmonk_connector_api_error', $result->get_error_code() );
+		$this->assertSame( 'Usage lookup failed.', $result->get_error_message() );
+		$this->assertCount( 1, $this->requests );
+	}
+
+	/**
 	 * Unsupported tag method provider.
 	 *
 	 * @return array
