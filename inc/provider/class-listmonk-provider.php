@@ -207,21 +207,26 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 			);
 		}
 
-		$list_ids = $this->get_post_list_ids( $post );
-		$lists    = $this->get_send_lists(
-			array(
-				'ids'  => $list_ids,
-				'type' => 'list',
-			),
-			true
-		);
-		if ( is_wp_error( $lists ) ) {
-			return $lists;
+		$list_ids      = $this->get_post_list_ids( $post );
+		$is_configured = $this->has_api_credentials();
+		$lists         = array();
+		if ( $is_configured ) {
+			$lists = $this->get_send_lists(
+				array(
+					'ids'  => $list_ids,
+					'type' => 'list',
+				),
+				true
+			);
+			if ( is_wp_error( $lists ) ) {
+				return $lists;
+			}
 		}
 
 		return array(
 			'campaign'                           => true,
 			'campaign_id'                        => get_post_meta( $post_id, '_wtnl_listmonk_campaign_id', true ),
+			'is_service_provider_configured'     => $is_configured,
 			'listmonk_campaign_id'               => get_post_meta( $post_id, '_wtnl_listmonk_campaign_id', true ),
 			'listmonk_campaign_uuid'             => get_post_meta( $post_id, '_wtnl_listmonk_campaign_uuid', true ),
 			'listmonk_last_status'               => get_post_meta( $post_id, '_wtnl_listmonk_last_status', true ),

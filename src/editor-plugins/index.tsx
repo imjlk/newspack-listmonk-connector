@@ -80,12 +80,19 @@ type NewspackEmailEditorData = {
 };
 
 type NewspackNewslettersData = {
+	is_service_provider_configured?: boolean;
 	service_provider?: string;
 	user_test_emails?: string[] | string;
 };
 
+type NewspackListmonkConnectorEditorData = {
+	isConfigured?: boolean;
+	settingsUrl?: string;
+};
+
 type WindowWithNewspack = typeof window & {
 	newspack_email_editor_data?: NewspackEmailEditorData;
+	newspack_listmonk_connector_editor?: NewspackListmonkConnectorEditorData;
 	newspack_newsletters_data?: NewspackNewslettersData;
 };
 
@@ -124,6 +131,28 @@ function getNewspackNewslettersData(): NewspackNewslettersData {
 	}
 
 	return ( window as WindowWithNewspack ).newspack_newsletters_data ?? {};
+}
+
+function getConnectorEditorData(): NewspackListmonkConnectorEditorData {
+	if ( typeof window === 'undefined' ) {
+		return {};
+	}
+
+	return (
+		( window as WindowWithNewspack ).newspack_listmonk_connector_editor ??
+		{}
+	);
+}
+
+function isListmonkServiceProviderConfigured(): boolean {
+	const connectorData = getConnectorEditorData();
+	if ( typeof connectorData.isConfigured === 'boolean' ) {
+		return connectorData.isConfigured;
+	}
+
+	const newslettersData = getNewspackNewslettersData();
+
+	return newslettersData.is_service_provider_configured !== false;
 }
 
 function getDefaultTestEmail(): string {
@@ -371,6 +400,8 @@ function ListmonkPanel() {
 	const [ isLoadingAnalytics, setIsLoadingAnalytics ] = useState( false );
 
 	const isActiveEditor = isListmonkNewsletterEditor( editorData.postType );
+	const isServiceProviderConfigured = isListmonkServiceProviderConfigured();
+	const canUseListmonkApi = isActiveEditor && isServiceProviderConfigured;
 	const selectedListId = getSelectedListId(
 		editorData.meta,
 		retrieveData,
@@ -450,7 +481,7 @@ function ListmonkPanel() {
 	);
 
 	const refreshRetrieveAndLists = useCallback( async () => {
-		if ( ! editorData.postId ) {
+		if ( ! canUseListmonkApi || ! editorData.postId ) {
 			return;
 		}
 
@@ -475,10 +506,10 @@ function ListmonkPanel() {
 		} finally {
 			setIsLoading( false );
 		}
-	}, [ createErrorNotice, editorData.postId ] );
+	}, [ canUseListmonkApi, createErrorNotice, editorData.postId ] );
 
 	const refreshPreview = useCallback( async () => {
-		if ( ! editorData.postId ) {
+		if ( ! canUseListmonkApi || ! editorData.postId ) {
 			return;
 		}
 
@@ -507,26 +538,31 @@ function ListmonkPanel() {
 		} finally {
 			setIsPreviewing( false );
 		}
-	}, [ createErrorNotice, editorData.postId, selectedListId ] );
+	}, [
+		canUseListmonkApi,
+		createErrorNotice,
+		editorData.postId,
+		selectedListId,
+	] );
 
 	useEffect( () => {
-		if ( ! isActiveEditor ) {
+		if ( ! canUseListmonkApi ) {
 			return;
 		}
 
 		void refreshRetrieveAndLists();
-	}, [ isActiveEditor, refreshRetrieveAndLists ] );
+	}, [ canUseListmonkApi, refreshRetrieveAndLists ] );
 
 	useEffect( () => {
-		if ( ! isActiveEditor || ! selectedListId ) {
+		if ( ! canUseListmonkApi || ! selectedListId ) {
 			return;
 		}
 
 		void refreshPreview();
-	}, [ isActiveEditor, refreshPreview, selectedListId ] );
+	}, [ canUseListmonkApi, refreshPreview, selectedListId ] );
 
 	useEffect( () => {
-		if ( ! isActiveEditor ) {
+		if ( ! canUseListmonkApi ) {
 			return;
 		}
 
@@ -545,7 +581,7 @@ function ListmonkPanel() {
 		void refreshAnalytics( campaignId );
 	}, [
 		campaignId,
-		isActiveEditor,
+		canUseListmonkApi,
 		lastAutoAnalyticsCampaignId,
 		refreshAnalytics,
 	] );
@@ -684,6 +720,43 @@ function ListmonkPanel() {
 
 	if ( ! isActiveEditor ) {
 		return null;
+	}
+
+	if ( ! isServiceProviderConfigured ) {
+		const settingsUrl = getConnectorEditorData().settingsUrl;
+
+		return createElement( PluginDocumentSettingPanel, {
+			children: createElement( Notice, {
+				children: [
+					createElement(
+						'p',
+						{ key: 'message' },
+						__(
+							'Configure Listmonk settings before syncing newsletters.',
+							'newspack-listmonk-connector'
+						)
+					),
+					settingsUrl
+						? createElement(
+								Button,
+								{
+									href: settingsUrl,
+									key: 'settings-link',
+									variant: 'secondary',
+								},
+								__(
+									'Open Listmonk settings',
+									'newspack-listmonk-connector'
+								)
+						  )
+						: null,
+				],
+				isDismissible: false,
+				status: 'warning',
+			} ),
+			name: 'newspack-listmonk-connector',
+			title: __( 'Listmonk', 'newspack-listmonk-connector' ),
+		} );
 	}
 
 	const isBusy =

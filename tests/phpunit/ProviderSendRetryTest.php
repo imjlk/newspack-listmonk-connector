@@ -361,6 +361,22 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 	}
 
 	/**
+	 * Editor retrieve stays quiet before Listmonk credentials are configured.
+	 */
+	public function test_retrieve_without_credentials_returns_unconfigured_state_without_remote_request() {
+		delete_option( newspack_listmonk_connector_get_option_name() );
+		$post_id = $this->create_draft_post();
+
+		$result = $this->provider->retrieve( $post_id );
+
+		$this->assertIsArray( $result );
+		$this->assertFalse( $result['is_service_provider_configured'] );
+		$this->assertSame( array(), $result['lists'] );
+		$this->assertSame( '1', $result['send_list_id'] );
+		$this->assertCount( 0, $this->requests );
+	}
+
+	/**
 	 * Future-dated editor saves schedule before Newspack can send immediately.
 	 */
 	public function test_future_dated_pre_post_update_schedules_campaign() {

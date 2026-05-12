@@ -136,6 +136,16 @@ function newspack_listmonk_connector_enqueue_editor_plugins_editor() {
 		isset( $asset['version'] ) ? $asset['version'] : filemtime( $script_path ),
 		true
 	);
+	wp_add_inline_script(
+		'newspack-listmonk-connector-editor-plugins',
+		'window.newspack_listmonk_connector_editor = ' . wp_json_encode(
+			array(
+				'isConfigured' => ( new Newspack_Listmonk_Connector_Listmonk_Client() )->has_credentials(),
+				'settingsUrl' => admin_url( 'options-general.php?page=newspack-listmonk-connector' ),
+			)
+		) . ';',
+		'before'
+	);
 
 	if ( file_exists( $style_path ) ) {
 		wp_enqueue_style(

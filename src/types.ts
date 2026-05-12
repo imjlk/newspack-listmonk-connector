@@ -159,6 +159,7 @@ export interface NewspackSendList {
 export interface NewspackEditorRetrieveResponse {
 	campaign: boolean;
 	campaign_id?: string & tags.MaxLength< 80 >;
+	is_service_provider_configured?: boolean;
 	listmonk_campaign_id?: string & tags.MaxLength< 80 >;
 	listmonk_campaign_uuid?: string & tags.MaxLength< 80 >;
 	listmonk_last_status?: string & tags.MaxLength< 40 >;

@@ -75,6 +75,9 @@
 								"type": "string",
 								"maxLength": 80
 							},
+							"is_service_provider_configured": {
+								"type": "boolean"
+							},
 							"listmonk_campaign_id": {
 								"type": "string",
 								"maxLength": 80
