@@ -57,6 +57,45 @@
 	width: 100%;
 }
 
+.newspack-listmonk-connector-panel__merge-tags {
+	border: 1px solid #dcdcde;
+	margin-bottom: 16px;
+	padding: 10px;
+}
+
+.newspack-listmonk-connector-panel__merge-tags-title {
+	color: #1e1e1e;
+	font-weight: 600;
+	margin-bottom: 8px;
+}
+
+.newspack-listmonk-connector-panel__merge-tag {
+	align-items: center;
+	display: flex;
+	gap: 8px;
+	justify-content: space-between;
+	min-height: 28px;
+
+	+ .newspack-listmonk-connector-panel__merge-tag {
+		border-top: 1px solid #f0f0f0;
+		padding-top: 6px;
+	}
+
+	span {
+		color: #646970;
+	}
+
+	code {
+		background: #f6f7f7;
+		border-radius: 2px;
+		color: #1e1e1e;
+		font-size: 12px;
+		overflow-wrap: anywhere;
+		padding: 2px 4px;
+		text-align: right;
+	}
+}
+
 .newspack-listmonk-connector-panel__loading {
 	align-items: center;
 	display: flex;

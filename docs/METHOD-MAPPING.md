@@ -74,6 +74,12 @@ Listmonk's Go template expression is not URL-encoded. When a `template_id` is
 present, the connector does not append a body footer; the Listmonk template
 footer must include `{{ UnsubscribeURL }}`.
 
+The editor panel shows the supported MVP merge-tag helpers:
+`{{ UnsubscribeURL }}` and `{{ TrackView }}`. The HTML cleanup pass preserves
+those placeholders if DOM or URL processing encodes them. The connector does not
+auto-insert `{{ TrackView }}` because open tracking should be placed once by the
+Listmonk template or by an operator-authored raw body.
+
 The provider keeps draft campaigns as drafts during `sync()`. It only changes
 status during `send()`:
 

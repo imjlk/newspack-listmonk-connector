@@ -355,6 +355,22 @@ test.describe( 'Listmonk editor panel', () => {
 		await listSelect.selectOption( fixture.listId );
 		await expect( listSelect ).toHaveValue( fixture.listId );
 
+		await expect( panel.getByText( 'Listmonk merge tags' ) ).toBeVisible();
+		await expect(
+			panel
+				.locator(
+					'.newspack-listmonk-connector-panel__merge-tags code'
+				)
+				.filter( { hasText: '{{ UnsubscribeURL }}' } )
+		).toBeVisible();
+		await expect(
+			panel
+				.locator(
+					'.newspack-listmonk-connector-panel__merge-tags code'
+				)
+				.filter( { hasText: '{{ TrackView }}' } )
+		).toBeVisible();
+
 		const rawHtmlPreview = panel.getByLabel( 'Raw HTML preview' );
 		await expect( rawHtmlPreview ).toHaveValue(
 			new RegExp( fixture.bodyText )

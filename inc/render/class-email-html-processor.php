@@ -443,9 +443,29 @@ class Newspack_Listmonk_Connector_Email_HTML_Processor {
 	 * @return string
 	 */
 	private function restore_listmonk_template_placeholders( $html ) {
-		$html = preg_replace( '/%7B%7B(?:%20)*UnsubscribeURL(?:%20)*%7D%7D/i', '{{ UnsubscribeURL }}', (string) $html );
+		$html = (string) $html;
 
-		return preg_replace( '/\{\{(?:%20)*UnsubscribeURL(?:%20)*\}\}/i', '{{ UnsubscribeURL }}', (string) $html );
+		foreach ( $this->get_listmonk_template_placeholders() as $placeholder ) {
+			$quoted_placeholder = preg_quote( $placeholder, '/' );
+			$canonical          = '{{ ' . $placeholder . ' }}';
+
+			$html = preg_replace( '/%7B%7B(?:%20|\+)*' . $quoted_placeholder . '(?:%20|\+)*%7D%7D/i', $canonical, $html );
+			$html = preg_replace( '/\{\{(?:\s|%20|\+)*' . $quoted_placeholder . '(?:\s|%20|\+)*\}\}/i', $canonical, (string) $html );
+		}
+
+		return (string) $html;
+	}
+
+	/**
+	 * Listmonk template placeholders that should survive URL cleanup.
+	 *
+	 * @return array<int,string>
+	 */
+	private function get_listmonk_template_placeholders() {
+		return array(
+			'UnsubscribeURL',
+			'TrackView',
+		);
 	}
 
 	/**

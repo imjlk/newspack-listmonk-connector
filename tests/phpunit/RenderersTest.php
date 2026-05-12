@@ -72,6 +72,7 @@ class Newspack_Listmonk_Connector_Renderers_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'newspack-listmonk-connector-unsubscribe-footer', $html );
 		$this->assertStringContainsString( 'href="{{ UnsubscribeURL }}"', $html );
 		$this->assertStringContainsString( 'Unsubscribe or manage preferences', $html );
+		$this->assertStringNotContainsString( 'TrackView', $html );
 	}
 
 	/**
@@ -230,6 +231,19 @@ class Newspack_Listmonk_Connector_Renderers_Test extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'href=', $output );
 		$this->assertStringContainsString( 'src="' . home_url( '/image.jpg' ) . '"', $output );
 		$this->assertStringContainsString( 'srcset="' . home_url( '/small.jpg' ) . ' 1x, https://example.com/large.jpg 2x"', $output );
+	}
+
+	/**
+	 * Known Listmonk placeholders survive URL cleanup.
+	 */
+	public function test_email_html_processor_preserves_known_listmonk_placeholders() {
+		$html = '<html><body><a href="{{ TrackView }}">Track</a><a href="{{%20UnsubscribeURL%20}}">Unsubscribe</a></body></html>';
+
+		$output = ( new Newspack_Listmonk_Connector_Email_HTML_Processor() )->process( $html );
+
+		$this->assertStringContainsString( 'href="{{ TrackView }}"', $output );
+		$this->assertStringContainsString( 'href="{{ UnsubscribeURL }}"', $output );
+		$this->assertStringNotContainsString( '%7B%7B', $output );
 	}
 
 	/**

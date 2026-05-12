@@ -85,6 +85,17 @@ type WindowWithNewspack = typeof window & {
 	newspack_newsletters_data?: NewspackNewslettersData;
 };
 
+const LISTMONK_MERGE_TAG_HELPERS = [
+	{
+		label: __( 'Unsubscribe URL', 'newspack-listmonk-connector' ),
+		tag: '{{ UnsubscribeURL }}',
+	},
+	{
+		label: __( 'Open tracking pixel', 'newspack-listmonk-connector' ),
+		tag: '{{ TrackView }}',
+	},
+];
+
 function getNewspackEmailEditorData(): NewspackEmailEditorData {
 	if ( typeof window === 'undefined' ) {
 		return {};
@@ -231,6 +242,35 @@ async function sendTestEmail(
 		method: 'POST',
 		path: `/newspack-newsletters/v1/listmonk/${ postId }/test`,
 	} );
+}
+
+function renderMergeTagHelpers() {
+	return createElement(
+		'div',
+		{
+			className: 'newspack-listmonk-connector-panel__merge-tags',
+			key: 'merge-tags',
+		},
+		createElement(
+			'div',
+			{
+				className:
+					'newspack-listmonk-connector-panel__merge-tags-title',
+			},
+			__( 'Listmonk merge tags', 'newspack-listmonk-connector' )
+		),
+		LISTMONK_MERGE_TAG_HELPERS.map( ( helper ) =>
+			createElement(
+				'div',
+				{
+					className: 'newspack-listmonk-connector-panel__merge-tag',
+					key: helper.tag,
+				},
+				createElement( 'span', null, helper.label ),
+				createElement( 'code', null, helper.tag )
+			)
+		)
+	);
 }
 
 function ListmonkPanel() {
@@ -660,6 +700,7 @@ function ListmonkPanel() {
 				},
 				__( 'Send test', 'newspack-listmonk-connector' )
 			),
+			renderMergeTagHelpers(),
 			isLoading || isPreviewing
 				? createElement(
 						'div',
