@@ -52,6 +52,8 @@ const settings = {
 };
 
 const email = `smoke-subscriber-${Date.now()}@example.com`;
+const doubleOptInEmail = `smoke-double-optin-${Date.now()}@example.com`;
+const existingDoubleOptInEmail = `smoke-existing-double-optin-${Date.now()}@example.com`;
 const connectorSlug = 'newspack-listmonk-connector';
 const newspackSlug = resolvePluginSlug([
 	'newspack-newsletters',
@@ -72,6 +74,8 @@ const php = `
 $errors = array();
 $settings = json_decode( ${phpString(JSON.stringify(settings))}, true );
 $email = ${phpString(email)};
+$double_optin_email = ${phpString(doubleOptInEmail)};
+$existing_double_optin_email = ${phpString(existingDoubleOptInEmail)};
 $results = array();
 
 if ( ! is_array( $settings ) ) {
@@ -126,6 +130,26 @@ if ( empty( $errors ) ) {
 	if ( ! $primary_list_id ) {
 		$errors[] = 'Unable to resolve a primary Listmonk list ID.';
 	}
+}
+
+function newspack_listmonk_connector_subscriber_smoke_get_list_subscription_status( $client, $subscriber_id, $list_id ) {
+	$subscriber = $client->get_subscriber( absint( $subscriber_id ) );
+	if ( is_wp_error( $subscriber ) ) {
+		return $subscriber;
+	}
+
+	$subscriber_data = $subscriber['data'] ?? $subscriber;
+	$lists = $subscriber_data['lists'] ?? array();
+	foreach ( $lists as $list ) {
+		if ( is_array( $list ) && absint( $list['id'] ?? 0 ) === absint( $list_id ) ) {
+			return (string) ( $list['subscription_status'] ?? '' );
+		}
+	}
+
+	return new WP_Error(
+		'newspack_listmonk_connector_smoke_missing_subscription_status',
+		sprintf( 'Subscriber %d is missing list %d subscription status.', absint( $subscriber_id ), absint( $list_id ) )
+	);
 }
 
 if ( empty( $errors ) ) {
@@ -190,6 +214,98 @@ if ( empty( $errors ) && $secondary_list_id !== $primary_list_id ) {
 
 if ( empty( $errors ) ) {
 	$client = new Newspack_Listmonk_Connector_Listmonk_Client();
+	$double_optin_list_id = 0;
+	foreach ( $lists as $list ) {
+		if ( 'double' === (string) ( $list['optin'] ?? '' ) ) {
+			$double_optin_list_id = absint( $list['id'] ?? 0 );
+			break;
+		}
+	}
+
+	if ( ! $double_optin_list_id ) {
+		$created_list = $client->request(
+			'POST',
+			'/api/lists',
+			array(
+				'name' => 'Smoke Double Opt-In ' . gmdate( 'c' ),
+				'type' => 'private',
+				'optin' => 'double',
+				'status' => 'active',
+				'tags' => array( 'smoke' ),
+				'description' => 'Temporary local smoke list for double opt-in policy verification.',
+			)
+		);
+		if ( is_wp_error( $created_list ) ) {
+			$errors[] = 'Unable to create local double opt-in Listmonk list: ' . $created_list->get_error_message();
+		} else {
+			$created_list_data = $created_list['data'] ?? $created_list;
+			$double_optin_list_id = absint( $created_list_data['id'] ?? 0 );
+			if ( ! $double_optin_list_id ) {
+				$errors[] = 'Created double opt-in list did not include an ID.';
+			}
+		}
+	}
+}
+
+if ( empty( $errors ) ) {
+	$double_create = $provider->add_contact(
+		array(
+			'email' => $double_optin_email,
+			'name' => 'Smoke Double Opt-In Subscriber',
+		),
+		$double_optin_list_id
+	);
+	if ( is_wp_error( $double_create ) ) {
+		$errors[] = 'Unable to create double opt-in subscriber through provider: ' . $double_create->get_error_message();
+	} else {
+		$double_contact = $provider->get_contact_data( $double_optin_email, true );
+		if ( is_wp_error( $double_contact ) ) {
+			$errors[] = 'Unable to retrieve double opt-in subscriber: ' . $double_contact->get_error_message();
+		} else {
+			$double_subscriber_id = absint( $double_contact['id'] ?? 0 );
+			$double_subscription_status = newspack_listmonk_connector_subscriber_smoke_get_list_subscription_status( $client, $double_subscriber_id, $double_optin_list_id );
+			if ( is_wp_error( $double_subscription_status ) ) {
+				$errors[] = $double_subscription_status->get_error_message();
+			} elseif ( 'unconfirmed' !== $double_subscription_status ) {
+				$errors[] = 'Expected new double opt-in subscriber membership status unconfirmed, got: ' . $double_subscription_status;
+			}
+		}
+	}
+}
+
+if ( empty( $errors ) ) {
+	$existing_create = $provider->add_contact(
+		array(
+			'email' => $existing_double_optin_email,
+			'name' => 'Smoke Existing Double Opt-In Subscriber',
+		),
+		$primary_list_id
+	);
+	if ( is_wp_error( $existing_create ) ) {
+		$errors[] = 'Unable to create existing subscriber for double opt-in add test: ' . $existing_create->get_error_message();
+	} else {
+		$existing_contact = $provider->get_contact_data( $existing_double_optin_email, true );
+		if ( is_wp_error( $existing_contact ) ) {
+			$errors[] = 'Unable to retrieve existing double opt-in subscriber: ' . $existing_contact->get_error_message();
+		} else {
+			$existing_double_subscriber_id = absint( $existing_contact['id'] ?? 0 );
+			$existing_add = $provider->update_contact_lists( $existing_double_optin_email, array( $double_optin_list_id ), array() );
+			if ( is_wp_error( $existing_add ) ) {
+				$errors[] = 'Unable to add existing subscriber to double opt-in list: ' . $existing_add->get_error_message();
+			} else {
+				$existing_double_subscription_status = newspack_listmonk_connector_subscriber_smoke_get_list_subscription_status( $client, $existing_double_subscriber_id, $double_optin_list_id );
+				if ( is_wp_error( $existing_double_subscription_status ) ) {
+					$errors[] = $existing_double_subscription_status->get_error_message();
+				} elseif ( 'unconfirmed' !== $existing_double_subscription_status ) {
+					$errors[] = 'Expected existing double opt-in subscriber membership status unconfirmed, got: ' . $existing_double_subscription_status;
+				}
+			}
+		}
+	}
+}
+
+if ( empty( $errors ) ) {
+	$client = new Newspack_Listmonk_Connector_Listmonk_Client();
 	$blocklist = $client->request( 'PUT', sprintf( '/api/subscribers/%d/blocklist', $subscriber_id ) );
 	if ( is_wp_error( $blocklist ) ) {
 		$errors[] = 'Unable to blocklist local Listmonk subscriber: ' . $blocklist->get_error_message();
@@ -239,8 +355,13 @@ echo wp_json_encode(
 		'ok' => true,
 		'email' => $email,
 		'subscriberId' => $subscriber_id,
+		'doubleOptInSubscriberId' => $double_subscriber_id,
+		'existingDoubleOptInSubscriberId' => $existing_double_subscriber_id,
 		'primaryListId' => $primary_list_id,
 		'secondaryListId' => $secondary_list_id,
+		'doubleOptInListId' => $double_optin_list_id,
+		'doubleOptInSubscriptionStatus' => $double_subscription_status,
+		'existingDoubleOptInSubscriptionStatus' => $existing_double_subscription_status,
 		'initialLists' => $contact_lists,
 		'updatedLists' => $updated_lists ?? $contact_lists,
 		'removedLists' => $removed_lists ?? $contact_lists,

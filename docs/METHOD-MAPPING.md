@@ -114,10 +114,14 @@ Newspack contacts map to Listmonk subscribers:
   `has_bounces`. Bounce lookup failures use safe defaults and do not fail
   contact lookup.
 - Existing subscriber list additions use `unconfirmed` by default, preserving
-  Listmonk's double opt-in posture unless a site changes the
-  `newspack_listmonk_connector_subscriber_list_add_status` filter.
+  Listmonk's double opt-in posture for both newly created and existing
+  subscribers unless a site changes the
+  `newspack_listmonk_connector_subscriber_list_add_status` filter to
+  `confirmed`.
 - `preconfirm_subscriptions` defaults to `false` and can be overridden with the
   `newspack_listmonk_connector_preconfirm_subscriptions` filter.
+- The connector does not call `POST /api/subscribers/{id}/optin`
+  automatically. Confirmation-email delivery remains a Listmonk/list policy.
 
 ## Stored Post Meta
 

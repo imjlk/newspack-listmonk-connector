@@ -602,6 +602,47 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 	}
 
 	/**
+	 * Sites can explicitly preconfirm new subscriber subscriptions through a filter.
+	 */
+	public function test_add_contact_preconfirm_filter_can_confirm_subscription_on_create() {
+		$preconfirm_filter = static function () {
+			return true;
+		};
+
+		$this->queue_response( 200, array( 'data' => array( 'results' => array() ) ) );
+		$this->queue_response( 200, array( 'data' => array( 'id' => 130, 'email' => 'reader@example.com' ) ) );
+
+		add_filter( 'newspack_listmonk_connector_preconfirm_subscriptions', $preconfirm_filter );
+		try {
+			$result = $this->provider->add_contact(
+				array(
+					'email' => 'reader@example.com',
+					'name'  => 'Reader',
+				),
+				2
+			);
+		} finally {
+			remove_filter( 'newspack_listmonk_connector_preconfirm_subscriptions', $preconfirm_filter );
+		}
+
+		$this->assertIsArray( $result );
+		$this->assert_request(
+			1,
+			'POST',
+			'http://listmonk.test:9000/api/subscribers',
+			array(
+				'email'                    => 'reader@example.com',
+				'name'                     => 'Reader',
+				'status'                   => 'enabled',
+				'lists'                    => array( 2 ),
+				'attribs'                  => array(),
+				'preconfirm_subscriptions' => true,
+			)
+		);
+		$this->assertStringContainsString( '"attribs":{}', $this->requests[1]['args']['body'] );
+	}
+
+	/**
 	 * add_contact patches an existing subscriber and adds the requested list membership.
 	 */
 	public function test_add_contact_updates_existing_subscriber_and_adds_list() {
@@ -653,6 +694,58 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 				'action'          => 'add',
 				'target_list_ids' => array( 3 ),
 				'status'          => 'unconfirmed',
+			)
+		);
+	}
+
+	/**
+	 * Sites can explicitly mark existing subscriber list additions as confirmed.
+	 */
+	public function test_subscriber_list_add_status_filter_can_confirm_existing_subscriber() {
+		$status_filter = static function () {
+			return 'confirmed';
+		};
+
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results' => array(
+						array(
+							'id'    => 131,
+							'email' => 'reader@example.com',
+							'lists' => array(),
+						),
+					),
+				),
+			)
+		);
+		$this->queue_response( 200, array( 'data' => array( 'id' => 131, 'email' => 'reader@example.com' ) ) );
+		$this->queue_response( 200, array( 'data' => true ) );
+
+		add_filter( 'newspack_listmonk_connector_subscriber_list_add_status', $status_filter );
+		try {
+			$result = $this->provider->add_contact(
+				array(
+					'email' => 'reader@example.com',
+					'name'  => 'Reader',
+				),
+				3
+			);
+		} finally {
+			remove_filter( 'newspack_listmonk_connector_subscriber_list_add_status', $status_filter );
+		}
+
+		$this->assertIsArray( $result );
+		$this->assert_request(
+			2,
+			'PUT',
+			'http://listmonk.test:9000/api/subscribers/lists',
+			array(
+				'ids'             => array( 131 ),
+				'action'          => 'add',
+				'target_list_ids' => array( 3 ),
+				'status'          => 'confirmed',
 			)
 		);
 	}
@@ -725,6 +818,51 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 				'ids'             => array( 123 ),
 				'action'          => 'remove',
 				'target_list_ids' => array( 6 ),
+			)
+		);
+	}
+
+	/**
+	 * Invalid list-add status filter values fall back to the double-opt-in-safe default.
+	 */
+	public function test_invalid_subscriber_list_add_status_filter_falls_back_to_unconfirmed() {
+		$status_filter = static function () {
+			return 'invalid-status';
+		};
+
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results' => array(
+						array(
+							'id'    => 132,
+							'email' => 'reader@example.com',
+							'lists' => array(),
+						),
+					),
+				),
+			)
+		);
+		$this->queue_response( 200, array( 'data' => true ) );
+
+		add_filter( 'newspack_listmonk_connector_subscriber_list_add_status', $status_filter );
+		try {
+			$result = $this->provider->update_contact_lists( 'reader@example.com', array( 7 ), array() );
+		} finally {
+			remove_filter( 'newspack_listmonk_connector_subscriber_list_add_status', $status_filter );
+		}
+
+		$this->assertTrue( $result );
+		$this->assert_request(
+			1,
+			'PUT',
+			'http://listmonk.test:9000/api/subscribers/lists',
+			array(
+				'ids'             => array( 132 ),
+				'action'          => 'add',
+				'target_list_ids' => array( 7 ),
+				'status'          => 'unconfirmed',
 			)
 		);
 	}

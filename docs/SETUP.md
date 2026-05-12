@@ -27,6 +27,25 @@ Keep `subscribers:sql_query` disabled. The connector only uses subscriber list
 fetch, local exact email matching, subscriber create/update, and list membership
 APIs.
 
+## Double Opt-In Policy
+
+The connector preserves Listmonk's double opt-in behavior by default.
+
+- New subscribers are created with `preconfirm_subscriptions: false`.
+- Existing subscribers added to a list use membership `status: unconfirmed`.
+- The connector does not automatically call Listmonk's opt-in confirmation API.
+
+Sites that intentionally want to bypass Listmonk confirmation can opt in with
+PHP filters:
+
+```php
+add_filter( 'newspack_listmonk_connector_preconfirm_subscriptions', '__return_true' );
+add_filter( 'newspack_listmonk_connector_subscriber_list_add_status', fn() => 'confirmed' );
+```
+
+Use those filters only when the upstream signup flow has already captured the
+required consent.
+
 ## Install The Plugin
 
 1. In WordPress admin, install and activate Newspack Newsletters.

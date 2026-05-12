@@ -852,13 +852,14 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		$list_ids = false === $list_id ? newspack_listmonk_connector_get_settings( true )['default_list_ids'] : (array) $list_id;
 		$list_ids = newspack_listmonk_connector_normalize_list_ids( $list_ids );
 		$metadata = isset( $contact['metadata'] ) && is_array( $contact['metadata'] ) ? $contact['metadata'] : array();
+		$attribs  = $this->sanitize_subscriber_attribs( $metadata );
 
 		$payload = array(
 			'email'                    => $email,
 			'name'                     => $name,
 			'status'                   => 'enabled',
 			'lists'                    => $list_ids,
-			'attribs'                  => $this->sanitize_subscriber_attribs( $metadata ),
+			'attribs'                  => empty( $attribs ) ? new stdClass() : $attribs,
 			'preconfirm_subscriptions' => (bool) apply_filters(
 				'newspack_listmonk_connector_preconfirm_subscriptions',
 				false,

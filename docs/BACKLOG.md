@@ -19,7 +19,7 @@ Status legend:
 | 4 | Raw HTML rendering pipeline | `[~]` |
 | 5 | Campaign sync/send flow | `[~]` |
 | 6 | Admin and editor UI | `[~]` |
-| 7 | Subscriber/list integration | `[~]` |
+| 7 | Subscriber/list integration | `[x]` |
 | 8 | Test strategy and QA | `[~]` |
 | 9 | Packaging and beta release | `[~]` |
 
@@ -153,7 +153,7 @@ Goal: Sync Newspack signup/contact flows into Listmonk subscribers.
 - `[x]` Implement subscriber lookup.
 - `[x]` Implement subscriber create/update.
 - `[x]` Implement list membership add/remove.
-- `[~]` Handle double opt-in list behavior.
+- `[x]` Handle double opt-in list behavior.
 - `[x]` Map Reader Activation metadata to Listmonk attributes.
 - `[x]` Reflect blocklist/bounce state where useful.
 - `[x]` Add subscriber sync tests.
@@ -195,5 +195,5 @@ Goal: Prepare a beta plugin build for staging.
 ## Next Recommended Work
 
 1. Run `pnpm run smoke:staging:zip` against a real staging site and mark Phase 9 complete.
-2. Resolve double opt-in list behavior policy.
-3. Add Listmonk pagination handling beyond MVP list fetch.
+2. Add Listmonk pagination handling beyond MVP list fetch.
+3. Add webhook/analytics endpoints.
