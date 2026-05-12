@@ -1,0 +1,258 @@
+{
+	"components": {
+		"schemas": {
+			"CampaignAnalyticsReadQuery": {
+				"additionalProperties": false,
+				"properties": {
+					"postId": {
+						"type": "integer",
+						"x-typeTag": "uint32",
+						"minimum": 0,
+						"maximum": 4294967295,
+						"multipleOf": 1
+					},
+					"from": {
+						"type": "string",
+						"minLength": 1,
+						"maxLength": 80
+					},
+					"to": {
+						"type": "string",
+						"minLength": 1,
+						"maxLength": 80
+					}
+				},
+				"required": [
+					"postId",
+					"from",
+					"to"
+				],
+				"title": "CampaignAnalyticsReadQuery",
+				"type": "object"
+			},
+			"CampaignAnalyticsReadResponse": {
+				"additionalProperties": false,
+				"properties": {
+					"postId": {
+						"type": "integer",
+						"x-typeTag": "uint32",
+						"minimum": 0,
+						"maximum": 4294967295,
+						"multipleOf": 1
+					},
+					"campaignId": {
+						"type": "integer",
+						"x-typeTag": "uint32",
+						"minimum": 0,
+						"maximum": 4294967295,
+						"multipleOf": 1
+					},
+					"status": {
+						"type": "string",
+						"maxLength": 40
+					},
+					"totals": {
+						"type": "object",
+						"additionalProperties": false,
+						"properties": {
+							"sent": {
+								"type": "integer",
+								"x-typeTag": "uint32",
+								"minimum": 0,
+								"maximum": 4294967295,
+								"multipleOf": 1
+							},
+							"toSend": {
+								"type": "integer",
+								"x-typeTag": "uint32",
+								"minimum": 0,
+								"maximum": 4294967295,
+								"multipleOf": 1
+							},
+							"views": {
+								"type": "integer",
+								"x-typeTag": "uint32",
+								"minimum": 0,
+								"maximum": 4294967295,
+								"multipleOf": 1
+							},
+							"clicks": {
+								"type": "integer",
+								"x-typeTag": "uint32",
+								"minimum": 0,
+								"maximum": 4294967295,
+								"multipleOf": 1
+							},
+							"bounces": {
+								"type": "integer",
+								"x-typeTag": "uint32",
+								"minimum": 0,
+								"maximum": 4294967295,
+								"multipleOf": 1
+							}
+						},
+						"required": [
+							"sent",
+							"toSend",
+							"views",
+							"clicks",
+							"bounces"
+						]
+					},
+					"series": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"type": {
+									"type": "string",
+									"maxLength": 40
+								},
+								"campaignId": {
+									"type": "integer",
+									"x-typeTag": "uint32",
+									"minimum": 0,
+									"maximum": 4294967295,
+									"multipleOf": 1
+								},
+								"count": {
+									"type": "integer",
+									"x-typeTag": "uint32",
+									"minimum": 0,
+									"maximum": 4294967295,
+									"multipleOf": 1
+								},
+								"timestamp": {
+									"type": "string",
+									"maxLength": 80
+								}
+							},
+							"required": [
+								"type",
+								"count"
+							]
+						}
+					},
+					"links": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"url": {
+									"type": "string",
+									"maxLength": 1000
+								},
+								"count": {
+									"type": "integer",
+									"x-typeTag": "uint32",
+									"minimum": 0,
+									"maximum": 4294967295,
+									"multipleOf": 1
+								}
+							},
+							"required": [
+								"url",
+								"count"
+							]
+						}
+					},
+					"checkedAt": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"postId",
+					"campaignId",
+					"status",
+					"totals",
+					"series",
+					"links",
+					"checkedAt"
+				],
+				"title": "CampaignAnalyticsReadResponse",
+				"type": "object"
+			}
+		},
+		"securitySchemes": {
+			"wpRestNonce": {
+				"description": "WordPress REST nonce sent in the X-WP-Nonce header.",
+				"in": "header",
+				"name": "X-WP-Nonce",
+				"type": "apiKey"
+			}
+		}
+	},
+	"info": {
+		"title": "Campaign Analytics REST API",
+		"version": "1.0.0"
+	},
+	"openapi": "3.1.0",
+	"paths": {
+		"/newspack-listmonk-connector/v1/campaign-analytics/item": {
+			"get": {
+				"operationId": "readCampaignAnalyticsResource",
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CampaignAnalyticsReadResponse"
+								}
+							}
+						},
+						"description": "Successful response"
+					}
+				},
+				"tags": [
+					"Campaign Analytics"
+				],
+				"x-typia-authIntent": "authenticated",
+				"x-wp-typia-authPolicy": "authenticated-rest-nonce",
+				"summary": "Read Listmonk campaign analytics for one newsletter.",
+				"parameters": [
+					{
+						"in": "query",
+						"name": "postId",
+						"required": true,
+						"schema": {
+							"type": "number",
+							"x-typeTag": "uint32"
+						}
+					},
+					{
+						"in": "query",
+						"name": "from",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"minLength": 1,
+							"maxLength": 80
+						}
+					},
+					{
+						"in": "query",
+						"name": "to",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"minLength": 1,
+							"maxLength": 80
+						}
+					}
+				],
+				"security": [
+					{
+						"wpRestNonce": []
+					}
+				]
+			}
+		}
+	},
+	"tags": [
+		{
+			"name": "Campaign Analytics"
+		}
+	]
+}

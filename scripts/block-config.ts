@@ -259,6 +259,48 @@ export const REST_RESOURCES: WorkspaceRestResourceConfig[] = [
 		typesFile: 'src/rest/newsletter-sync/api-types.ts',
 		validatorsFile: 'src/rest/newsletter-sync/api-validators.ts',
 	},
+	{
+		apiFile: 'src/rest/campaign-analytics/api.ts',
+		clientFile: 'src/rest/campaign-analytics/api-client.ts',
+		dataFile: 'src/rest/campaign-analytics/data.ts',
+		methods: [ 'read' ],
+		namespace: 'newspack-listmonk-connector/v1',
+		openApiFile: 'src/rest/campaign-analytics/api.openapi.json',
+		phpFile: 'inc/rest/campaign-analytics.php',
+		restManifest: defineEndpointManifest( {
+			contracts: {
+				'read-query': {
+					sourceTypeName: 'CampaignAnalyticsReadQuery',
+				},
+				'read-response': {
+					sourceTypeName: 'CampaignAnalyticsReadResponse',
+				},
+			},
+			endpoints: [
+				{
+					auth: 'authenticated',
+					method: 'GET',
+					operationId: 'readCampaignAnalyticsResource',
+					path: '/newspack-listmonk-connector/v1/campaign-analytics/item',
+					queryContract: 'read-query',
+					responseContract: 'read-response',
+					summary:
+						'Read Listmonk campaign analytics for one newsletter.',
+					tags: [ 'Campaign Analytics' ],
+					wordpressAuth: {
+						mechanism: 'rest-nonce',
+					},
+				},
+			],
+			info: {
+				title: 'Campaign Analytics REST API',
+				version: '1.0.0',
+			},
+		} ),
+		slug: 'campaign-analytics',
+		typesFile: 'src/rest/campaign-analytics/api-types.ts',
+		validatorsFile: 'src/rest/campaign-analytics/api-validators.ts',
+	},
 	// wp-typia add rest-resource entries
 ];
 

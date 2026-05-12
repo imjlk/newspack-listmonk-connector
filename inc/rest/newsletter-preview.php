@@ -18,13 +18,21 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_preview_load_res
 	 */
 	function newspack_listmonk_connector_newsletter_preview_load_rest_resource_schema( $schema_name ) {
 		$project_root = dirname( __DIR__, 2 );
-		$schema_path  = $project_root . '/src/rest/newsletter-preview/api-schemas/' . $schema_name . '.schema.json';
-		if ( ! file_exists( $schema_path ) ) {
-			return null;
+		$schema_paths = array(
+			$project_root . '/src/rest/newsletter-preview/api-schemas/' . $schema_name . '.schema.json',
+			$project_root . '/inc/rest-schemas/newsletter-preview/' . $schema_name . '.schema.json',
+		);
+
+		foreach ( $schema_paths as $schema_path ) {
+			if ( ! file_exists( $schema_path ) ) {
+				continue;
+			}
+
+			$decoded = json_decode( file_get_contents( $schema_path ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			return is_array( $decoded ) ? $decoded : null;
 		}
 
-		$decoded = json_decode( file_get_contents( $schema_path ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		return is_array( $decoded ) ? $decoded : null;
+		return null;
 	}
 }
 

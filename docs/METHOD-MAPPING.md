@@ -34,6 +34,21 @@ The active Newspack provider is stored in the
 | `get_contact_lists( $email )` | Returns list IDs from the Listmonk subscriber response. |
 | `update_contact_lists( $email, $add, $remove )` | `PUT /api/subscribers/lists` with `add` and `remove` actions. |
 
+## Campaign Analytics
+
+The typed `GET /newspack-listmonk-connector/v1/campaign-analytics/item`
+resource resolves the active Listmonk campaign ID from the newsletter post meta
+and reads:
+
+- `GET /api/campaigns/{id}` for status and campaign totals.
+- `GET /api/campaigns/running/stats?campaign_id={id}` for live running stats
+  when available.
+- `GET /api/campaigns/analytics/{type}?id={id}&from={from}&to={to}` for
+  `views`, `clicks`, `bounces`, and `links`.
+
+The editor retrieve payload remains unchanged; analytics are exposed only
+through the dedicated connector REST resource.
+
 ## Campaign Payload
 
 The connector sends Newspack rendered HTML as a Listmonk campaign payload:

@@ -381,6 +381,78 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 	}
 
 	/**
+	 * Retrieve running stats for a campaign.
+	 *
+	 * @param int $campaign_id Campaign ID.
+	 * @return array|WP_Error
+	 */
+	public function get_campaign_running_stats( $campaign_id ) {
+		$campaign_id = absint( $campaign_id );
+		if ( ! $campaign_id ) {
+			return new WP_Error(
+				'newspack_listmonk_connector_invalid_campaign_id',
+				__( 'Invalid Listmonk campaign ID.', 'newspack-listmonk-connector' )
+			);
+		}
+
+		$result = $this->request(
+			'GET',
+			'/api/campaigns/running/stats',
+			null,
+			array(
+				'campaign_id' => $campaign_id,
+			)
+		);
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return $this->extract_results( $result );
+	}
+
+	/**
+	 * Retrieve analytics for a campaign.
+	 *
+	 * @param string $type Analytics type.
+	 * @param int    $campaign_id Campaign ID.
+	 * @param string $from Start of date range.
+	 * @param string $to End of date range.
+	 * @return array|WP_Error
+	 */
+	public function get_campaign_analytics( $type, $campaign_id, $from, $to ) {
+		$type        = sanitize_key( $type );
+		$campaign_id = absint( $campaign_id );
+		if ( ! in_array( $type, array( 'views', 'links', 'clicks', 'bounces' ), true ) ) {
+			return new WP_Error(
+				'newspack_listmonk_connector_invalid_analytics_type',
+				__( 'Invalid Listmonk analytics type.', 'newspack-listmonk-connector' )
+			);
+		}
+		if ( ! $campaign_id ) {
+			return new WP_Error(
+				'newspack_listmonk_connector_invalid_campaign_id',
+				__( 'Invalid Listmonk campaign ID.', 'newspack-listmonk-connector' )
+			);
+		}
+
+		$result = $this->request(
+			'GET',
+			sprintf( '/api/campaigns/analytics/%s', $type ),
+			null,
+			array(
+				'id'   => $campaign_id,
+				'from' => sanitize_text_field( (string) $from ),
+				'to'   => sanitize_text_field( (string) $to ),
+			)
+		);
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return $this->extract_results( $result );
+	}
+
+	/**
 	 * Archive a campaign without hard-deleting it from Listmonk.
 	 *
 	 * @param int $campaign_id Campaign ID.

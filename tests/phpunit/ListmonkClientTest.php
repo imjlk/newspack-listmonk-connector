@@ -200,6 +200,34 @@ class Newspack_Listmonk_Connector_Listmonk_Client_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Campaign analytics endpoint helpers issue expected GET requests.
+	 */
+	public function test_campaign_analytics_endpoint_helpers_send_expected_requests() {
+		$client = $this->client();
+
+		$this->queue_response( 200, array( 'data' => array( array( 'campaign_id' => 13 ) ) ) );
+		$stats = $client->get_campaign_running_stats( 13 );
+		$this->assertSame( array( array( 'campaign_id' => 13 ) ), $stats );
+		$this->assert_request_without_body( 0, 'GET', 'http://listmonk.test:9000/api/campaigns/running/stats?campaign_id=13' );
+
+		$this->queue_response( 200, array( 'data' => array( array( 'count' => 5 ) ) ) );
+		$analytics = $client->get_campaign_analytics( 'views', 13, '2026-05-01', '2026-05-12' );
+		$this->assertSame( array( array( 'count' => 5 ) ), $analytics );
+		$this->assert_request_without_body( 1, 'GET', 'http://listmonk.test:9000/api/campaigns/analytics/views?id=13&from=2026-05-01&to=2026-05-12' );
+	}
+
+	/**
+	 * Invalid analytics types fail before making HTTP requests.
+	 */
+	public function test_invalid_campaign_analytics_type_returns_wp_error_without_http_request() {
+		$result = $this->client()->get_campaign_analytics( 'invalid', 13, '2026-05-01', '2026-05-12' );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'newspack_listmonk_connector_invalid_analytics_type', $result->get_error_code() );
+		$this->assertCount( 0, $this->requests );
+	}
+
+	/**
 	 * Subscriber endpoint helpers issue the expected method, path, and JSON body.
 	 */
 	public function test_subscriber_endpoint_helpers_send_expected_requests() {

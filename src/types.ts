@@ -101,6 +101,44 @@ export interface NewsletterSyncResponse {
 	retrieve: NewspackEditorRetrieveResponse;
 }
 
+export type CampaignAnalyticsType = 'views' | 'links' | 'clicks' | 'bounces';
+
+export interface CampaignAnalyticsRequest {
+	postId: number & tags.Type< 'uint32' >;
+	from: string & tags.MinLength< 1 > & tags.MaxLength< 80 >;
+	to: string & tags.MinLength< 1 > & tags.MaxLength< 80 >;
+}
+
+export interface CampaignAnalyticsTotals {
+	sent: number & tags.Type< 'uint32' >;
+	toSend: number & tags.Type< 'uint32' >;
+	views: number & tags.Type< 'uint32' >;
+	clicks: number & tags.Type< 'uint32' >;
+	bounces: number & tags.Type< 'uint32' >;
+}
+
+export interface CampaignAnalyticsSeriesPoint {
+	type: string & tags.MaxLength< 40 >;
+	campaignId?: number & tags.Type< 'uint32' >;
+	count: number & tags.Type< 'uint32' >;
+	timestamp?: string & tags.MaxLength< 80 >;
+}
+
+export interface CampaignAnalyticsLink {
+	url: string & tags.MaxLength< 1000 >;
+	count: number & tags.Type< 'uint32' >;
+}
+
+export interface CampaignAnalyticsResponse {
+	postId: number & tags.Type< 'uint32' >;
+	campaignId: number & tags.Type< 'uint32' >;
+	status: string & tags.MaxLength< 40 >;
+	totals: CampaignAnalyticsTotals;
+	series: CampaignAnalyticsSeriesPoint[];
+	links: CampaignAnalyticsLink[];
+	checkedAt: string;
+}
+
 export interface ListmonkCampaignRef {
 	campaignId: number & tags.Type< 'uint32' >;
 	uuid?: string;

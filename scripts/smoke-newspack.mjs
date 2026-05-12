@@ -87,6 +87,9 @@ if ( empty( $errors ) ) {
 		'newsletter-sync' => static function ( $route ) {
 			return '/newspack-listmonk-connector/v1/newsletter-sync' === $route;
 		},
+		'campaign-analytics' => static function ( $route ) {
+			return '/newspack-listmonk-connector/v1/campaign-analytics/item' === $route;
+		},
 	);
 	$matched_routes = array();
 	foreach ( $route_checks as $label => $check ) {

@@ -20,6 +20,7 @@ Minimum MVP permissions:
 - `lists:get_all`
 - `campaigns:manage`
 - `campaigns:send`
+- `campaigns:get_analytics`
 - `subscribers:get`
 - `subscribers:manage`
 

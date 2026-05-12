@@ -15,6 +15,13 @@ const releaseWorkDir = path.join(artifactsDir, 'release');
 const distDir = path.join(releaseWorkDir, pluginSlug);
 const zipPath = path.join(artifactsDir, `${pluginSlug}-${version}.zip`);
 
+const restSchemaResources = [
+	'listmonk-settings',
+	'newsletter-preview',
+	'newsletter-sync',
+	'campaign-analytics',
+];
+
 const runtimePaths = [
 	pluginFile,
 	'inc',
@@ -42,6 +49,7 @@ const requiredFiles = [
 	'inc/rest/listmonk-settings.php',
 	'inc/rest/newsletter-preview.php',
 	'inc/rest/newsletter-sync.php',
+	'inc/rest/campaign-analytics.php',
 	'build/blocks-manifest.php',
 	'build/admin-views/index.js',
 	'build/admin-views/index.asset.php',
@@ -54,6 +62,18 @@ const requiredFiles = [
 	'docs/SETUP.md',
 	'docs/STAGING-CHECKLIST.md',
 ];
+
+const requiredRestSchemaFiles = restSchemaResources.flatMap((resource) => {
+	const schemaDir = path.join(rootDir, 'src/rest', resource, 'api-schemas');
+	if (!fs.existsSync(schemaDir)) {
+		return [];
+	}
+
+	return fs
+		.readdirSync(schemaDir)
+		.filter((fileName) => fileName.endsWith('.schema.json'))
+		.map((fileName) => `src/rest/${resource}/api-schemas/${fileName}`);
+});
 
 const forbiddenZipPatterns = [
 	/^newspack-listmonk-connector\/node_modules\//,
@@ -127,7 +147,7 @@ function assertVersionSync() {
 }
 
 function assertSourceFilesExist() {
-	for (const relativePath of requiredFiles) {
+	for (const relativePath of [...requiredFiles, ...requiredRestSchemaFiles]) {
 		const fullPath = path.join(rootDir, relativePath);
 		if (!fs.existsSync(fullPath)) {
 			throw new Error(`Missing required release file: ${relativePath}`);
@@ -148,6 +168,17 @@ function copyRuntimeFiles() {
 
 		fs.mkdirSync(path.dirname(targetPath), { recursive: true });
 		fs.cpSync(sourcePath, targetPath, { recursive: true });
+	}
+}
+
+function copyRestSchemas() {
+	for (const relativePath of requiredRestSchemaFiles) {
+		const sourcePath = path.join(rootDir, relativePath);
+		const [, , resource, , fileName] = relativePath.split('/');
+		const targetPath = path.join(distDir, 'inc/rest-schemas', resource, fileName);
+
+		fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+		fs.copyFileSync(sourcePath, targetPath);
 	}
 }
 
@@ -199,7 +230,14 @@ function listZipEntries() {
 function assertZipContents() {
 	const entries = listZipEntries();
 	const entrySet = new Set(entries);
-	const requiredZipEntries = requiredFiles.map((relativePath) => `${pluginSlug}/${relativePath}`);
+	const requiredZipEntries = requiredFiles
+		.map((relativePath) => `${pluginSlug}/${relativePath}`)
+		.concat(
+			requiredRestSchemaFiles.map((relativePath) => {
+				const [, , resource, , fileName] = relativePath.split('/');
+				return `${pluginSlug}/inc/rest-schemas/${resource}/${fileName}`;
+			})
+		);
 
 	for (const requiredEntry of requiredZipEntries) {
 		if (!entrySet.has(requiredEntry)) {
@@ -224,6 +262,7 @@ function main() {
 
 	logStep('Preparing release directory');
 	copyRuntimeFiles();
+	copyRestSchemas();
 	lintPhpFiles();
 
 	logStep('Creating plugin zip');

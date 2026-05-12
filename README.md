@@ -3,12 +3,13 @@
 Newspack Newsletters ESP provider for Listmonk campaign delivery.
 
 This plugin was scaffolded with the published `wp-typia` CLI and keeps the
-settings, preview, and editor sync REST contracts in TypeScript:
+settings, preview, editor sync, and analytics REST contracts in TypeScript:
 
 - `src/types.ts`
 - `src/rest/listmonk-settings/api-types.ts`
 - `src/rest/newsletter-preview/api-types.ts`
 - `src/rest/newsletter-sync/api-types.ts`
+- `src/rest/campaign-analytics/api-types.ts`
 
 ## MVP Scope
 
@@ -16,6 +17,7 @@ settings, preview, and editor sync REST contracts in TypeScript:
 - Stores Listmonk API URL, API user, token, default From email, template ID,
   and default list IDs.
 - Exposes typed REST resources for settings and raw newsletter preview.
+- Exposes typed campaign analytics reads for synced Listmonk campaigns.
 - Adds a Newspack editor side panel for list selection, campaign status, raw
   HTML/payload preview, sync, and test send.
 - Renders Newspack newsletter HTML through `Newspack_Newsletters_Renderer`
@@ -61,6 +63,7 @@ Routes:
 - `GET /newsletter-preview/item?postId=123`
 - `POST /newsletter-preview`
 - `POST /newsletter-sync`
+- `GET /campaign-analytics/item?postId=123&from=2026-05-01&to=2026-05-12`
 
 The connector also registers Newspack editor provider routes under
 `newspack-newsletters/v1`:

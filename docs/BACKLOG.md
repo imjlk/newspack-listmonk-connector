@@ -65,7 +65,7 @@ Goal: Provide a thin PHP client around the Listmonk APIs needed for MVP.
 - `[x]` `set_status()` using `PUT /api/campaigns/{id}/status`.
 - `[x]` Add pagination handling beyond MVP list fetch.
 - `[x]` Add subscriber endpoints.
-- `[ ]` Add webhook/analytics endpoints.
+- `[~]` Add webhook/analytics endpoints; campaign analytics read endpoint is done, webhook event receiver policy is deferred.
 - `[x]` Add integration tests against Docker Listmonk.
 
 ## Phase 3: Newspack Provider Adapter
@@ -195,4 +195,5 @@ Goal: Prepare a beta plugin build for staging.
 ## Next Recommended Work
 
 1. Run `pnpm run smoke:staging:zip` against a real staging site and mark Phase 9 complete.
-2. Add webhook/analytics endpoints.
+2. Define webhook event receiver policy.
+3. Add editor analytics panel.
