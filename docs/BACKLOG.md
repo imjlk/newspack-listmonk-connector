@@ -20,7 +20,7 @@ Status legend:
 | 5 | Campaign sync/send flow | `[x]` |
 | 6 | Admin and editor UI | `[x]` |
 | 7 | Subscriber/list integration | `[x]` |
-| 8 | Test strategy and QA | `[~]` |
+| 8 | Test strategy and QA | `[x]` |
 | 9 | Packaging and beta release | `[~]` |
 
 ## Phase 0: Technical Validation And Design
@@ -168,7 +168,7 @@ Goal: Prove the plugin works across unit, integration, and E2E flows.
 - `[x]` Run `pnpm run lint`.
 - `[x]` Run `pnpm run typecheck`.
 - `[x]` Run `pnpm run build`.
-- `[~]` Run `wp-typia doctor`; workspace checks pass, Bun environment check fails when Bun is missing.
+- `[x]` Run `wp-typia doctor`; wrapper accepts the documented Bun-only readiness failure while requiring workspace diagnostics to pass.
 - `[x]` Add PHPUnit tests for payload mapping.
 - `[x]` Add unit tests for HTML/plain text builders.
 - `[x]` Add unit tests for settings sanitization.
@@ -196,5 +196,4 @@ Goal: Prepare a beta plugin build for staging.
 ## Next Recommended Work
 
 1. Run `pnpm run smoke:staging:zip` against a real staging site and mark Phase 9 complete.
-2. Clarify the `wp-typia doctor` environment note for machines without Bun.
-3. Decide whether `get_usage_report()` should stay an explicit MVP stub or become a lightweight analytics alias.
+2. Decide whether `get_usage_report()` should stay an explicit MVP stub or become a lightweight analytics alias.

@@ -30,6 +30,7 @@
 		"smoke:listmonk:archive:local": "node scripts/smoke-listmonk-archive-local.mjs",
 		"smoke:listmonk:subscribers:local": "node scripts/smoke-listmonk-subscribers-local.mjs",
 		"smoke:staging:zip": "pnpm run release:zip && node scripts/smoke-staging-zip.mjs",
+		"doctor:wp-typia": "node scripts/wp-typia-doctor.mjs",
 		"e2e:editor:local": "pnpm run build && pnpm run listmonk:start && pnpm exec playwright install chromium && pnpm exec playwright test --config=playwright.config.js tests/e2e/editor-listmonk.spec.ts",
 		"e2e:publish-schedule:local": "pnpm run build && pnpm run listmonk:start && pnpm exec playwright install chromium && pnpm exec playwright test --config=playwright.config.js tests/e2e/editor-publish-schedule.spec.ts",
 		"e2e:settings:local": "pnpm run build && pnpm run listmonk:start && pnpm exec playwright install chromium && pnpm exec playwright test --config=playwright.config.js tests/e2e/settings-listmonk.spec.ts",

@@ -114,7 +114,7 @@ Local Listmonk runs at `http://localhost:9000`; wp-env reaches it through the
 generated `.listmonk.env` file. See
 [docs/INTEGRATION-TESTING.md](docs/INTEGRATION-TESTING.md) for the full flow.
 
-`wp-typia doctor` passes the workspace checks in Node fallback mode. On a
-machine without Bun installed, the global environment check reports Bun as
-missing even though create/add/sync/build work through the published CLI's Node
-fallback runtime.
+Use `pnpm run doctor:wp-typia` to verify the `wp-typia@0.22.10` workspace
+diagnostics. The wrapper accepts the documented Bun-only readiness failure in
+Node fallback mode while still failing on workspace drift. See
+[docs/WP-TYPIA-DOCTOR.md](docs/WP-TYPIA-DOCTOR.md).
