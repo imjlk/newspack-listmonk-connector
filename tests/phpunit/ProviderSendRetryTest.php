@@ -576,7 +576,8 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 			'GET',
 			add_query_arg(
 				array(
-					'per_page' => 'all',
+					'page'     => 1,
+					'per_page' => 100,
 				),
 				'http://listmonk.test:9000/api/subscribers'
 			)
@@ -903,7 +904,8 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 			'GET',
 			add_query_arg(
 				array(
-					'per_page' => 'all',
+					'page'     => 1,
+					'per_page' => 100,
 				),
 				'http://listmonk.test:9000/api/subscribers'
 			)
@@ -978,7 +980,7 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 		$this->assertSame( 2, $result['bounce_count'] );
 		$this->assertTrue( $result['has_bounces'] );
 		$this->assertSame( array( 3 ), $result['lists'] );
-		$this->assert_request_without_body( 1, 'GET', 'http://listmonk.test:9000/api/subscribers/126/bounces' );
+		$this->assert_request_without_body( 1, 'GET', 'http://listmonk.test:9000/api/subscribers/126/bounces?page=1&per_page=100' );
 	}
 
 	/**

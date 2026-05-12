@@ -67,29 +67,71 @@ class Newspack_Listmonk_Connector_Listmonk_Client_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * List fetch extracts results from Listmonk response envelopes.
+	 * List fetch requests and merges paginated Listmonk responses.
 	 */
-	public function test_get_lists_extracts_results_from_response() {
+	public function test_get_lists_fetches_and_merges_paginated_results() {
+		$page_one = $this->id_results( 1, 100 );
 		$this->queue_response(
 			200,
 			array(
 				'data' => array(
-					'results' => array(
-						array(
-							'id'   => 1,
-							'name' => 'Daily News',
-						),
-					),
+					'results'  => $page_one,
+					'total'    => 101,
+					'per_page' => 100,
+					'page'     => 1,
+				),
+			)
+		);
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results'  => array( array( 'id' => 101 ) ),
+					'total'    => 101,
+					'per_page' => 100,
+					'page'     => 2,
 				),
 			)
 		);
 
 		$lists = $this->client()->get_lists();
-		$request = $this->last_request();
 
-		$this->assertSame( array( array( 'id' => 1, 'name' => 'Daily News' ) ), $lists );
-		$this->assertSame( 'GET', $request['args']['method'] );
-		$this->assertSame( 'http://listmonk.test:9000/api/lists?status=active&per_page=all', $request['url'] );
+		$this->assertCount( 101, $lists );
+		$this->assertSame( 1, $lists[0]['id'] );
+		$this->assertSame( 101, $lists[100]['id'] );
+		$this->assert_request_without_body( 0, 'GET', 'http://listmonk.test:9000/api/lists?status=active&page=1&per_page=100' );
+		$this->assert_request_without_body( 1, 'GET', 'http://listmonk.test:9000/api/lists?status=active&page=2&per_page=100' );
+	}
+
+	/**
+	 * List pagination returns later page failures without masking them.
+	 */
+	public function test_get_lists_returns_later_page_wp_error() {
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results'  => $this->id_results( 1, 100 ),
+					'total'    => 101,
+					'per_page' => 100,
+					'page'     => 1,
+				),
+			)
+		);
+		$this->queue_response(
+			500,
+			array(
+				'message' => 'Listmonk page failed.',
+			),
+			'Server Error'
+		);
+
+		$result = $this->client()->get_lists();
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'newspack_listmonk_connector_api_error', $result->get_error_code() );
+		$this->assertSame( 'Listmonk page failed.', $result->get_error_message() );
+		$this->assertCount( 2, $this->requests );
 	}
 
 	/**
@@ -210,10 +252,63 @@ class Newspack_Listmonk_Connector_Listmonk_Client_Test extends WP_UnitTestCase {
 		$client->get_subscriber( 20 );
 		$this->assert_request_without_body( 3, 'GET', 'http://listmonk.test:9000/api/subscribers/20' );
 
-		$this->queue_response( 200, array( 'data' => array( 'results' => array( array( 'id' => 1 ) ) ) ) );
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results'  => $this->id_results( 1, 100 ),
+					'total'    => 101,
+					'per_page' => 100,
+					'page'     => 1,
+				),
+			)
+		);
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results'  => array( array( 'id' => 101 ) ),
+					'total'    => 101,
+					'per_page' => 100,
+					'page'     => 2,
+				),
+			)
+		);
 		$bounces = $client->get_subscriber_bounces( 20 );
-		$this->assertSame( array( array( 'id' => 1 ) ), $bounces );
-		$this->assert_request_without_body( 4, 'GET', 'http://listmonk.test:9000/api/subscribers/20/bounces' );
+		$this->assertCount( 101, $bounces );
+		$this->assert_request_without_body( 4, 'GET', 'http://listmonk.test:9000/api/subscribers/20/bounces?page=1&per_page=100' );
+		$this->assert_request_without_body( 5, 'GET', 'http://listmonk.test:9000/api/subscribers/20/bounces?page=2&per_page=100' );
+	}
+
+	/**
+	 * Explicit subscriber pagination queries remain single-page fetches.
+	 */
+	public function test_get_subscribers_explicit_pagination_fetches_single_page() {
+		$client = $this->client();
+
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results' => array(
+						array(
+							'id' => 9,
+						),
+					),
+				),
+			)
+		);
+
+		$subscribers = $client->get_subscribers(
+			array(
+				'page'     => 3,
+				'per_page' => 25,
+			)
+		);
+
+		$this->assertSame( array( array( 'id' => 9 ) ), $subscribers );
+		$this->assertCount( 1, $this->requests );
+		$this->assert_request_without_body( 0, 'GET', 'http://listmonk.test:9000/api/subscribers?page=3&per_page=25' );
 	}
 
 	/**
@@ -240,16 +335,50 @@ class Newspack_Listmonk_Connector_Listmonk_Client_Test extends WP_UnitTestCase {
 		$subscriber = $client->find_subscriber_by_email( 'Reader@Example.com' );
 
 		$this->assertSame( 21, $subscriber['id'] );
-		$this->assert_request_without_body(
-			0,
-			'GET',
-			add_query_arg(
-				array(
-					'per_page' => 'all',
+		$this->assertCount( 1, $this->requests );
+		$this->assert_request_without_body( 0, 'GET', 'http://listmonk.test:9000/api/subscribers?page=1&per_page=100' );
+	}
+
+	/**
+	 * Subscriber lookup scans later pages and keeps case-insensitive exact matching.
+	 */
+	public function test_find_subscriber_by_email_finds_second_page_match() {
+		$client = $this->client();
+
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results'  => $this->subscriber_results( 1, 100 ),
+					'total'    => 101,
+					'per_page' => 100,
+					'page'     => 1,
 				),
-				'http://listmonk.test:9000/api/subscribers'
 			)
 		);
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results'  => array(
+						array(
+							'id'    => 101,
+							'email' => 'reader@example.com',
+						),
+					),
+					'total'    => 101,
+					'per_page' => 100,
+					'page'     => 2,
+				),
+			)
+		);
+
+		$subscriber = $client->find_subscriber_by_email( 'Reader@Example.com' );
+
+		$this->assertSame( 101, $subscriber['id'] );
+		$this->assertCount( 2, $this->requests );
+		$this->assert_request_without_body( 0, 'GET', 'http://listmonk.test:9000/api/subscribers?page=1&per_page=100' );
+		$this->assert_request_without_body( 1, 'GET', 'http://listmonk.test:9000/api/subscribers?page=2&per_page=100' );
 	}
 
 	/**
@@ -258,12 +387,39 @@ class Newspack_Listmonk_Connector_Listmonk_Client_Test extends WP_UnitTestCase {
 	public function test_find_subscriber_by_email_returns_not_found_error() {
 		$client = $this->client();
 
-		$this->queue_response( 200, array( 'data' => array( 'results' => array() ) ) );
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results'  => $this->subscriber_results( 1, 100 ),
+					'total'    => 101,
+					'per_page' => 100,
+					'page'     => 1,
+				),
+			)
+		);
+		$this->queue_response(
+			200,
+			array(
+				'data' => array(
+					'results'  => array(
+						array(
+							'id'    => 101,
+							'email' => 'not-reader-101@example.com',
+						),
+					),
+					'total'    => 101,
+					'per_page' => 100,
+					'page'     => 2,
+				),
+			)
+		);
 
 		$result = $client->find_subscriber_by_email( 'missing@example.com' );
 
 		$this->assertWPError( $result );
 		$this->assertSame( 'newspack_listmonk_connector_subscriber_not_found', $result->get_error_code() );
+		$this->assertCount( 2, $this->requests );
 	}
 
 	/**
@@ -432,6 +588,37 @@ class Newspack_Listmonk_Connector_Listmonk_Client_Test extends WP_UnitTestCase {
 	private function last_request() {
 		$this->assertNotEmpty( $this->requests );
 		return $this->requests[ count( $this->requests ) - 1 ];
+	}
+
+	/**
+	 * Build Listmonk fixture results with numeric IDs.
+	 *
+	 * @param int $start First ID.
+	 * @param int $count Number of results.
+	 * @return array
+	 */
+	private function id_results( $start, $count ) {
+		$results = array();
+		for ( $id = absint( $start ); $id < absint( $start ) + absint( $count ); $id++ ) {
+			$results[] = array( 'id' => $id );
+		}
+		return $results;
+	}
+
+	/**
+	 * Build subscriber fixtures with non-matching emails.
+	 *
+	 * @param int $start First ID.
+	 * @param int $count Number of results.
+	 * @return array
+	 */
+	private function subscriber_results( $start, $count ) {
+		$results = array();
+		foreach ( $this->id_results( $start, $count ) as $result ) {
+			$result['email'] = sprintf( 'not-reader-%d@example.com', absint( $result['id'] ) );
+			$results[]       = $result;
+		}
+		return $results;
 	}
 
 	/**

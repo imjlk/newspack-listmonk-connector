@@ -14,6 +14,20 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Newspack_Listmonk_Connector_Listmonk_Client {
 	/**
+	 * Default page size for Listmonk collection endpoints.
+	 *
+	 * @var int
+	 */
+	private const DEFAULT_PAGE_SIZE = 100;
+
+	/**
+	 * Safety guard for paginated collection fetches.
+	 *
+	 * @var int
+	 */
+	private const MAX_PAGES = 500;
+
+	/**
 	 * Settings.
 	 *
 	 * @var array
@@ -184,20 +198,12 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 	 * @return array|WP_Error
 	 */
 	public function get_lists() {
-		$result = $this->request(
-			'GET',
+		return $this->get_paginated_results(
 			'/api/lists',
-			null,
 			array(
-				'status'   => 'active',
-				'per_page' => 'all',
+				'status' => 'active',
 			)
 		);
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		return $this->extract_results( $result );
 	}
 
 	/**
@@ -207,12 +213,16 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 	 * @return array|WP_Error
 	 */
 	public function get_subscribers( array $query = array() ) {
-		$result = $this->request( 'GET', '/api/subscribers', null, $query );
-		if ( is_wp_error( $result ) ) {
-			return $result;
+		if ( $this->has_explicit_pagination_query( $query ) ) {
+			$result = $this->request( 'GET', '/api/subscribers', null, $query );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			return $this->extract_results( $result );
 		}
 
-		return $this->extract_results( $result );
+		return $this->get_paginated_results( '/api/subscribers', $query );
 	}
 
 	/**
@@ -232,12 +242,7 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 	 * @return array|WP_Error
 	 */
 	public function get_subscriber_bounces( $subscriber_id ) {
-		$result = $this->request( 'GET', sprintf( '/api/subscribers/%d/bounces', absint( $subscriber_id ) ) );
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		return $this->extract_results( $result );
+		return $this->get_paginated_results( sprintf( '/api/subscribers/%d/bounces', absint( $subscriber_id ) ) );
 	}
 
 	/**
@@ -255,19 +260,18 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 			);
 		}
 
-		$subscribers = $this->get_subscribers(
-			array(
-				'per_page' => 'all',
-			)
-		);
-		if ( is_wp_error( $subscribers ) ) {
-			return $subscribers;
-		}
-
-		foreach ( $subscribers as $subscriber ) {
-			if ( 0 === strcasecmp( (string) ( $subscriber['email'] ?? '' ), $email ) ) {
-				return $subscriber;
+		$subscriber = $this->find_paginated_result(
+			'/api/subscribers',
+			array(),
+			static function ( $subscriber ) use ( $email ) {
+				return 0 === strcasecmp( (string) ( $subscriber['email'] ?? '' ), $email );
 			}
+		);
+		if ( is_wp_error( $subscriber ) ) {
+			return $subscriber;
+		}
+		if ( is_array( $subscriber ) ) {
+			return $subscriber;
 		}
 
 		return new WP_Error(
@@ -498,6 +502,168 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 		);
 
 		return array_values( array_unique( $ids ) );
+	}
+
+	/**
+	 * Fetch all pages from a Listmonk collection endpoint.
+	 *
+	 * @param string $path API path.
+	 * @param array  $query Query args.
+	 * @return array|WP_Error
+	 */
+	private function get_paginated_results( $path, array $query = array() ) {
+		$results = array();
+		$seen    = 0;
+
+		for ( $page = 1; $page <= self::MAX_PAGES; $page++ ) {
+			$response = $this->request(
+				'GET',
+				$path,
+				null,
+				array_merge(
+					$query,
+					array(
+						'page'     => $page,
+						'per_page' => self::DEFAULT_PAGE_SIZE,
+					)
+				)
+			);
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+
+			$page_results = $this->extract_results( $response );
+			$results      = array_merge( $results, $page_results );
+			$seen        += count( $page_results );
+
+			if ( ! $this->should_fetch_next_page( $response, $page_results, $seen ) ) {
+				return $results;
+			}
+		}
+
+		return new WP_Error(
+			'newspack_listmonk_connector_pagination_limit_exceeded',
+			__( 'Listmonk pagination exceeded the maximum page limit.', 'newspack-listmonk-connector' ),
+			array(
+				'path'      => $path,
+				'max_pages' => self::MAX_PAGES,
+			)
+		);
+	}
+
+	/**
+	 * Find a result while scanning a paginated Listmonk collection endpoint.
+	 *
+	 * @param string   $path API path.
+	 * @param array    $query Query args.
+	 * @param callable $predicate Result predicate.
+	 * @return array|false|WP_Error
+	 */
+	private function find_paginated_result( $path, array $query, $predicate ) {
+		$seen = 0;
+
+		for ( $page = 1; $page <= self::MAX_PAGES; $page++ ) {
+			$response = $this->request(
+				'GET',
+				$path,
+				null,
+				array_merge(
+					$query,
+					array(
+						'page'     => $page,
+						'per_page' => self::DEFAULT_PAGE_SIZE,
+					)
+				)
+			);
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+
+			$page_results = $this->extract_results( $response );
+			foreach ( $page_results as $result ) {
+				if ( call_user_func( $predicate, $result ) ) {
+					return $result;
+				}
+			}
+
+			$seen += count( $page_results );
+			if ( ! $this->should_fetch_next_page( $response, $page_results, $seen ) ) {
+				return false;
+			}
+		}
+
+		return new WP_Error(
+			'newspack_listmonk_connector_pagination_limit_exceeded',
+			__( 'Listmonk pagination exceeded the maximum page limit.', 'newspack-listmonk-connector' ),
+			array(
+				'path'      => $path,
+				'max_pages' => self::MAX_PAGES,
+			)
+		);
+	}
+
+	/**
+	 * Whether a query explicitly asks for one pagination slice.
+	 *
+	 * @param array $query Query args.
+	 * @return bool
+	 */
+	private function has_explicit_pagination_query( array $query ) {
+		return array_key_exists( 'page', $query ) || array_key_exists( 'per_page', $query );
+	}
+
+	/**
+	 * Decide whether another page should be requested.
+	 *
+	 * @param array $response API response.
+	 * @param array $page_results Results from the current page.
+	 * @param int   $seen Number of results seen so far.
+	 * @return bool
+	 */
+	private function should_fetch_next_page( array $response, array $page_results, $seen ) {
+		if ( empty( $page_results ) ) {
+			return false;
+		}
+
+		$pagination = $this->extract_pagination( $response );
+		$per_page   = $pagination['per_page'] ?? self::DEFAULT_PAGE_SIZE;
+		if ( isset( $pagination['total'] ) ) {
+			if ( isset( $pagination['page'] ) ) {
+				return ( $pagination['page'] * $per_page ) < $pagination['total'];
+			}
+			return $seen < $pagination['total'];
+		}
+
+		return count( $page_results ) >= $per_page;
+	}
+
+	/**
+	 * Extract pagination metadata from a Listmonk response.
+	 *
+	 * @param array $response API response.
+	 * @return array
+	 */
+	private function extract_pagination( array $response ) {
+		$data       = $response['data'] ?? $response;
+		$pagination = array();
+
+		if ( is_array( $data ) && isset( $data['total'] ) ) {
+			$pagination['total'] = absint( $data['total'] );
+		}
+		if ( is_array( $data ) && isset( $data['per_page'] ) ) {
+			$per_page = absint( $data['per_page'] );
+			if ( $per_page ) {
+				$pagination['per_page'] = $per_page;
+			}
+		}
+		if ( is_array( $data ) && isset( $data['page'] ) ) {
+			$page = absint( $data['page'] );
+			if ( $page ) {
+				$pagination['page'] = $page;
+			}
+		}
+
+		return $pagination;
 	}
 
 	/**

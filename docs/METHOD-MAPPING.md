@@ -19,7 +19,7 @@ The active Newspack provider is stored in the
 | `set_api_credentials()` | Saves base URL, API user, and token into plugin settings. |
 | `has_api_credentials()` | Requires base URL, API user, and API token. |
 | `test_connection()` | `GET /api/lists?per_page=1`. |
-| `get_lists()` | `GET /api/lists?status=active&per_page=all`. |
+| `get_lists()` | `GET /api/lists?status=active&page=N&per_page=100` until all pages are read. |
 | `get_send_lists()` | Converts active Listmonk lists into Newspack `Send_List` values. |
 | `list( $post_id, $list_id )` | Stores Newspack `send_list_id` post meta. |
 | `retrieve( $post_id )` | Returns campaign ID/status/error meta and selected lists for the editor. |
@@ -30,7 +30,7 @@ The active Newspack provider is stored in the
 | `trash( $post_id )` | Archives the active campaign reference without hard-deleting Listmonk data. |
 | `delete( $post_id )` | Applies the same archive policy before permanent post deletion. |
 | `add_contact( $contact, $list_id )` | Looks up by email, then `POST /api/subscribers` or `PATCH /api/subscribers/{id}` plus list membership add. |
-| `get_contact_data( $email )` | `GET /api/subscribers?per_page=all` followed by local exact email matching. |
+| `get_contact_data( $email )` | Paginated `GET /api/subscribers?page=N&per_page=100` followed by local exact email matching. |
 | `get_contact_lists( $email )` | Returns list IDs from the Listmonk subscriber response. |
 | `update_contact_lists( $email, $add, $remove )` | `PUT /api/subscribers/lists` with `add` and `remove` actions. |
 
@@ -106,6 +106,8 @@ Newspack contacts map to Listmonk subscribers:
 - `metadata` is recursively sanitized into Listmonk `attribs`.
 - Email lookup deliberately avoids Listmonk SQL query endpoints so the API user
   does not need `subscribers:sql_query`.
+- List, subscriber, and bounce collection fetches use Listmonk `page` /
+  `per_page` pagination instead of `per_page=all`.
 - Missing subscribers are created with `status: "enabled"`.
 - Existing subscribers are patched without replacing their full list set.
 - Existing `blocklisted` subscribers are never re-enabled or resubscribed by

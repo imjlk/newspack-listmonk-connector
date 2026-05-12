@@ -63,7 +63,7 @@ Goal: Provide a thin PHP client around the Listmonk APIs needed for MVP.
 - `[x]` `get_campaign()` using `GET /api/campaigns/{id}`.
 - `[x]` `send_test()` using `POST /api/campaigns/{id}/test`.
 - `[x]` `set_status()` using `PUT /api/campaigns/{id}/status`.
-- `[ ]` Add pagination handling beyond MVP list fetch.
+- `[x]` Add pagination handling beyond MVP list fetch.
 - `[x]` Add subscriber endpoints.
 - `[ ]` Add webhook/analytics endpoints.
 - `[x]` Add integration tests against Docker Listmonk.
@@ -195,5 +195,4 @@ Goal: Prepare a beta plugin build for staging.
 ## Next Recommended Work
 
 1. Run `pnpm run smoke:staging:zip` against a real staging site and mark Phase 9 complete.
-2. Add Listmonk pagination handling beyond MVP list fetch.
-3. Add webhook/analytics endpoints.
+2. Add webhook/analytics endpoints.

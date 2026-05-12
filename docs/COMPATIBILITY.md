@@ -59,7 +59,9 @@ ignored `.listmonk.env` file.
 Verified contract points:
 
 - `GET /api/lists?per_page=1` connection check
-- `GET /api/lists?status=active&per_page=all` active list fetch
+- `GET /api/lists?status=active&page=N&per_page=100` active list fetch
+- `GET /api/subscribers?page=N&per_page=100` subscriber lookup without SQL query permissions
+- `GET /api/subscribers/{id}/bounces?page=N&per_page=100` bounce lookup
 - `POST /api/campaigns` draft campaign creation with `content_type: html`
 - `GET /api/campaigns/{id}` status confirmation
 - `PUT /api/campaigns/{id}/status` transition to `running`
