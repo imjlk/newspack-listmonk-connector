@@ -17,9 +17,10 @@ class Newspack_Listmonk_Connector_Raw_HTML_Builder {
 	 * Build HTML for a newsletter post.
 	 *
 	 * @param WP_Post $post Newsletter post.
+	 * @param array   $context Optional render context.
 	 * @return string
 	 */
-	public function build( WP_Post $post ) {
+	public function build( WP_Post $post, array $context = array() ) {
 		$html = '';
 
 		if ( class_exists( 'Newspack_Newsletters_Renderer' ) ) {
@@ -36,6 +37,7 @@ class Newspack_Listmonk_Connector_Raw_HTML_Builder {
 
 		$html = $this->absolutize_urls( $html );
 		$html = ( new Newspack_Listmonk_Connector_Email_HTML_Processor() )->process( $html );
+		$html = $this->append_unsubscribe_footer( $html, $post, $context );
 
 		return (string) apply_filters( 'newspack_listmonk_connector_raw_html', $html, $post );
 	}
@@ -76,5 +78,67 @@ class Newspack_Listmonk_Connector_Raw_HTML_Builder {
 			},
 			$html
 		);
+	}
+
+	/**
+	 * Append a default Listmonk unsubscribe footer when raw campaign HTML is not
+	 * wrapped by a Listmonk template.
+	 *
+	 * @param string  $html HTML.
+	 * @param WP_Post $post Newsletter post.
+	 * @param array   $context Render context.
+	 * @return string
+	 */
+	private function append_unsubscribe_footer( $html, WP_Post $post, array $context ) {
+		$template_id = absint( $context['template_id'] ?? 0 );
+		$should      = 0 === $template_id && false === stripos( $html, 'UnsubscribeURL' );
+
+		/**
+		 * Filter whether the connector should append the default Listmonk
+		 * unsubscribe footer to raw campaign HTML.
+		 *
+		 * @param bool    $should Whether to append the footer.
+		 * @param string  $html Rendered newsletter HTML.
+		 * @param WP_Post $post Newsletter post.
+		 * @param array   $context Render context.
+		 */
+		$should = (bool) apply_filters( 'newspack_listmonk_connector_should_append_unsubscribe_footer', $should, $html, $post, $context );
+		if ( ! $should ) {
+			return $html;
+		}
+
+		$footer = $this->get_unsubscribe_footer_html( $post, $context );
+		if ( '' === trim( $footer ) ) {
+			return $html;
+		}
+
+		if ( false !== stripos( $html, '</body>' ) ) {
+			return preg_replace( '/<\/body\s*>/i', $footer . '</body>', $html, 1 );
+		}
+
+		return $html . $footer;
+	}
+
+	/**
+	 * Get the default Listmonk unsubscribe footer HTML.
+	 *
+	 * @param WP_Post $post Newsletter post.
+	 * @param array   $context Render context.
+	 * @return string
+	 */
+	private function get_unsubscribe_footer_html( WP_Post $post, array $context ) {
+		$footer = '<footer class="newspack-listmonk-connector-unsubscribe-footer" style="border-top: 1px solid #dcdcde; color: #646970; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.5; margin-top: 32px; padding-top: 16px; text-align: center;"><p style="margin: 0;"><a href="{{ UnsubscribeURL }}" style="color: #646970; text-decoration: underline;">Unsubscribe or manage preferences</a></p></footer>';
+
+		/**
+		 * Filter the default Listmonk unsubscribe footer HTML.
+		 *
+		 * The footer is inserted after DOM cleanup so Listmonk's Go template
+		 * expression remains exactly `{{ UnsubscribeURL }}`.
+		 *
+		 * @param string  $footer Footer HTML.
+		 * @param WP_Post $post Newsletter post.
+		 * @param array   $context Render context.
+		 */
+		return (string) apply_filters( 'newspack_listmonk_connector_unsubscribe_footer_html', $footer, $post, $context );
 	}
 }

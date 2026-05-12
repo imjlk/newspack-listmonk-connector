@@ -934,11 +934,11 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		$settings      = newspack_listmonk_connector_get_settings( true );
 		$html_builder  = new Newspack_Listmonk_Connector_Raw_HTML_Builder();
 		$text_builder  = new Newspack_Listmonk_Connector_Plain_Text_Builder();
-		$raw_html      = $html_builder->build( $post );
-		$plain_text    = $text_builder->build( $raw_html );
 		$from_email    = $this->get_from_email( $post, $settings );
 		$template_id   = absint( get_post_meta( $post->ID, '_wtnl_listmonk_template_id', true ) );
 		$template_id   = $template_id ? $template_id : absint( $settings['default_template_id'] );
+		$raw_html      = $html_builder->build( $post, array( 'template_id' => $template_id ) );
+		$plain_text    = $text_builder->build( $raw_html );
 		$list_ids      = $this->get_post_list_ids( $post );
 		$campaign_name = $this->get_newspack_campaign_name( $post );
 

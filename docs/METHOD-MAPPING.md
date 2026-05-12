@@ -67,6 +67,13 @@ The cleanup pass removes script/form/embed-style unsafe tags, event-handler
 attributes, `srcdoc`, and `javascript:` URLs. It also absolutizes root-relative
 `href`, `src`, `poster`, `background`, and `srcset` URLs.
 
+When no Listmonk campaign template is selected, the connector appends a small
+footer with `{{ UnsubscribeURL }}` to raw campaign HTML if the body does not
+already contain that placeholder. This footer is inserted after DOM cleanup so
+Listmonk's Go template expression is not URL-encoded. When a `template_id` is
+present, the connector does not append a body footer; the Listmonk template
+footer must include `{{ UnsubscribeURL }}`.
+
 The provider keeps draft campaigns as drafts during `sync()`. It only changes
 status during `send()`:
 

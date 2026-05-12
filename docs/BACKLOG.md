@@ -102,7 +102,7 @@ Goal: Convert a Newspack newsletter post into Listmonk-ready HTML and plain text
 - `[x]` Generate `altbody` with plain text builder.
 - `[x]` Add CSS inlining.
 - `[x]` Add email-safe cleanup pass.
-- `[ ]` Add unsubscribe/footer placeholder policy.
+- `[x]` Add unsubscribe/footer placeholder policy.
 - `[ ]` Add Listmonk merge tag helper policy.
 - `[ ]` Add visual regression fixtures for representative newsletter blocks.
 
@@ -194,5 +194,5 @@ Goal: Prepare a beta plugin build for staging.
 ## Next Recommended Work
 
 1. Run staging smoke test from the beta zip.
-2. Add unsubscribe/footer placeholder policy.
-3. Add visual regression fixtures for representative newsletter blocks.
+2. Add visual regression fixtures for representative newsletter blocks.
+3. Add Listmonk merge tag helper policy.

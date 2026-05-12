@@ -73,7 +73,63 @@ class Newspack_Listmonk_Connector_Newsletter_Preview_Test extends WP_UnitTestCas
 		$this->assertSame( 12, $response['templateId'] );
 		$this->assertSame( 'campaign', $response['listmonkPayload']['sendMode'] );
 		$this->assertSame( $response['fromEmail'], $response['listmonkPayload']['fromEmail'] );
+		$this->assertStringNotContainsString( 'UnsubscribeURL', $response['rawHtml'] );
 		$this->assertSame( md5( wp_json_encode( $response['listmonkPayload'] ) ), $response['payloadHash'] );
+	}
+
+	/**
+	 * Preview response appends the unsubscribe footer when no Listmonk template is used.
+	 */
+	public function test_preview_appends_unsubscribe_footer_without_template() {
+		newspack_listmonk_connector_save_settings(
+			array(
+				'default_list_ids' => array( 4 ),
+			)
+		);
+
+		$post_id = self::factory()->post->create(
+			array(
+				'post_author'  => $this->user_id,
+				'post_title'   => 'Raw Preview',
+				'post_content' => '<p>Preview body.</p>',
+			)
+		);
+
+		$response = newspack_listmonk_connector_newsletter_preview_build_response(
+			array(
+				'postId' => $post_id,
+			)
+		);
+
+		$this->assertIsArray( $response );
+		$this->assertSame( 0, $response['templateId'] );
+		$this->assertStringContainsString( 'href="{{ UnsubscribeURL }}"', $response['rawHtml'] );
+		$this->assertStringContainsString( 'Unsubscribe or manage preferences: {{ UnsubscribeURL }}', $response['plainText'] );
+		$this->assertSame( $response['rawHtml'], $response['listmonkPayload']['rawHtml'] );
+	}
+
+	/**
+	 * Preview template override suppresses the raw body unsubscribe footer.
+	 */
+	public function test_preview_template_override_suppresses_unsubscribe_footer() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_author'  => $this->user_id,
+				'post_title'   => 'Template Preview',
+				'post_content' => '<p>Preview body.</p>',
+			)
+		);
+
+		$response = newspack_listmonk_connector_newsletter_preview_build_response(
+			array(
+				'postId'     => $post_id,
+				'templateId' => 42,
+			)
+		);
+
+		$this->assertIsArray( $response );
+		$this->assertSame( 42, $response['templateId'] );
+		$this->assertStringNotContainsString( 'UnsubscribeURL', $response['rawHtml'] );
 	}
 
 	/**

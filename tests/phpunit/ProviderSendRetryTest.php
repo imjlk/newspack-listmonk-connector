@@ -308,6 +308,41 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 	}
 
 	/**
+	 * Sync payload includes the unsubscribe footer when no Listmonk template is used.
+	 */
+	public function test_sync_payload_appends_unsubscribe_footer_without_template() {
+		$post_id = $this->create_draft_post();
+		$this->queue_response( 200, array( 'data' => array( 'id' => 100, 'status' => 'draft' ) ) );
+		$this->queue_lists_response();
+
+		$result = $this->provider->sync( get_post( $post_id ) );
+
+		$this->assertIsArray( $result );
+		$request_body = json_decode( $this->requests[0]['args']['body'], true );
+		$this->assertStringContainsString( 'href="{{ UnsubscribeURL }}"', $request_body['body'] );
+		$this->assertStringContainsString( 'Unsubscribe or manage preferences: {{ UnsubscribeURL }}', $request_body['altbody'] );
+		$this->assertArrayNotHasKey( 'template_id', $request_body );
+	}
+
+	/**
+	 * Sync payload omits the raw body unsubscribe footer when a Listmonk template is used.
+	 */
+	public function test_sync_payload_uses_template_footer_policy_when_template_is_configured() {
+		$post_id = $this->create_draft_post();
+		update_post_meta( $post_id, '_wtnl_listmonk_template_id', 42 );
+		$this->queue_response( 200, array( 'data' => array( 'id' => 101, 'status' => 'draft' ) ) );
+		$this->queue_lists_response();
+
+		$result = $this->provider->sync( get_post( $post_id ) );
+
+		$this->assertIsArray( $result );
+		$request_body = json_decode( $this->requests[0]['args']['body'], true );
+		$this->assertSame( 42, $request_body['template_id'] );
+		$this->assertStringNotContainsString( 'UnsubscribeURL', $request_body['body'] );
+		$this->assertStringNotContainsString( 'UnsubscribeURL', $request_body['altbody'] );
+	}
+
+	/**
 	 * Newsletter trash without an active campaign clears transient errors only.
 	 */
 	public function test_trash_without_campaign_id_clears_transient_without_http_request() {

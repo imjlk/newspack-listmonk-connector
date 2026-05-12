@@ -64,7 +64,7 @@ class Newspack_Listmonk_Connector_Email_HTML_Processor {
 			$output = preg_replace( '/^\s*<!DOCTYPE html>\s*/i', '<!doctype html>', $output, 1 );
 		}
 
-		return $output;
+		return $this->restore_listmonk_template_placeholders( $output );
 	}
 
 	/**
@@ -422,7 +422,7 @@ class Newspack_Listmonk_Connector_Email_HTML_Processor {
 			(string) $html
 		);
 
-		return preg_replace_callback(
+		$html = preg_replace_callback(
 			'/\ssrcset=(["\'])(.*?)\1/is',
 			function ( $matches ) {
 				$srcset = $this->cleanup_srcset( $matches[2] );
@@ -431,6 +431,21 @@ class Newspack_Listmonk_Connector_Email_HTML_Processor {
 			},
 			(string) $html
 		);
+
+		return $this->restore_listmonk_template_placeholders( $html );
+	}
+
+	/**
+	 * Restore Listmonk template placeholders that DOMDocument may encode in URL
+	 * attributes.
+	 *
+	 * @param string $html HTML.
+	 * @return string
+	 */
+	private function restore_listmonk_template_placeholders( $html ) {
+		$html = preg_replace( '/%7B%7B(?:%20)*UnsubscribeURL(?:%20)*%7D%7D/i', '{{ UnsubscribeURL }}', (string) $html );
+
+		return preg_replace( '/\{\{(?:%20)*UnsubscribeURL(?:%20)*\}\}/i', '{{ UnsubscribeURL }}', (string) $html );
 	}
 
 	/**

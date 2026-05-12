@@ -42,6 +42,19 @@ APIs.
    - Default list IDs as comma-separated numeric IDs
 6. Click Save and test connection.
 
+## Unsubscribe Footer Policy
+
+Listmonk exposes `{{ UnsubscribeURL }}` for unsubscribe and manage-preferences
+links. When Default template ID is `0`, the connector appends a minimal footer
+with this placeholder to raw campaign HTML if the newsletter body does not
+already include it.
+
+When a Default template ID or newsletter template ID is configured, the
+connector assumes the Listmonk campaign template owns the footer. Add
+`{{ UnsubscribeURL }}` to that Listmonk template footer before staging sends.
+The connector does not inject `{{ TrackView }}`; tracking pixel placement should
+remain a Listmonk template decision.
+
 Credentials may also be supplied through constants:
 
 ```php

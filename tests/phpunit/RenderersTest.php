@@ -10,6 +10,15 @@
  */
 class Newspack_Listmonk_Connector_Renderers_Test extends WP_UnitTestCase {
 	/**
+	 * Remove filters registered by individual tests.
+	 */
+	public function tear_down() {
+		remove_filter( 'newspack_listmonk_connector_should_append_unsubscribe_footer', array( $this, 'disable_unsubscribe_footer' ), 10 );
+		remove_filter( 'newspack_listmonk_connector_unsubscribe_footer_html', array( $this, 'custom_unsubscribe_footer' ), 10 );
+		parent::tear_down();
+	}
+
+	/**
 	 * Raw HTML fallback wraps block content in a minimal document.
 	 */
 	public function test_raw_html_builder_wraps_fallback_content() {
@@ -45,6 +54,107 @@ class Newspack_Listmonk_Connector_Renderers_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Raw HTML without a Listmonk template gets a default unsubscribe footer.
+	 */
+	public function test_raw_html_builder_appends_unsubscribe_footer_without_template() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title'   => 'Footer Test',
+				'post_content' => '<p>Newsletter body.</p>',
+			)
+		);
+
+		$html = ( new Newspack_Listmonk_Connector_Raw_HTML_Builder() )->build(
+			get_post( $post_id ),
+			array( 'template_id' => 0 )
+		);
+
+		$this->assertStringContainsString( 'newspack-listmonk-connector-unsubscribe-footer', $html );
+		$this->assertStringContainsString( 'href="{{ UnsubscribeURL }}"', $html );
+		$this->assertStringContainsString( 'Unsubscribe or manage preferences', $html );
+	}
+
+	/**
+	 * Existing Listmonk unsubscribe placeholders prevent duplicate footers.
+	 */
+	public function test_raw_html_builder_does_not_duplicate_existing_unsubscribe_placeholder() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title'   => 'Existing Footer Test',
+				'post_content' => '<p><a href="{{ UnsubscribeURL }}">Manage preferences</a></p>',
+			)
+		);
+
+		$html = ( new Newspack_Listmonk_Connector_Raw_HTML_Builder() )->build(
+			get_post( $post_id ),
+			array( 'template_id' => 0 )
+		);
+
+		$this->assertSame( 1, substr_count( $html, 'UnsubscribeURL' ) );
+		$this->assertStringContainsString( 'href="{{ UnsubscribeURL }}"', $html );
+		$this->assertStringNotContainsString( '%7B%7B', $html );
+		$this->assertStringNotContainsString( 'newspack-listmonk-connector-unsubscribe-footer', $html );
+	}
+
+	/**
+	 * Listmonk templates are expected to own their own unsubscribe footer.
+	 */
+	public function test_raw_html_builder_does_not_append_unsubscribe_footer_with_template() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title'   => 'Template Footer Test',
+				'post_content' => '<p>Newsletter body.</p>',
+			)
+		);
+
+		$html = ( new Newspack_Listmonk_Connector_Raw_HTML_Builder() )->build(
+			get_post( $post_id ),
+			array( 'template_id' => 7 )
+		);
+
+		$this->assertStringNotContainsString( 'UnsubscribeURL', $html );
+		$this->assertStringNotContainsString( 'newspack-listmonk-connector-unsubscribe-footer', $html );
+	}
+
+	/**
+	 * Sites can disable the default unsubscribe footer with a filter.
+	 */
+	public function test_raw_html_builder_allows_filter_to_disable_unsubscribe_footer() {
+		add_filter( 'newspack_listmonk_connector_should_append_unsubscribe_footer', array( $this, 'disable_unsubscribe_footer' ), 10, 4 );
+
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title'   => 'Disabled Footer Test',
+				'post_content' => '<p>Newsletter body.</p>',
+			)
+		);
+
+		$html = ( new Newspack_Listmonk_Connector_Raw_HTML_Builder() )->build( get_post( $post_id ) );
+
+		$this->assertStringNotContainsString( 'UnsubscribeURL', $html );
+	}
+
+	/**
+	 * Sites can replace the default unsubscribe footer HTML.
+	 */
+	public function test_raw_html_builder_allows_filter_to_customize_unsubscribe_footer() {
+		add_filter( 'newspack_listmonk_connector_unsubscribe_footer_html', array( $this, 'custom_unsubscribe_footer' ), 10, 3 );
+
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title'   => 'Custom Footer Test',
+				'post_content' => '<p>Newsletter body.</p>',
+			)
+		);
+
+		$html = ( new Newspack_Listmonk_Connector_Raw_HTML_Builder() )->build( get_post( $post_id ) );
+
+		$this->assertStringContainsString( '<footer class="custom-listmonk-footer">', $html );
+		$this->assertStringContainsString( 'Custom unsubscribe', $html );
+		$this->assertStringContainsString( 'href="{{ UnsubscribeURL }}"', $html );
+	}
+
+	/**
 	 * Plain text builder strips tags and decodes entities.
 	 */
 	public function test_plain_text_builder_strips_tags_and_decodes_entities() {
@@ -53,6 +163,17 @@ class Newspack_Listmonk_Connector_Renderers_Test extends WP_UnitTestCase {
 		);
 
 		$this->assertSame( 'Hello world & friends.', $text );
+	}
+
+	/**
+	 * Plain text builder preserves link URLs for unsubscribe placeholders.
+	 */
+	public function test_plain_text_builder_preserves_link_urls() {
+		$text = ( new Newspack_Listmonk_Connector_Plain_Text_Builder() )->build(
+			'<p><a href="{{ UnsubscribeURL }}">Unsubscribe or manage preferences</a></p>'
+		);
+
+		$this->assertSame( 'Unsubscribe or manage preferences: {{ UnsubscribeURL }}', $text );
 	}
 
 	/**
@@ -125,5 +246,23 @@ class Newspack_Listmonk_Connector_Renderers_Test extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'onclick', $output );
 		$this->assertStringNotContainsString( '<script', $output );
 		$this->assertStringNotContainsString( 'style="color: red', $output );
+	}
+
+	/**
+	 * Disable unsubscribe footer callback.
+	 *
+	 * @return bool
+	 */
+	public function disable_unsubscribe_footer() {
+		return false;
+	}
+
+	/**
+	 * Custom unsubscribe footer callback.
+	 *
+	 * @return string
+	 */
+	public function custom_unsubscribe_footer() {
+		return '<footer class="custom-listmonk-footer"><a href="{{ UnsubscribeURL }}">Custom unsubscribe</a></footer>';
 	}
 }
