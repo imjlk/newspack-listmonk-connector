@@ -23,10 +23,27 @@ Minimum MVP permissions:
 - `campaigns:get_analytics`
 - `subscribers:get`
 - `subscribers:manage`
+- `bounces:get`
 
 Keep `subscribers:sql_query` disabled. The connector only uses subscriber list
 fetch, local exact email matching, subscriber create/update, and list membership
 APIs.
+
+The connector API user does not need `webhooks:post_bounce`. That permission is
+for posting bounce notifications into Listmonk's inbound webhook endpoint, not
+for WordPress-to-Listmonk campaign sync or subscriber reflection.
+
+## Bounce And Webhook Policy
+
+Configure bounce and complaint processing in Listmonk for the staging mail
+provider. Supported SMTP provider webhooks should point at Listmonk's
+`/webhooks/service/*` endpoints, and custom processors can post to Listmonk's
+`/webhooks/bounce` endpoint.
+
+The connector does not expose a public WordPress webhook receiver. It reads
+subscriber `blocklisted` state, bounce records, and campaign bounce analytics
+from Listmonk after Listmonk has processed those events. See
+`docs/WEBHOOK-POLICY.md` for the full policy.
 
 ## Double Opt-In Policy
 

@@ -31,6 +31,7 @@ const runtimePaths = [
 	'readme.txt',
 	'docs/SETUP.md',
 	'docs/STAGING-CHECKLIST.md',
+	'docs/WEBHOOK-POLICY.md',
 	'docs/COMPATIBILITY.md',
 	'docs/METHOD-MAPPING.md',
 ];
@@ -61,6 +62,7 @@ const requiredFiles = [
 	'readme.txt',
 	'docs/SETUP.md',
 	'docs/STAGING-CHECKLIST.md',
+	'docs/WEBHOOK-POLICY.md',
 ];
 
 const requiredRestSchemaFiles = restSchemaResources.flatMap((resource) => {

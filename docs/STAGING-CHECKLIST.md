@@ -9,9 +9,12 @@ operators.
 - Newspack Newsletters is installed and active.
 - Newspack Listmonk Connector activates without PHP errors.
 - Listmonk API credentials belong to a dedicated API user.
-- The API user has `lists:get_all`, `campaigns:manage`, and `campaigns:send`.
+- The API user has the permissions listed in `docs/SETUP.md`, including
+  `bounces:get` for bounce reflection.
 - The configured From email is allowed by the Listmonk mail setup.
 - The target Listmonk list IDs are staging-safe.
+- Bounce and complaint processing is configured in Listmonk for the staging
+  mail provider; no WordPress webhook URL is required.
 
 ## Settings Validation
 
@@ -54,6 +57,8 @@ operators.
   WordPress.
 - Trashing a running staging newsletter leaves the Listmonk campaign `running`
   and records a preserved-running archive policy.
+- Listmonk bounce processing settings point supported provider webhooks at
+  Listmonk, not WordPress.
 
 ## Rollback
 

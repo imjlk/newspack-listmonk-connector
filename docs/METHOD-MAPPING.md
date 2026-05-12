@@ -49,6 +49,22 @@ and reads:
 The editor retrieve payload remains unchanged; analytics are exposed only
 through the dedicated connector REST resource.
 
+## Webhook And Bounce Policy
+
+The connector does not register a public WordPress webhook receiver. Bounce and
+complaint events should be sent to Listmonk's inbound webhook endpoints, such as
+`/webhooks/service/*` for supported SMTP providers or `/webhooks/bounce` for
+custom processors.
+
+The connector reflects that state by reading Listmonk APIs:
+
+- subscriber blocklist and bounce state through `get_contact_data()`
+- campaign bounce analytics through the campaign analytics REST resource
+
+The connector API user needs `bounces:get` to read bounce records, but does not
+need `webhooks:post_bounce` because WordPress is not posting bounce events into
+Listmonk.
+
 ## Campaign Payload
 
 The connector sends Newspack rendered HTML as a Listmonk campaign payload:

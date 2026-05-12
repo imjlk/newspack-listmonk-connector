@@ -25,10 +25,14 @@ settings, preview, editor sync, and analytics REST contracts in TypeScript:
 - Creates or updates Listmonk draft campaigns with `content_type: "html"`.
 - Sends Listmonk test campaigns through `/api/campaigns/{id}/test`.
 - Starts or schedules campaigns with `/api/campaigns/{id}/status`.
+- Syncs Newspack contacts into Listmonk subscribers and list memberships while
+  preserving Listmonk double opt-in, blocklist, and bounce state.
 - Stores Listmonk campaign ID, UUID, payload hash, last sync time, last status,
   and last error in newsletter post meta.
 
-Subscriber/list-membership sync is intentionally left for a later milestone.
+The connector intentionally does not expose a WordPress webhook receiver.
+Configure bounce and complaint webhooks in Listmonk, then let the connector read
+the resulting bounce/blocklist state through the Listmonk API.
 
 Track phase-by-phase progress in [docs/BACKLOG.md](docs/BACKLOG.md).
 
@@ -86,6 +90,8 @@ The beta zip is written to
 `artifacts/newspack-listmonk-connector-0.1.0.zip`. See
 [docs/SETUP.md](docs/SETUP.md) and
 [docs/STAGING-CHECKLIST.md](docs/STAGING-CHECKLIST.md) for staging validation.
+Webhook direction and bounce ownership are documented in
+[docs/WEBHOOK-POLICY.md](docs/WEBHOOK-POLICY.md).
 
 ## Integration Smoke Tests
 

@@ -1,6 +1,6 @@
 # Newspack Listmonk Connector Backlog
 
-Last updated: 2026-05-11
+Last updated: 2026-05-12
 
 Status legend:
 
@@ -14,7 +14,7 @@ Status legend:
 | ---: | --- | --- |
 | 0 | Technical validation and design | `[x]` |
 | 1 | wp-typia scaffold | `[x]` |
-| 2 | Listmonk API client | `[~]` |
+| 2 | Listmonk API client | `[x]` |
 | 3 | Newspack provider adapter | `[~]` |
 | 4 | Raw HTML rendering pipeline | `[~]` |
 | 5 | Campaign sync/send flow | `[~]` |
@@ -65,7 +65,7 @@ Goal: Provide a thin PHP client around the Listmonk APIs needed for MVP.
 - `[x]` `set_status()` using `PUT /api/campaigns/{id}/status`.
 - `[x]` Add pagination handling beyond MVP list fetch.
 - `[x]` Add subscriber endpoints.
-- `[~]` Add webhook/analytics endpoints; campaign analytics read endpoint is done, webhook event receiver policy is deferred.
+- `[x]` Add webhook/analytics endpoints; campaign analytics read endpoint is done, and webhook receiver is intentionally not implemented because bounce/complaint events terminate at Listmonk.
 - `[x]` Add integration tests against Docker Listmonk.
 
 ## Phase 3: Newspack Provider Adapter
@@ -196,4 +196,5 @@ Goal: Prepare a beta plugin build for staging.
 ## Next Recommended Work
 
 1. Run `pnpm run smoke:staging:zip` against a real staging site and mark Phase 9 complete.
-2. Define webhook event receiver policy.
+2. Clean up provider tag method stubs or document their long-term compatibility stance.
+3. Clarify the `wp-typia doctor` environment note for machines without Bun.

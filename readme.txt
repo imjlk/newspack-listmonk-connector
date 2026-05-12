@@ -16,7 +16,9 @@ It turns Newspack newsletter editor output into raw HTML Listmonk campaigns, the
 supports draft sync, test sends, immediate sends, and scheduled sends.
 
 This is a beta build intended for controlled staging validation before broader
-use. Subscriber sync, analytics, and webhook handling are not included yet.
+use. Subscriber sync and campaign analytics are included. The connector does not
+expose a WordPress webhook receiver; configure bounce and complaint processing
+in Listmonk.
 
 == Requirements ==
 
@@ -24,7 +26,7 @@ use. Subscriber sync, analytics, and webhook handling are not included yet.
 * PHP 8.0 or later.
 * Newspack Newsletters installed and active.
 * A reachable Listmonk server.
-* A Listmonk API user with `lists:get_all`, `campaigns:manage`, and `campaigns:send`.
+* A Listmonk API user with `lists:get_all`, `campaigns:manage`, `campaigns:send`, `campaigns:get_analytics`, `subscribers:get`, `subscribers:manage`, and `bounces:get`.
 
 == Installation ==
 
@@ -43,4 +45,5 @@ the full beta validation flow.
 
 = 0.1.0 =
 * Beta release packaging for the Newspack/Listmonk MVP.
-* Adds Listmonk provider registration, settings, campaign sync, test send, send/schedule transitions, editor panel, and compatibility fallbacks.
+* Adds Listmonk provider registration, settings, campaign sync, test send, send/schedule transitions, editor panel, subscriber sync, analytics, and compatibility fallbacks.
+* Documents that bounce and complaint webhooks should terminate at Listmonk, not WordPress.
