@@ -4,6 +4,10 @@ Last verified: 2026-05-11
 
 ## Newspack Newsletters
 
+The connector is a companion plugin for Newspack Newsletters and declares the
+WordPress plugin dependency header `Requires Plugins: newspack-newsletters`.
+The broader Newspack platform plugin is optional for the MVP provider flow.
+
 The wp-env smoke test installs Newspack Newsletters from the WordPress.org
 stable ZIP URL:
 

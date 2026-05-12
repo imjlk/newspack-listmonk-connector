@@ -1,6 +1,6 @@
 # Newspack Listmonk Connector
 
-Newspack Newsletters ESP provider for Listmonk campaign delivery.
+Newspack Newsletters companion ESP provider for Listmonk campaign delivery.
 
 This plugin was scaffolded with the published `wp-typia` CLI and keeps the
 settings, preview, editor sync, and analytics REST contracts in TypeScript:
@@ -13,6 +13,7 @@ settings, preview, editor sync, and analytics REST contracts in TypeScript:
 
 ## MVP Scope
 
+- Declares `newspack-newsletters` as a WordPress plugin dependency.
 - Registers `listmonk` through `newspack_newsletters_registered_providers`.
 - Stores Listmonk API URL, API user, token, default From email, template ID,
   and default list IDs.

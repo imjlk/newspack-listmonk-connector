@@ -7,6 +7,8 @@ This guide is for beta validation on a staging WordPress site.
 - WordPress 6.7 or later.
 - PHP 8.0 or later.
 - Newspack Newsletters installed and active.
+- The broader Newspack platform plugin is optional for this MVP; this connector
+  depends on Newspack Newsletters provider APIs.
 - A reachable Listmonk server.
 - The beta zip built with `pnpm run release:zip`.
 

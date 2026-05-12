@@ -2,7 +2,7 @@
 	"name": "newspack-listmonk-connector",
 	"version": "0.1.0",
 	"packageManager": "pnpm@8.3.1",
-	"description": "Newspack Newsletters ESP provider for Listmonk campaigns",
+	"description": "Newspack Newsletters companion ESP provider for Listmonk campaigns",
 	"author": "imjlk",
 	"license": "GPL-2.0-or-later",
 	"scripts": {

@@ -1,9 +1,10 @@
 <?php
 /**
  * Plugin Name:       Newspack Listmonk Connector
- * Description:       Connects Newspack Newsletters to Listmonk campaigns.
+ * Description:       Companion ESP provider for sending Newspack Newsletters campaigns with Listmonk.
  * Version:           0.1.0
  * Requires at least: 6.7
+ * Requires Plugins:  newspack-newsletters
  * Tested up to:      6.9
  * Requires PHP:      8.0
  * Author:            imjlk

@@ -7,11 +7,11 @@ Stable tag: 0.1.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Connects Newspack Newsletters to Listmonk campaigns.
+Companion ESP provider for sending Newspack Newsletters campaigns with Listmonk.
 
 == Description ==
 
-Newspack Listmonk Connector adds a Listmonk ESP provider for Newspack Newsletters.
+Newspack Listmonk Connector is a companion plugin for Newspack Newsletters that adds a Listmonk ESP provider.
 It turns Newspack newsletter editor output into raw HTML Listmonk campaigns, then
 supports draft sync, test sends, immediate sends, and scheduled sends.
 
@@ -25,6 +25,7 @@ in Listmonk.
 * WordPress 6.7 or later.
 * PHP 8.0 or later.
 * Newspack Newsletters installed and active.
+* Newspack platform plugin is optional; Newspack Newsletters is the required dependency for this connector.
 * A reachable Listmonk server.
 * A Listmonk API user with `lists:get_all`, `campaigns:manage`, `campaigns:send`, `campaigns:get_analytics`, `subscribers:get`, `subscribers:manage`, and `bounces:get`.
 
@@ -45,5 +46,5 @@ the full beta validation flow.
 
 = 0.1.0 =
 * Beta release packaging for the Newspack/Listmonk MVP.
-* Adds Listmonk provider registration, settings, campaign sync, test send, send/schedule transitions, editor panel, subscriber sync, analytics, and compatibility fallbacks.
+* Declares Newspack Newsletters as the required companion dependency and adds Listmonk provider registration, settings, campaign sync, test send, send/schedule transitions, editor panel, subscriber sync, analytics, and compatibility fallbacks.
 * Documents that bounce and complaint webhooks should terminate at Listmonk, not WordPress.
