@@ -52,6 +52,10 @@ Fallback policy:
 - Newspack editor route permissions, ID validation, REST response wrapping,
   sync-error transient naming, and campaign naming are routed through connector
   compatibility helpers.
+- The editor setup modal currently assumes bundled providers can be configured
+  inside the modal. The connector adds a temporary compatibility shim for active
+  `listmonk` editors so the modal does not block the Listmonk document panel;
+  remove this shim after Newspack exposes an external-provider setup path.
 
 ## Listmonk
 

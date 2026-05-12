@@ -754,6 +754,7 @@ function ListmonkPanel() {
 				isDismissible: false,
 				status: 'warning',
 			} ),
+			className: 'newspack-listmonk-connector-panel',
 			name: 'newspack-listmonk-connector',
 			title: __( 'Listmonk', 'newspack-listmonk-connector' ),
 		} );

@@ -69,6 +69,13 @@ mailchimp,constant_contact,active_campaign,listmonk,manual
 That means the editor treats `listmonk` as a supported ESP and will attempt the
 Newspack provider REST flow.
 
+Newspack's setup modal uses `is_service_provider_configured` to decide whether
+to block the editor. For bundled providers that modal can collect credentials;
+for Listmonk, credentials live on the connector settings page. The connector
+therefore adds a narrow editor compatibility shim: when the active provider is
+`listmonk`, it lets the editor load and lets the Listmonk document panel show
+the settings link if API URL/user/token are still missing.
+
 The `conditional_tag_support` payload is intentionally scoped to Listmonk Go
 template examples. It does not mean the connector syncs Newspack local tags into
 Listmonk; subscriber segmentation is handled through Listmonk lists, subscriber

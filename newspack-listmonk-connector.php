@@ -160,6 +160,38 @@ function newspack_listmonk_connector_enqueue_editor_plugins_editor() {
 	}
 }
 
+/**
+ * Keep Newspack's built-in setup modal from blocking the Listmonk editor panel.
+ *
+ * Newspack's modal can configure bundled providers, but Listmonk credentials live
+ * on this companion plugin's settings screen. When Listmonk is already the active
+ * provider, let the editor load and let the Listmonk panel show its own setup
+ * notice if credentials are still missing.
+ */
+function newspack_listmonk_connector_enqueue_newspack_editor_compat() {
+	wp_register_script(
+		'newspack-listmonk-connector-newspack-editor-compat',
+		false,
+		array( 'newspack-newsletters-editor' ),
+		NEWSPACK_LISTMONK_CONNECTOR_VERSION,
+		true
+	);
+	wp_add_inline_script(
+		'newspack-listmonk-connector-newspack-editor-compat',
+		<<<'JS'
+( function () {
+	var data = window.newspack_newsletters_data;
+	if ( ! data || data.service_provider !== 'listmonk' ) {
+		return;
+	}
+
+	data.is_service_provider_configured = '1';
+} )();
+JS,
+	);
+	wp_enqueue_script( 'newspack-listmonk-connector-newspack-editor-compat' );
+}
+
 function newspack_listmonk_connector_register_pattern_category() {
 	if ( function_exists( 'register_block_pattern_category' ) ) {
 		register_block_pattern_category(
@@ -191,4 +223,5 @@ add_action( 'init', 'newspack_listmonk_connector_register_pattern_category' );
 add_action( 'init', 'newspack_listmonk_connector_register_patterns', 20 );
 add_action( 'enqueue_block_editor_assets', 'newspack_listmonk_connector_enqueue_binding_sources_editor' );
 add_action( 'enqueue_block_editor_assets', 'newspack_listmonk_connector_enqueue_editor_plugins_editor' );
+add_action( 'newspack_newsletters_enqueue_block_editor_assets', 'newspack_listmonk_connector_enqueue_newspack_editor_compat', 20 );
 add_action( 'init', 'newspack_listmonk_connector_register_rest_resources', 20 );

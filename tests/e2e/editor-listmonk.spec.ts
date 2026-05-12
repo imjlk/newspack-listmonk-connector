@@ -270,6 +270,74 @@ echo wp_json_encode(
 	return decoded;
 }
 
+function createUnconfiguredFixture(): Pick< Fixture, 'editPath' | 'postId' > {
+	runWp( [
+		'plugin',
+		'activate',
+		resolvePluginSlug( [
+			'newspack-newsletters',
+			'newspack-newsletters.latest-stable',
+		] ),
+	] );
+	runWp( [ 'plugin', 'activate', 'newspack-listmonk-connector' ] );
+	runWp( [
+		'option',
+		'update',
+		'newspack_newsletters_service_provider',
+		'listmonk',
+	] );
+	runWp( [ 'option', 'delete', 'newspack_listmonk_connector_settings' ] );
+
+	const php = `
+$errors = array();
+Newspack_Newsletters::set_service_provider( 'listmonk' );
+
+$post_id = wp_insert_post(
+	array(
+		'post_type' => Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT,
+		'post_status' => 'draft',
+		'post_title' => 'Listmonk unconfigured editor E2E ' . gmdate( 'c' ),
+		'post_content' => '<!-- wp:paragraph --><p>Listmonk unconfigured body</p><!-- /wp:paragraph -->',
+	),
+	true
+);
+
+if ( is_wp_error( $post_id ) ) {
+	$errors[] = 'Unable to create newsletter: ' . $post_id->get_error_message();
+}
+
+if ( ! empty( $errors ) ) {
+	echo wp_json_encode( array( 'ok' => false, 'errors' => $errors ), JSON_PRETTY_PRINT ) . PHP_EOL;
+	exit( 1 );
+}
+
+echo wp_json_encode(
+	array(
+		'ok' => true,
+		'editPath' => sprintf( '/wp-admin/post.php?post=%d&action=edit', $post_id ),
+		'postId' => absint( $post_id ),
+	),
+	JSON_PRETTY_PRINT
+) . PHP_EOL;
+`;
+
+	const output = runWp( [ 'eval', php ] );
+	const decoded = JSON.parse( output ) as Pick<
+		Fixture,
+		'editPath' | 'postId'
+	> & {
+		errors?: string[];
+		ok?: boolean;
+	};
+	if ( ! decoded.ok ) {
+		throw new Error(
+			decoded.errors?.join( '\n' ) || 'Unconfigured fixture setup failed.'
+		);
+	}
+
+	return decoded;
+}
+
 async function loginAsAdmin( page: Page ) {
 	await page.goto( '/wp-admin/' );
 	if ( ! page.url().includes( 'wp-login.php' ) ) {
@@ -453,6 +521,32 @@ test.describe( 'Listmonk editor panel', () => {
 				} )
 				.last()
 		).toBeVisible();
+	} );
+
+	test( 'does not show the Newspack configure modal when Listmonk settings are incomplete', async ( {
+		page,
+	} ) => {
+		const unconfiguredFixture = createUnconfiguredFixture();
+
+		await loginAsAdmin( page );
+		await page.goto( unconfiguredFixture.editPath );
+		await prepareEditorUi( page );
+
+		await expect( page.getByText( 'Configure plugin' ) ).toHaveCount( 0 );
+
+		const panel = page.locator( '.newspack-listmonk-connector-panel' );
+		await expect( panel ).toBeVisible();
+		await expect(
+			panel.getByText(
+				'Configure Listmonk settings before syncing newsletters.'
+			)
+		).toBeVisible();
+		await expect(
+			panel.getByText( 'Open Listmonk settings' )
+		).toBeVisible();
+		await expect(
+			page.getByText( 'Listmonk API URL, user, and token are required.' )
+		).toHaveCount( 0 );
 	} );
 } );
 

@@ -196,3 +196,12 @@ Goal: Prepare a beta plugin build for staging.
 ## Next Recommended Work
 
 1. Run `pnpm run smoke:staging:zip` against a real staging site and mark Phase 9 complete.
+2. Remove the temporary Newspack editor setup-modal compatibility shim after
+   Newspack Newsletters renders external providers from the registered provider
+   list and supports companion-provider setup links.
+
+## Compatibility Debt
+
+- `[ ]` Remove `newspack_listmonk_connector_enqueue_newspack_editor_compat()`
+  when Newspack Newsletters no longer blocks external active providers behind
+  the bundled Configure plugin modal.
