@@ -22,6 +22,18 @@ operators.
   and default list IDs.
 - `listmonk` is the active Newspack Newsletters service provider.
 
+## Automated Smoke
+
+- Build the beta zip with `pnpm run release:zip`.
+- Upload `artifacts/newspack-listmonk-connector-0.1.0.zip` through WP Admin or
+  install it with WP-CLI.
+- Export the `STAGING_*` variables documented in
+  `docs/INTEGRATION-TESTING.md`.
+- Run `pnpm run smoke:staging:zip`.
+- Review the printed WordPress post IDs and Listmonk campaign IDs.
+- If `STAGING_SMOKE_TEST_EMAIL` is not set, perform the test-send check
+  manually from the editor.
+
 ## Newsletter Validation
 
 - A draft Newspack newsletter opens without editor errors.

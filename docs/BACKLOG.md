@@ -189,10 +189,11 @@ Goal: Prepare a beta plugin build for staging.
 - `[x]` Add setup guide with required Listmonk permissions.
 - `[x]` Add staging checklist.
 - `[x]` Build beta zip.
-- `[ ]` Run staging smoke test.
+- `[~]` Run staging smoke test; automated beta zip smoke workflow exists, actual
+  staging execution still needs environment credentials.
 
 ## Next Recommended Work
 
-1. Run staging smoke test from the beta zip.
+1. Run `pnpm run smoke:staging:zip` against a real staging site and mark Phase 9 complete.
 2. Resolve double opt-in list behavior policy.
 3. Add Listmonk pagination handling beyond MVP list fetch.

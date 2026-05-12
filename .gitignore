@@ -22,4 +22,5 @@ Thumbs.db
 *.log
 .env
 .listmonk.env
+.staging.env
 .wp-env/

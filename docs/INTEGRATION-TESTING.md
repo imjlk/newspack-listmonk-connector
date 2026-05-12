@@ -65,6 +65,53 @@ runtime files into a staging directory, runs PHP syntax checks on the staged
 package, creates `artifacts/newspack-listmonk-connector-0.1.0.zip`, and verifies
 that development-only files are excluded.
 
+## Smoke: Beta Zip On Staging
+
+The staging smoke builds a fresh beta zip, verifies the connector and Newspack
+Newsletters are installed/active on the staging site, saves Listmonk settings,
+and runs draft sync, optional test send, publish, schedule, and archive checks
+through authenticated REST requests.
+
+Set the required environment variables in your shell or in an ignored
+`.staging.env` file:
+
+```bash
+STAGING_WP_URL=https://staging.example.com
+STAGING_WP_USER=admin
+STAGING_WP_APPLICATION_PASSWORD="xxxx xxxx xxxx xxxx xxxx xxxx"
+STAGING_LISTMONK_BASE_URL=https://listmonk-staging.example.com
+STAGING_LISTMONK_API_USER=api_user
+STAGING_LISTMONK_API_TOKEN=replace-me
+STAGING_LISTMONK_DEFAULT_LIST_IDS=1
+STAGING_LISTMONK_FROM_EMAIL="Newsroom <news@example.com>"
+STAGING_LISTMONK_TEMPLATE_ID=0
+STAGING_SMOKE_TEST_EMAIL=smoke@example.com
+```
+
+Then run:
+
+```bash
+pnpm run smoke:staging:zip
+```
+
+The script uses WordPress Application Passwords for REST authentication. Core
+WordPress REST can activate an already-installed plugin and can install
+WordPress.org plugin slugs, but it does not upload arbitrary beta plugin zips.
+Upload `artifacts/newspack-listmonk-connector-0.1.0.zip` through WP Admin or
+install it with WP-CLI before running the smoke.
+
+If the Newspack provider option is registered in REST, the script sets
+`newspack_newsletters_service_provider=listmonk` automatically. If staging does
+not expose that option through `/wp/v2/settings`, set it once with:
+
+```bash
+wp option update newspack_newsletters_service_provider listmonk
+```
+
+The test send step is skipped unless `STAGING_SMOKE_TEST_EMAIL` is set. Publish
+and schedule use the configured staging Listmonk list IDs, so use only
+staging-safe lists.
+
 ## Smoke: Newspack Provider Contract
 
 This smoke test does not require real Listmonk credentials.
