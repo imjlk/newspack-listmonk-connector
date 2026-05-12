@@ -347,6 +347,16 @@ test.describe( 'Listmonk editor panel', () => {
 		const panel = page.locator( '.newspack-listmonk-connector-panel' );
 		await expect( panel ).toBeVisible();
 
+		const analyticsSection = panel.locator(
+			'.newspack-listmonk-connector-panel__analytics'
+		);
+		await expect(
+			analyticsSection.getByText( 'Analytics', { exact: true } )
+		).toBeVisible();
+		await expect(
+			analyticsSection.getByText( 'Sync to Listmonk to view analytics.' )
+		).toBeVisible();
+
 		const listSelect = panel.getByLabel( 'List', { exact: true } );
 		if ( ! ( await listSelect.isVisible().catch( () => false ) ) ) {
 			await page.getByRole( 'button', { name: /^Listmonk$/ } ).click();
@@ -398,6 +408,36 @@ test.describe( 'Listmonk editor panel', () => {
 				.first()
 		).toHaveText( /\d+/ );
 		await expect( panel.getByText( 'draft' ) ).toBeVisible();
+
+		const refreshAnalyticsButton = analyticsSection.getByRole( 'button', {
+			name: /^Refresh analytics$/,
+		} );
+		await expect( refreshAnalyticsButton ).toBeVisible();
+		await expect( refreshAnalyticsButton ).toBeEnabled();
+		await expect(
+			analyticsSection.getByLabel( 'From', { exact: true } )
+		).toHaveValue( /^\d{4}-\d{2}-\d{2}$/ );
+		await expect(
+			analyticsSection.getByLabel( 'To', { exact: true } )
+		).toHaveValue( /^\d{4}-\d{2}-\d{2}$/ );
+		for ( const metric of [
+			'Sent',
+			'To send',
+			'Views',
+			'Clicks',
+			'Bounces',
+		] ) {
+			await expect(
+				analyticsSection
+					.locator(
+						'.newspack-listmonk-connector-panel__analytics-metric'
+					)
+					.filter( { hasText: metric } )
+			).toBeVisible();
+		}
+		await expect( analyticsSection.getByText( 'Top links' ) ).toBeVisible();
+		await refreshAnalyticsButton.click();
+		await expect( analyticsSection.getByText( 'Top links' ) ).toBeVisible();
 
 		await panel
 			.getByLabel( 'Test email', { exact: true } )

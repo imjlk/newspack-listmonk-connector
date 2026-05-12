@@ -27,6 +27,8 @@ import type { EndpointValidationResult } from '@wp-typia/rest';
 import './style.scss';
 
 import type {
+	CampaignAnalyticsResponse,
+	CampaignAnalyticsTotals,
 	NewspackEditorRetrieveResponse,
 	NewspackEditorTestResponse,
 	NewspackSendList,
@@ -37,6 +39,8 @@ import type { NewsletterPreviewCreateRequest } from '../rest/newsletter-preview/
 import { createResource as createPreviewResource } from '../rest/newsletter-preview/api';
 import type { NewsletterSyncCreateRequest } from '../rest/newsletter-sync/api-types';
 import { createResource as createSyncResource } from '../rest/newsletter-sync/api';
+import type { CampaignAnalyticsReadQuery } from '../rest/campaign-analytics/api-types';
+import { readResource as readCampaignAnalyticsResource } from '../rest/campaign-analytics/api';
 
 type EditorSelect = {
 	getCurrentPostId?: () => number;
@@ -95,6 +99,16 @@ const LISTMONK_MERGE_TAG_HELPERS = [
 		tag: '{{ TrackView }}',
 	},
 ];
+
+const ANALYTICS_DAY_IN_MS = 24 * 60 * 60 * 1000;
+
+const EMPTY_ANALYTICS_TOTALS: CampaignAnalyticsTotals = {
+	bounces: 0,
+	clicks: 0,
+	sent: 0,
+	toSend: 0,
+	views: 0,
+};
 
 function getNewspackEmailEditorData(): NewspackEmailEditorData {
 	if ( typeof window === 'undefined' ) {
@@ -211,6 +225,42 @@ function formatListLabel( list: NewspackSendList ): string {
 	return list.name;
 }
 
+function formatUtcDate( date: Date ): string {
+	return date.toISOString().slice( 0, 10 );
+}
+
+function getDefaultAnalyticsRange(): { from: string; to: string } {
+	const toDate = new Date();
+	const fromDate = new Date( toDate.getTime() - 29 * ANALYTICS_DAY_IN_MS );
+
+	return {
+		from: formatUtcDate( fromDate ),
+		to: formatUtcDate( toDate ),
+	};
+}
+
+function getCampaignIdFromRetrieve(
+	retrieve: NewspackEditorRetrieveResponse | undefined
+): string {
+	return retrieve?.listmonk_campaign_id || retrieve?.campaign_id || '';
+}
+
+function formatNumber( value: number | undefined ): string {
+	return new Intl.NumberFormat().format( value ?? 0 );
+}
+
+function renderAnalyticsMetric( label: string, value: number | undefined ) {
+	return createElement(
+		'div',
+		{
+			className: 'newspack-listmonk-connector-panel__analytics-metric',
+			key: label,
+		},
+		createElement( 'span', null, label ),
+		createElement( 'strong', null, formatNumber( value ) )
+	);
+}
+
 async function fetchRetrieve(
 	postId: number
 ): Promise< NewspackEditorRetrieveResponse > {
@@ -303,11 +353,22 @@ function ListmonkPanel() {
 	const [ localListId, setLocalListId ] = useState( '' );
 	const [ testEmail, setTestEmail ] = useState( getDefaultTestEmail );
 	const [ errorMessage, setErrorMessage ] = useState( '' );
+	const [ analytics, setAnalytics ] = useState< CampaignAnalyticsResponse >();
+	const [ analyticsError, setAnalyticsError ] = useState( '' );
+	const [ analyticsRangeFrom, setAnalyticsRangeFrom ] = useState(
+		() => getDefaultAnalyticsRange().from
+	);
+	const [ analyticsRangeTo, setAnalyticsRangeTo ] = useState(
+		() => getDefaultAnalyticsRange().to
+	);
+	const [ lastAutoAnalyticsCampaignId, setLastAutoAnalyticsCampaignId ] =
+		useState( '' );
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ isPreviewing, setIsPreviewing ] = useState( false );
 	const [ isSyncing, setIsSyncing ] = useState( false );
 	const [ isRetryingSend, setIsRetryingSend ] = useState( false );
 	const [ isTesting, setIsTesting ] = useState( false );
+	const [ isLoadingAnalytics, setIsLoadingAnalytics ] = useState( false );
 
 	const isActiveEditor = isListmonkNewsletterEditor( editorData.postType );
 	const selectedListId = getSelectedListId(
@@ -315,8 +376,7 @@ function ListmonkPanel() {
 		retrieveData,
 		localListId
 	);
-	const campaignId =
-		retrieveData?.listmonk_campaign_id || retrieveData?.campaign_id || '';
+	const campaignId = getCampaignIdFromRetrieve( retrieveData );
 	const lastStatus = retrieveData?.listmonk_last_status || '';
 	const canRetrySend =
 		Boolean( retrieveData?.listmonk_last_error ) &&
@@ -347,6 +407,47 @@ function ListmonkPanel() {
 
 		await Promise.resolve( savePost() );
 	}, [ savePost ] );
+
+	const refreshAnalytics = useCallback(
+		async ( nextCampaignId = campaignId ) => {
+			if ( ! editorData.postId || ! nextCampaignId ) {
+				setAnalytics( undefined );
+				setAnalyticsError( '' );
+				return;
+			}
+
+			setIsLoadingAnalytics( true );
+			setAnalyticsError( '' );
+
+			try {
+				const request: CampaignAnalyticsReadQuery = {
+					from: analyticsRangeFrom,
+					postId: editorData.postId,
+					to: analyticsRangeTo,
+				};
+				const result = await readCampaignAnalyticsResource( request );
+				setAnalytics(
+					unwrapEndpointData<
+						CampaignAnalyticsReadQuery,
+						CampaignAnalyticsResponse
+					>( result )
+				);
+			} catch ( error ) {
+				const message = getErrorMessage( error );
+				setAnalyticsError( message );
+				createErrorNotice?.( message, { type: 'snackbar' } );
+			} finally {
+				setIsLoadingAnalytics( false );
+			}
+		},
+		[
+			analyticsRangeFrom,
+			analyticsRangeTo,
+			campaignId,
+			createErrorNotice,
+			editorData.postId,
+		]
+	);
 
 	const refreshRetrieveAndLists = useCallback( async () => {
 		if ( ! editorData.postId ) {
@@ -424,6 +525,31 @@ function ListmonkPanel() {
 		void refreshPreview();
 	}, [ isActiveEditor, refreshPreview, selectedListId ] );
 
+	useEffect( () => {
+		if ( ! isActiveEditor ) {
+			return;
+		}
+
+		if ( ! campaignId ) {
+			setAnalytics( undefined );
+			setAnalyticsError( '' );
+			setLastAutoAnalyticsCampaignId( '' );
+			return;
+		}
+
+		if ( campaignId === lastAutoAnalyticsCampaignId ) {
+			return;
+		}
+
+		setLastAutoAnalyticsCampaignId( campaignId );
+		void refreshAnalytics( campaignId );
+	}, [
+		campaignId,
+		isActiveEditor,
+		lastAutoAnalyticsCampaignId,
+		refreshAnalytics,
+	] );
+
 	const handleListChange = useCallback(
 		( nextListId: string ) => {
 			setLocalListId( nextListId );
@@ -456,6 +582,9 @@ function ListmonkPanel() {
 			>( result );
 			setRetrieveData( data.retrieve );
 			await refreshPreview();
+			await refreshAnalytics(
+				getCampaignIdFromRetrieve( data.retrieve )
+			);
 			createSuccessNotice?.( data.message, { type: 'snackbar' } );
 		} catch ( error ) {
 			const message = getErrorMessage( error );
@@ -468,6 +597,7 @@ function ListmonkPanel() {
 		createErrorNotice,
 		createSuccessNotice,
 		editorData.postId,
+		refreshAnalytics,
 		refreshPreview,
 		saveCurrentPost,
 	] );
@@ -491,6 +621,9 @@ function ListmonkPanel() {
 			>( result );
 			setRetrieveData( data.retrieve );
 			await refreshPreview();
+			await refreshAnalytics(
+				getCampaignIdFromRetrieve( data.retrieve )
+			);
 			createSuccessNotice?.( data.message, { type: 'snackbar' } );
 		} catch ( error ) {
 			const message = getErrorMessage( error );
@@ -508,6 +641,7 @@ function ListmonkPanel() {
 		createErrorNotice,
 		createSuccessNotice,
 		editorData.postId,
+		refreshAnalytics,
 		refreshPreview,
 	] );
 
@@ -530,6 +664,7 @@ function ListmonkPanel() {
 			const result = await sendTestEmail( editorData.postId, testEmail );
 			const nextRetrieve = await fetchRetrieve( editorData.postId );
 			setRetrieveData( nextRetrieve );
+			await refreshAnalytics( getCampaignIdFromRetrieve( nextRetrieve ) );
 			createSuccessNotice?.( result.message, { type: 'snackbar' } );
 		} catch ( error ) {
 			const message = getErrorMessage( error );
@@ -542,6 +677,7 @@ function ListmonkPanel() {
 		createErrorNotice,
 		createSuccessNotice,
 		editorData.postId,
+		refreshAnalytics,
 		saveCurrentPost,
 		testEmail,
 	] );
@@ -560,6 +696,10 @@ function ListmonkPanel() {
 	const payloadPreview = preview?.listmonkPayload
 		? JSON.stringify( preview.listmonkPayload, null, 2 )
 		: '';
+	const analyticsTotals = analytics?.totals ?? EMPTY_ANALYTICS_TOTALS;
+	const topAnalyticsLinks = [ ...( analytics?.links ?? [] ) ]
+		.sort( ( firstLink, secondLink ) => secondLink.count - firstLink.count )
+		.slice( 0, 5 );
 
 	return createElement( PluginDocumentSettingPanel, {
 		children: [
@@ -643,6 +783,206 @@ function ListmonkPanel() {
 						status: 'warning',
 				  } )
 				: null,
+			createElement(
+				'div',
+				{
+					className: 'newspack-listmonk-connector-panel__analytics',
+					key: 'analytics',
+				},
+				createElement(
+					'div',
+					{
+						className:
+							'newspack-listmonk-connector-panel__analytics-header',
+					},
+					createElement(
+						'strong',
+						null,
+						__( 'Analytics', 'newspack-listmonk-connector' )
+					),
+					isLoadingAnalytics ? createElement( Spinner ) : null
+				),
+				! campaignId
+					? createElement(
+							'p',
+							{
+								className:
+									'newspack-listmonk-connector-panel__muted',
+							},
+							__(
+								'Sync to Listmonk to view analytics.',
+								'newspack-listmonk-connector'
+							)
+					  )
+					: [
+							analyticsError
+								? createElement( Notice, {
+										children: analyticsError,
+										isDismissible: false,
+										key: 'analytics-error',
+										status: 'warning',
+								  } )
+								: null,
+							createElement(
+								'div',
+								{
+									className:
+										'newspack-listmonk-connector-panel__analytics-range',
+									key: 'analytics-range',
+								},
+								createElement( TextControl, {
+									disabled: isBusy || isLoadingAnalytics,
+									label: __(
+										'From',
+										'newspack-listmonk-connector'
+									),
+									onChange: setAnalyticsRangeFrom,
+									type: 'date',
+									value: analyticsRangeFrom,
+								} ),
+								createElement( TextControl, {
+									disabled: isBusy || isLoadingAnalytics,
+									label: __(
+										'To',
+										'newspack-listmonk-connector'
+									),
+									onChange: setAnalyticsRangeTo,
+									type: 'date',
+									value: analyticsRangeTo,
+								} )
+							),
+							createElement(
+								Button,
+								{
+									className:
+										'newspack-listmonk-connector-panel__full-button',
+									disabled:
+										isBusy ||
+										isLoadingAnalytics ||
+										! analyticsRangeFrom ||
+										! analyticsRangeTo,
+									isBusy: isLoadingAnalytics,
+									key: 'refresh-analytics',
+									onClick: () => void refreshAnalytics(),
+									variant: 'secondary',
+								},
+								__(
+									'Refresh analytics',
+									'newspack-listmonk-connector'
+								)
+							),
+							createElement(
+								'div',
+								{
+									className:
+										'newspack-listmonk-connector-panel__analytics-metrics',
+									key: 'analytics-metrics',
+								},
+								[
+									renderAnalyticsMetric(
+										__(
+											'Sent',
+											'newspack-listmonk-connector'
+										),
+										analyticsTotals.sent
+									),
+									renderAnalyticsMetric(
+										__(
+											'To send',
+											'newspack-listmonk-connector'
+										),
+										analyticsTotals.toSend
+									),
+									renderAnalyticsMetric(
+										__(
+											'Views',
+											'newspack-listmonk-connector'
+										),
+										analyticsTotals.views
+									),
+									renderAnalyticsMetric(
+										__(
+											'Clicks',
+											'newspack-listmonk-connector'
+										),
+										analyticsTotals.clicks
+									),
+									renderAnalyticsMetric(
+										__(
+											'Bounces',
+											'newspack-listmonk-connector'
+										),
+										analyticsTotals.bounces
+									),
+								]
+							),
+							createElement(
+								'div',
+								{
+									className:
+										'newspack-listmonk-connector-panel__analytics-links',
+									key: 'analytics-links',
+								},
+								createElement(
+									'div',
+									{
+										className:
+											'newspack-listmonk-connector-panel__analytics-subtitle',
+									},
+									__(
+										'Top links',
+										'newspack-listmonk-connector'
+									)
+								),
+								topAnalyticsLinks.length > 0
+									? topAnalyticsLinks.map( ( link, index ) =>
+											createElement(
+												'div',
+												{
+													className:
+														'newspack-listmonk-connector-panel__analytics-link',
+													key: `${ link.url }-${ index }`,
+												},
+												createElement(
+													'span',
+													null,
+													link.url
+												),
+												createElement(
+													'strong',
+													null,
+													formatNumber( link.count )
+												)
+											)
+									  )
+									: createElement(
+											'p',
+											{
+												className:
+													'newspack-listmonk-connector-panel__muted',
+											},
+											__(
+												'No tracked links for this range.',
+												'newspack-listmonk-connector'
+											)
+									  )
+							),
+							analytics?.checkedAt
+								? createElement(
+										'p',
+										{
+											className:
+												'newspack-listmonk-connector-panel__muted',
+											key: 'analytics-checked-at',
+										},
+										`${ __(
+											'Checked',
+											'newspack-listmonk-connector'
+										) } ${ analytics.checkedAt }`
+								  )
+								: null,
+					  ]
+			),
 			createElement( SelectControl, {
 				disabled: isBusy || listOptions.length <= 1,
 				key: 'list',

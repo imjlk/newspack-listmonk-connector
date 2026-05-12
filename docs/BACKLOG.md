@@ -144,6 +144,7 @@ Goal: Let operators manage the connection and preview/sync campaigns without cod
 - `[x]` Add "Sync to Listmonk" action.
 - `[x]` Add "Send test" action.
 - `[x]` Show campaign ID/status/error in editor.
+- `[x]` Show campaign analytics summary and top links in editor.
 - `[x]` Preserve display-name From email values such as `Newsroom <news@example.com>` through settings sanitization and campaign payloads.
 
 ## Phase 7: Subscriber And List Integration
@@ -175,7 +176,7 @@ Goal: Prove the plugin works across unit, integration, and E2E flows.
 - `[x]` Add wp-env with Newspack Newsletters.
 - `[x]` Add Docker Listmonk integration.
 - `[x]` Add local smoke flow for draft sync, publish transition, and schedule transition.
-- `[x]` Add editor-side E2E coverage for Listmonk panel preview, sync, and test send.
+- `[x]` Add editor-side E2E coverage for Listmonk panel preview, analytics, sync, and test send.
 - `[x]` Add settings screen E2E coverage for hydrate, save, token preservation, and connection test.
 - `[x]` Add E2E flow for create, preview, test, publish, and schedule.
 
@@ -196,4 +197,3 @@ Goal: Prepare a beta plugin build for staging.
 
 1. Run `pnpm run smoke:staging:zip` against a real staging site and mark Phase 9 complete.
 2. Define webhook event receiver policy.
-3. Add editor analytics panel.

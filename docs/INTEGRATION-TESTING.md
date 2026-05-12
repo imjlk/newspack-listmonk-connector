@@ -207,7 +207,8 @@ pnpm run e2e:visual:local
 
 The editor E2E builds the editor bundle, starts local Listmonk, starts/reuses
 wp-env, creates a draft newsletter fixture, and verifies list selection, raw
-HTML preview, payload preview, sync, and test send in Chromium.
+HTML preview, payload preview, analytics empty/loaded states, sync, and test
+send in Chromium.
 
 The publish/schedule E2E builds the editor bundle, starts local Listmonk,
 starts/reuses wp-env, creates two draft newsletter fixtures, saves one as an
