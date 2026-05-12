@@ -84,7 +84,13 @@ The provider keeps draft campaigns as drafts during `sync()`. It only changes
 status during `send()`:
 
 - immediate publish: `running`
-- scheduled post: `scheduled`
+- editor save with a future date: `scheduled`
+- direct `send()` with `post_status = future`: `scheduled`
+
+Newspack Newsletters normalizes newsletter publish/private statuses before the
+post is saved. The Listmonk provider guards future-dated editor saves in
+`pre_post_update` so a future publish intent becomes a Listmonk scheduled
+campaign rather than an immediate running campaign.
 
 Trash/delete never hard-deletes Listmonk campaigns. Scheduled campaigns are
 reverted to `draft`; paused campaigns are moved to `cancelled`; draft campaigns

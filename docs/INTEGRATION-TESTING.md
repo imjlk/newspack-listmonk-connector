@@ -139,6 +139,12 @@ Run the browser E2E for the Newspack editor Listmonk panel:
 pnpm run e2e:editor:local
 ```
 
+Run the browser E2E for publish and schedule transitions from the editor:
+
+```bash
+pnpm run e2e:publish-schedule:local
+```
+
 Run the browser E2E for the React settings screen:
 
 ```bash
@@ -155,6 +161,12 @@ pnpm run e2e:visual:local
 The editor E2E builds the editor bundle, starts local Listmonk, starts/reuses
 wp-env, creates a draft newsletter fixture, and verifies list selection, raw
 HTML preview, payload preview, sync, and test send in Chromium.
+
+The publish/schedule E2E builds the editor bundle, starts local Listmonk,
+starts/reuses wp-env, creates two draft newsletter fixtures, saves one as an
+immediate publish and one with a future date through the editor data store, then
+polls WordPress and Listmonk until campaign status and post meta match
+`running` and `scheduled`.
 
 The settings E2E builds the admin bundle, starts local Listmonk, starts/reuses
 wp-env, opens `Settings > Newspack Listmonk`, verifies REST hydration, saves

@@ -63,6 +63,40 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	}
 
 	/**
+	 * Handle newsletter status updates before Newspack mutates controlled statuses.
+	 *
+	 * Newspack's base provider sends immediately when a newsletter is saved into
+	 * its controlled publish/private statuses. If the editor is saving with a
+	 * future date, schedule the Listmonk campaign first so the base handler does
+	 * not convert that future send into an immediate send.
+	 *
+	 * @param int   $post_id The post ID.
+	 * @param array $data    Unslashed post data.
+	 * @return void
+	 */
+	public function pre_post_update( $post_id, $data ) {
+		if ( $this->should_schedule_pre_post_update( $post_id, (array) $data ) ) {
+			$post = get_post( $post_id );
+			if ( $post instanceof WP_Post ) {
+				$post->post_status   = 'future';
+				$post->post_date_gmt = (string) $data['post_date_gmt'];
+				$post->post_date     = ! empty( $data['post_date'] ) ? (string) $data['post_date'] : get_date_from_gmt( $post->post_date_gmt );
+
+				$result = method_exists( $this, 'send_newsletter' ) ? $this->send_newsletter( $post ) : $this->send( $post );
+				if ( is_wp_error( $result ) ) {
+					wp_die( esc_html( $result->get_error_message() ), '', esc_html( $result->get_error_code() ) );
+				}
+			}
+
+			return;
+		}
+
+		if ( method_exists( get_parent_class( $this ), 'pre_post_update' ) ) {
+			parent::pre_post_update( $post_id, $data );
+		}
+	}
+
+	/**
 	 * Provider labels.
 	 *
 	 * @param mixed $context Label context.
@@ -965,6 +999,52 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		}
 
 		return (array) apply_filters( 'newspack_listmonk_connector_campaign_payload', $payload, $post );
+	}
+
+	/**
+	 * Determine whether a pre-save editor update should schedule Listmonk.
+	 *
+	 * @param int   $post_id Post ID.
+	 * @param array $data    Unslashed post data.
+	 * @return bool
+	 */
+	private function should_schedule_pre_post_update( $post_id, array $data ) {
+		if ( ! class_exists( 'Newspack_Newsletters' ) ) {
+			return false;
+		}
+		if ( ! newspack_listmonk_connector_newspack_validate_newsletter_id( $post_id ) ) {
+			return false;
+		}
+		if ( newspack_listmonk_connector_newspack_service_provider() !== $this->service ) {
+			return false;
+		}
+
+		$post = get_post( $post_id );
+		if ( ! $post instanceof WP_Post || 'trash' === $post->post_status ) {
+			return false;
+		}
+
+		$new_status = (string) ( $data['post_status'] ?? '' );
+		if ( '' === $new_status || 'trash' === $new_status ) {
+			return false;
+		}
+		if ( ! in_array( $new_status, array( 'future', 'publish', 'private' ), true ) ) {
+			return false;
+		}
+		if ( in_array( $post->post_status, array( 'publish', 'private' ), true ) ) {
+			return false;
+		}
+		if ( method_exists( 'Newspack_Newsletters', 'is_newsletter_sent' ) && Newspack_Newsletters::is_newsletter_sent( $post_id ) ) {
+			return false;
+		}
+
+		$post_date_gmt = (string) ( $data['post_date_gmt'] ?? '' );
+		if ( '' === $post_date_gmt || '0000-00-00 00:00:00' === $post_date_gmt ) {
+			return false;
+		}
+
+		$timestamp = strtotime( $post_date_gmt );
+		return false !== $timestamp && $timestamp > time();
 	}
 
 	/**

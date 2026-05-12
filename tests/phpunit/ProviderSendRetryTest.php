@@ -60,6 +60,29 @@ if ( ! class_exists( 'Newspack_Newsletters_Service_Provider' ) ) {
 		protected function get_campaign_name( $post ) {
 			return get_the_title( $post );
 		}
+
+		/**
+		 * Base pre-update stub.
+		 *
+		 * @param int   $post_id Post ID.
+		 * @param array $data Post data.
+		 * @return void
+		 */
+		public function pre_post_update( $post_id, $data ) {}
+
+		/**
+		 * Send newsletter through the provider under test.
+		 *
+		 * @param WP_Post $post Post.
+		 * @return true|WP_Error
+		 */
+		public function send_newsletter( $post ) {
+			$result = $this->send( $post );
+			if ( true === $result ) {
+				Newspack_Newsletters::set_newsletter_sent( $post->ID );
+			}
+			return $result;
+		}
 	}
 }
 
@@ -130,6 +153,13 @@ if ( ! class_exists( 'Newspack_Newsletters' ) ) {
 		public static $provider;
 
 		/**
+		 * Sent newsletter IDs.
+		 *
+		 * @var array<int,bool>
+		 */
+		public static $sent = array();
+
+		/**
 		 * Active provider slug.
 		 *
 		 * @return string
@@ -172,6 +202,26 @@ if ( ! class_exists( 'Newspack_Newsletters' ) ) {
 		 */
 		public static function validate_newsletter_id() {
 			return true;
+		}
+
+		/**
+		 * Check whether a newsletter was sent.
+		 *
+		 * @param int $post_id Post ID.
+		 * @return bool
+		 */
+		public static function is_newsletter_sent( $post_id ) {
+			return ! empty( self::$sent[ absint( $post_id ) ] );
+		}
+
+		/**
+		 * Mark a newsletter as sent.
+		 *
+		 * @param int $post_id Post ID.
+		 * @return void
+		 */
+		public static function set_newsletter_sent( $post_id ) {
+			self::$sent[ absint( $post_id ) ] = true;
 		}
 	}
 }
@@ -244,6 +294,9 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 		}
 		delete_option( newspack_listmonk_connector_get_option_name() );
 		wp_set_current_user( 0 );
+		if ( property_exists( 'Newspack_Newsletters', 'sent' ) ) {
+			Newspack_Newsletters::$sent = array();
+		}
 		$this->requests  = array();
 		$this->responses = array();
 		$this->provider  = null;
@@ -305,6 +358,34 @@ class Newspack_Listmonk_Connector_Provider_Send_Retry_Test extends WP_UnitTestCa
 		$this->assertSame( '', get_post_meta( $post_id, '_wtnl_listmonk_last_error_at', true ) );
 		$this->assertFalse( get_transient( 'newspack_listmonk_connector_sync_error_' . $post_id ) );
 		$this->assert_request( 4, 'PUT', 'http://listmonk.test:9000/api/campaigns/99/status', array( 'status' => 'scheduled' ) );
+	}
+
+	/**
+	 * Future-dated editor saves schedule before Newspack can send immediately.
+	 */
+	public function test_future_dated_pre_post_update_schedules_campaign() {
+		$post_id    = $this->create_draft_post();
+		$future_gmt = gmdate( 'Y-m-d H:i:s', time() + HOUR_IN_SECONDS );
+
+		$this->queue_response( 200, array( 'data' => array( 'id' => 102, 'status' => 'draft' ) ) );
+		$this->queue_lists_response();
+		$this->queue_response( 200, array( 'data' => array( 'status' => 'scheduled' ) ) );
+
+		$this->provider->pre_post_update(
+			$post_id,
+			array(
+				'post_status'   => 'publish',
+				'post_date_gmt' => $future_gmt,
+				'post_date'     => get_date_from_gmt( $future_gmt ),
+			)
+		);
+
+		$request_body = json_decode( $this->requests[0]['args']['body'], true );
+		$this->assertArrayHasKey( 'send_at', $request_body );
+		$this->assertSame( gmdate( 'Y-m-d\TH:i:s\Z', strtotime( $future_gmt ) ), $request_body['send_at'] );
+		$this->assertSame( 'scheduled', get_post_meta( $post_id, '_wtnl_listmonk_last_status', true ) );
+		$this->assertTrue( Newspack_Newsletters::is_newsletter_sent( $post_id ) );
+		$this->assert_request( 2, 'PUT', 'http://listmonk.test:9000/api/campaigns/102/status', array( 'status' => 'scheduled' ) );
 	}
 
 	/**

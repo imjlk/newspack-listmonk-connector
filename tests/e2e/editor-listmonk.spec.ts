@@ -382,10 +382,10 @@ test.describe( 'Listmonk editor panel', () => {
 			new RegExp( `"postId": ${ fixture.postId }` )
 		);
 
-		await page
-			.locator( '.newspack-listmonk-connector-panel__actions' )
-			.getByRole( 'button', { name: /^Sync$/ } )
-			.click();
+		const syncButton = panel.getByRole( 'button', { name: /^Sync$/ } );
+		await syncButton.scrollIntoViewIfNeeded();
+		await expect( syncButton ).toBeEnabled();
+		await syncButton.click();
 		await expect(
 			page
 				.locator( '.components-snackbar__content' )

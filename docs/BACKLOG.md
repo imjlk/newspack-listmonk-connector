@@ -177,7 +177,7 @@ Goal: Prove the plugin works across unit, integration, and E2E flows.
 - `[x]` Add local smoke flow for draft sync, publish transition, and schedule transition.
 - `[x]` Add editor-side E2E coverage for Listmonk panel preview, sync, and test send.
 - `[x]` Add settings screen E2E coverage for hydrate, save, token preservation, and connection test.
-- `[~]` Add E2E flow for create, preview, test, publish, and schedule.
+- `[x]` Add E2E flow for create, preview, test, publish, and schedule.
 
 ## Phase 9: Packaging And Beta Release
 
@@ -194,5 +194,5 @@ Goal: Prepare a beta plugin build for staging.
 ## Next Recommended Work
 
 1. Run staging smoke test from the beta zip.
-2. Add publish/schedule browser E2E coverage.
-3. Resolve double opt-in list behavior policy.
+2. Resolve double opt-in list behavior policy.
+3. Add Listmonk pagination handling beyond MVP list fetch.
