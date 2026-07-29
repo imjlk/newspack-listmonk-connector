@@ -380,20 +380,31 @@ async function prepareEditorUi( page: Page ) {
 }
 
 async function dismissLayoutModal( page: Page ) {
+	// Give the Newspack layout modal a moment to mount before we try to
+	// dismiss it; removing it too early leaves the overlay in place and the
+	// modal intercepts pointer events on the editor panel below.
+	const overlay = page
+		.locator( '.components-modal__screen-overlay' )
+		.filter( { hasText: 'Choose a layout' } );
+	await overlay.first().waitFor( { state: 'attached', timeout: 3000 } ).catch(
+		() => undefined
+	);
+
 	await page
 		.getByRole( 'button', { name: /Blank newsletter/i } )
 		.click( { timeout: 3000 } )
 		.catch( () => undefined );
 
-	await page
-		.locator( '.components-modal__screen-overlay' )
-		.filter( { hasText: 'Choose a layout' } )
+	await overlay
 		.evaluateAll( ( overlays ) => {
-			for ( const overlay of overlays ) {
-				overlay.remove();
+			for ( const overlayNode of overlays ) {
+				overlayNode.remove();
 			}
 		} )
 		.catch( () => undefined );
+
+	// Confirm the overlay is gone so subsequent clicks are not intercepted.
+	await expect( overlay ).toHaveCount( 0 );
 }
 
 test.describe.configure( { mode: 'serial' } );
