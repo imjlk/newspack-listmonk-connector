@@ -111,6 +111,7 @@ pnpm run smoke:listmonk:local
 pnpm run smoke:listmonk:send:local
 pnpm run smoke:listmonk:archive:local
 pnpm run smoke:listmonk:subscribers:local
+pnpm run smoke:listmonk:bounces:local
 pnpm run smoke:staging:zip
 pnpm run e2e:settings:local
 pnpm run e2e:editor:local
@@ -118,8 +119,9 @@ pnpm run e2e:publish-schedule:local
 pnpm run e2e:visual:local
 ```
 
-Local Listmonk runs at `http://localhost:9000`; wp-env reaches it through the
-generated `.listmonk.env` file. See
+Local Listmonk runs at `http://localhost:9000`, with a dedicated Mailpit UI at
+`http://localhost:8026`; wp-env reaches Listmonk through the generated
+`.listmonk.env` file. See
 [docs/INTEGRATION-TESTING.md](docs/INTEGRATION-TESTING.md) for the full flow.
 
 Use `pnpm run doctor:wp-typia` to verify the `wp-typia@0.22.10` workspace

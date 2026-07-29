@@ -1,0 +1,30 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"additionalProperties": false,
+	"properties": {
+		"postId": {
+			"type": "integer",
+			"x-typeTag": "uint32",
+			"minimum": 0,
+			"maximum": 4294967295,
+			"multipleOf": 1
+		},
+		"from": {
+			"type": "string",
+			"minLength": 1,
+			"maxLength": 80
+		},
+		"to": {
+			"type": "string",
+			"minLength": 1,
+			"maxLength": 80
+		}
+	},
+	"required": [
+		"postId",
+		"from",
+		"to"
+	],
+	"title": "CampaignAnalyticsReadQuery",
+	"type": "object"
+}

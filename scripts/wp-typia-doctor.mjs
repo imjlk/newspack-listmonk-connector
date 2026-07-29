@@ -2,7 +2,7 @@
 
 import { spawnSync } from 'node:child_process';
 
-const WP_TYPIA_VERSION = '0.22.10';
+const WP_TYPIA_VERSION = '0.25.0';
 const REQUIRED_PASS_LABELS = [
 	'Node',
 	'git',

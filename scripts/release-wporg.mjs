@@ -16,6 +16,13 @@ const releaseWorkDir = path.join( artifactsDir, 'wporg-release' );
 const distDir = path.join( releaseWorkDir, pluginSlug );
 const zipPath = path.join( artifactsDir, `${ pluginSlug }-${ version }-wporg.zip` );
 
+function getTrackedPaths( relativePath ) {
+	return execFileSync( 'git', [ 'ls-files', '-z', '--', relativePath ], {
+		cwd: rootDir,
+		encoding: 'utf8',
+	} ).split( '\0' ).filter( Boolean );
+}
+
 const sourcePaths = [
 	pluginFile,
 	'uninstall.php',
@@ -37,7 +44,7 @@ const sourcePaths = [
 	'pnpm-lock.yaml',
 	'tsconfig.json',
 	'webpack.config.js',
-	'docs',
+	...getTrackedPaths( 'docs' ),
 ];
 
 const requiredEntries = [

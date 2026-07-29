@@ -1,0 +1,176 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"additionalProperties": false,
+	"properties": {
+		"postId": {
+			"type": "integer",
+			"x-typeTag": "uint32",
+			"minimum": 0,
+			"maximum": 4294967295,
+			"multipleOf": 1
+		},
+		"message": {
+			"type": "string",
+			"maxLength": 500
+		},
+		"campaignId": {
+			"type": "integer",
+			"x-typeTag": "uint32",
+			"minimum": 0,
+			"maximum": 4294967295,
+			"multipleOf": 1
+		},
+		"listmonkCampaignId": {
+			"type": "integer",
+			"x-typeTag": "uint32",
+			"minimum": 0,
+			"maximum": 4294967295,
+			"multipleOf": 1
+		},
+		"listmonkCampaignUuid": {
+			"type": "string",
+			"maxLength": 80
+		},
+		"status": {
+			"type": "string",
+			"maxLength": 40
+		},
+		"sendListId": {
+			"type": "string",
+			"maxLength": 80
+		},
+		"lastSyncedAt": {
+			"type": "string"
+		},
+		"retrieve": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"campaign": {
+					"type": "boolean"
+				},
+				"campaign_id": {
+					"type": "string",
+					"maxLength": 80
+				},
+				"is_service_provider_configured": {
+					"type": "boolean"
+				},
+				"listmonk_campaign_id": {
+					"type": "string",
+					"maxLength": 80
+				},
+				"listmonk_campaign_uuid": {
+					"type": "string",
+					"maxLength": 80
+				},
+				"listmonk_last_status": {
+					"type": "string",
+					"maxLength": 40
+				},
+				"listmonk_last_synced_at": {
+					"type": "string"
+				},
+				"listmonk_last_error": {
+					"type": "string",
+					"maxLength": 1000
+				},
+				"listmonk_last_error_code": {
+					"type": "string",
+					"maxLength": 120
+				},
+				"listmonk_last_error_at": {
+					"type": "string"
+				},
+				"send_list_id": {
+					"type": "string",
+					"maxLength": 80
+				},
+				"lists": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"additionalProperties": false,
+						"properties": {
+							"provider": {
+								"enum": [
+									"listmonk"
+								],
+								"type": "string"
+							},
+							"type": {
+								"enum": [
+									"list",
+									"sublist"
+								],
+								"type": "string"
+							},
+							"entity_type": {
+								"type": "string",
+								"maxLength": 80
+							},
+							"id": {
+								"type": "string",
+								"maxLength": 80
+							},
+							"name": {
+								"type": "string",
+								"maxLength": 200
+							},
+							"count": {
+								"type": "integer",
+								"x-typeTag": "uint32",
+								"minimum": 0,
+								"maximum": 4294967295,
+								"multipleOf": 1
+							},
+							"label": {
+								"type": "string",
+								"maxLength": 300
+							},
+							"value": {
+								"type": "string",
+								"maxLength": 80
+							}
+						},
+						"required": [
+							"provider",
+							"type",
+							"entity_type",
+							"id",
+							"name"
+						]
+					}
+				},
+				"senderName": {
+					"type": "string",
+					"maxLength": 200
+				},
+				"senderEmail": {
+					"type": "string",
+					"maxLength": 200
+				},
+				"supports_multiple_test_recipients": {
+					"type": "boolean"
+				},
+				"link": {
+					"type": "string",
+					"maxLength": 300
+				}
+			},
+			"required": [
+				"campaign",
+				"send_list_id",
+				"lists",
+				"supports_multiple_test_recipients"
+			]
+		}
+	},
+	"required": [
+		"postId",
+		"message",
+		"retrieve"
+	],
+	"title": "NewsletterSyncCreateResponse",
+	"type": "object"
+}

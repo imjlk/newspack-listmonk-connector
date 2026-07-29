@@ -13,7 +13,7 @@
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 		"noEmit": true,
-		"baseUrl": ".",
+		"paths": { "*": [ "./*" ] },
 		"types": [ "node", "wordpress__block-editor", "wordpress__blocks" ]
 	},
 	"include": [ "src/**/*", "scripts/**/*" ],

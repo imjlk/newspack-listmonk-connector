@@ -1,6 +1,6 @@
 # Newspack Listmonk Connector Backlog
 
-Last updated: 2026-05-12
+Last updated: 2026-07-15
 
 Status legend:
 
@@ -21,7 +21,7 @@ Status legend:
 | 6 | Admin and editor UI | `[x]` |
 | 7 | Subscriber/list integration | `[x]` |
 | 8 | Test strategy and QA | `[x]` |
-| 9 | Packaging and beta release | `[~]` |
+| 9 | Packaging and beta release | `[x]` |
 
 ## Phase 0: Technical Validation And Design
 
@@ -175,7 +175,11 @@ Goal: Prove the plugin works across unit, integration, and E2E flows.
 - `[x]` Add mocked Listmonk client tests.
 - `[x]` Add wp-env with Newspack Newsletters.
 - `[x]` Add Docker Listmonk integration.
+- `[x]` Add a dedicated Docker Mailpit instance and configure local Listmonk
+  SMTP automatically.
 - `[x]` Add local smoke flow for draft sync, publish transition, and schedule transition.
+- `[x]` Add a local generic hard-bounce smoke covering Listmonk bounce storage,
+  blocklisting, and connector contact-state reflection.
 - `[x]` Add editor-side E2E coverage for Listmonk panel preview, analytics, sync, and test send.
 - `[x]` Add settings screen E2E coverage for hydrate, save, token preservation, and connection test.
 - `[x]` Add E2E flow for create, preview, test, publish, and schedule.
@@ -190,15 +194,20 @@ Goal: Prepare a beta plugin build for staging.
 - `[x]` Add setup guide with required Listmonk permissions.
 - `[x]` Add staging checklist.
 - `[x]` Build beta zip.
-- `[~]` Run staging smoke test; automated beta zip smoke workflow exists, actual
-  staging execution still needs environment credentials.
+- `[x]` Run the packaged staging smoke against isolated WordPress 7.0.1,
+  Newspack Newsletters 3.36.0, and Listmonk 6.0.0 services, including verified
+  Mailpit delivery.
+- `[x]` Repeat the packaged staging smoke through temporary public Cloudflare
+  endpoints, covering external DNS, edge TLS, HTTP/2, and reverse-proxy traffic.
 
 ## Next Recommended Work
 
-1. Run `pnpm run smoke:staging:zip` against a real staging site and mark Phase 9 complete.
-2. Remove the temporary Newspack editor setup-modal compatibility shim after
+1. Remove the temporary Newspack editor setup-modal compatibility shim after
    Newspack Newsletters renders external providers from the registered provider
    list and supports companion-provider setup links.
+2. Run a low-volume hosted send through the intended mail provider and verify
+   bounce and complaint webhook processing; the public-tunnel run still used
+   Mailpit for SMTP capture.
 
 ## Compatibility Debt
 

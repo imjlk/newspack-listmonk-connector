@@ -5,7 +5,7 @@
  * Version:           0.1.0
  * Requires at least: 6.7
  * Requires Plugins:  newspack-newsletters
- * Tested up to:      6.9
+ * Tested up to:      7.0
  * Requires PHP:      8.0
  * Author:            imjlk
  * License:           GPL-2.0-or-later
@@ -76,11 +76,9 @@ function newspack_listmonk_connector_register_blocks() {
 	}
 
 	if (
-		file_exists( $manifest_path ) && function_exists( 'wp_register_block_metadata_collection' ) && function_exists( 'wp_register_block_types_from_metadata_collection' )
+		file_exists( $manifest_path ) && function_exists( 'wp_register_block_metadata_collection' )
 	) {
 		wp_register_block_metadata_collection( $build_root, $manifest_path );
-		wp_register_block_types_from_metadata_collection( $build_root, $manifest_path );
-		return;
 	}
 
 	newspack_listmonk_connector_register_blocks_from_manifest_fallback();

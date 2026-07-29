@@ -3,6 +3,34 @@
 Use this checklist before handing the beta build to editors or production
 operators.
 
+## Latest Automated Result
+
+Completed on 2026-07-16 against WordPress 7.0.1, Newspack Newsletters 3.36.0,
+Listmonk 6.0.0, and Mailpit SMTP capture exposed temporarily through separate
+Cloudflare Quick Tunnels.
+
+- `pnpm run smoke:staging:zip` rebuilt the 0.1.0 beta ZIP and passed against the
+  release-matching installed package.
+- WordPress REST and Listmonk API traffic crossed public DNS, valid edge TLS,
+  HTTP/2, and the Cloudflare reverse proxy. Both temporary hostnames resolved
+  over IPv4 and IPv6 and presented a Google Trust Services certificate.
+- WordPress posts `48`, `49`, `51`, `53`, `55`, and `57` covered draft sync,
+  publish, schedule, draft archive, scheduled archive, and running archive.
+- Listmonk campaigns `129` through `134` reached the expected states. Campaigns
+  `130` and `134` each delivered `1/1` message, and Mailpit received the test,
+  publish, and running-archive messages.
+- The remaining scheduled post was trashed after validation and campaign `131`
+  returned to `draft`. WordPress and connector URLs were then restored to their
+  local staging values before both public tunnels were removed.
+- No WordPress PHP or Listmonk application errors appeared during the run. One
+  tunnel request ended when a WordPress cron client disconnected, with no
+  corresponding application failure.
+
+This extends the 2026-07-15 isolated-stack result with external DNS, TLS, and
+reverse-proxy coverage. SMTP still terminated in Mailpit, so a low-volume run
+through the intended mail provider remains necessary to validate provider
+delivery plus bounce and complaint webhooks.
+
 ## Preflight
 
 - Staging has a recent database backup.

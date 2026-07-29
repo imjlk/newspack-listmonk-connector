@@ -112,6 +112,11 @@ The test send step is skipped unless `STAGING_SMOKE_TEST_EMAIL` is set. Publish
 and schedule use the configured staging Listmonk list IDs, so use only
 staging-safe lists.
 
+When the test email already exists in Listmonk, the smoke adds any missing
+configured staging list memberships while preserving its other memberships. It
+refuses to change a blocklisted subscriber or an existing unconfirmed or
+unsubscribed staging-list membership.
+
 ## Smoke: Newspack Provider Contract
 
 This smoke test does not require real Listmonk credentials.
@@ -137,7 +142,7 @@ It verifies:
 
 ### Option A: Local Docker Listmonk
 
-Start a disposable local Listmonk + Postgres stack:
+Start a disposable local Listmonk + Postgres + Mailpit stack:
 
 ```bash
 pnpm run listmonk:start
@@ -155,6 +160,12 @@ Local defaults:
 - API user: `wp_typia_smoke`
 - API URL for wp-env: `http://host.docker.internal:9000`
 - default smoke list ID: `1`
+- Mailpit SMTP: `localhost:1125`
+- Mailpit UI: `http://localhost:8026`
+
+The start helper configures the local Listmonk SMTP messenger to deliver into
+the dedicated Mailpit instance. No external SMTP credentials are required for
+local send tests.
 
 Run the live smoke against the local stack:
 
@@ -178,6 +189,12 @@ Run the subscriber sync smoke against the local stack:
 
 ```bash
 pnpm run smoke:listmonk:subscribers:local
+```
+
+Run the generic bounce webhook and connector reflection smoke:
+
+```bash
+pnpm run smoke:listmonk:bounces:local
 ```
 
 Run the browser E2E for the Newspack editor Listmonk panel:
@@ -238,7 +255,9 @@ It verifies:
 - immediate `provider->send()` changes Listmonk status to `running`.
 - scheduled `provider->send()` changes Listmonk status to `scheduled`.
 - scheduled payload includes `send_at`.
+- the scheduled fixture campaign is restored to `draft` after verification.
 - WordPress `_wtnl_listmonk_last_status` matches the Listmonk campaign status.
+- the dedicated Mailpit instance captures at least one message from the run.
 
 The archive smoke is also local-only. It verifies that draft campaigns are
 preserved remotely but detached locally, scheduled campaigns are reverted to
@@ -254,6 +273,19 @@ enter that list with `unconfirmed` membership status. Finally, it blocklists the
 fixture subscriber and verifies that provider contact/list updates refuse to
 resubscribe it.
 
+The bounce smoke is local-only and does not require an SMTP provider. It
+temporarily enables Listmonk's generic bounce webhook with a one-hard-bounce
+blocklist policy, creates a subscriber through the Newspack provider, posts a
+hard-bounce event, and verifies the Listmonk bounce record and blocklist state.
+It then verifies `get_contact_data()` reflects `is_blocklisted`, `bounce_count`,
+`has_bounces`, and the raw bounce record before deleting the fixture subscriber
+and restoring the original Listmonk bounce settings.
+
+This deterministic generic-webhook smoke does not validate provider-specific
+complaint signatures or delivery events. SES, SendGrid, Postmark, or another
+supported provider still requires real provider credentials and its public
+webhook configuration for that final staging check.
+
 Useful local Listmonk commands:
 
 ```bash
@@ -267,8 +299,10 @@ Use `listmonk:destroy` when you want a clean database and a new generated API
 token. The generated `.listmonk.env` file is ignored by git.
 
 The compose file follows Listmonk's documented Docker flow:
-`listmonk/listmonk:latest`, Postgres, and `./listmonk --install --idempotent`.
-See the official installation docs at <https://listmonk.app/docs/installation/>.
+`listmonk/listmonk:latest`, Postgres, and `./listmonk --install --idempotent`,
+with a pinned Mailpit instance for local SMTP capture. See the official
+installation docs at <https://listmonk.app/docs/installation/> and bounce docs
+at <https://listmonk.app/docs/bounces/>.
 
 ### Option B: Existing Listmonk Server
 

@@ -45,6 +45,22 @@ The connector API user does not need `webhooks:post_bounce`. That permission is
 for posting bounce notifications to Listmonk's inbound webhook endpoint, not for
 WordPress-to-Listmonk campaign sync or subscriber reflection.
 
+## Local Verification
+
+Run `pnpm run listmonk:start` to start the local Listmonk, Postgres, and Mailpit
+stack, then run:
+
+```bash
+pnpm run smoke:listmonk:bounces:local
+```
+
+The smoke temporarily enables the generic `/webhooks/bounce` endpoint, posts a
+hard bounce, verifies Listmonk blocklists the fixture subscriber, and confirms
+the connector reads the bounce state. It restores the original bounce settings
+and removes the fixture afterward. This does not validate provider-specific
+complaint signatures; that requires the intended SMTP provider and its public
+webhook endpoint.
+
 References:
 
 - [Listmonk Bounce processing](https://listmonk.app/docs/bounces/)

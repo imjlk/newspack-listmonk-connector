@@ -258,7 +258,7 @@ module.exports = async () => {
 		'@wp-typia/block-runtime/blocks'
 	);
 	const UnpluginTypia = await loadCompatibleTypiaWebpackPlugin( {
-		importTypiaWebpackPlugin: () => import( '@typia/unplugin/webpack' ),
+		importTypiaWebpackPlugin: () => import( '@ttsc/unplugin/webpack' ),
 		projectRoot: process.cwd(),
 	} );
 	const resolvedDefaultConfig =

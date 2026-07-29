@@ -25,32 +25,50 @@ function wp( args, options = {} ) {
 }
 
 function ensurePluginCheck() {
-	const isInstalled = wp( [ 'plugin', 'is-installed', 'plugin-check' ], {
-		allowFailure: true,
-		stdio: 'pipe',
-	} );
+	wp( [ 'plugin', 'install', 'plugin-check', '--force', '--activate' ] );
+}
 
-	if ( isInstalled.status === 0 ) {
-		wp( [ 'plugin', 'activate', 'plugin-check' ] );
-		return;
+function assertNoPluginCheckFindings( result ) {
+	const output = result.stdout || '';
+	const combinedOutput = `${ output }\n${ result.stderr || '' }`;
+	const jsonStart = output.indexOf( '[' );
+	const jsonEnd = output.lastIndexOf( ']' );
+
+	if ( jsonStart === -1 || jsonEnd < jsonStart ) {
+		if ( combinedOutput.includes( 'Checks complete. No errors found.' ) ) {
+			console.log( 'Plugin Check passed with no findings.' );
+			return;
+		}
+
+		process.stdout.write( output );
+		process.stderr.write( result.stderr || '' );
+		throw new Error( 'Plugin Check did not return strict JSON output.' );
 	}
 
-	wp( [ 'plugin', 'install', 'plugin-check', '--activate' ] );
+	const findings = JSON.parse( output.slice( jsonStart, jsonEnd + 1 ) );
+	if ( findings.length > 0 ) {
+		process.stdout.write( output );
+		throw new Error( `Plugin Check reported ${ findings.length } finding(s).` );
+	}
+
+	console.log( 'Plugin Check passed with no findings.' );
 }
 
 function main() {
 	run( 'pnpm', [ 'run', 'env:start' ] );
 	ensurePluginCheck();
 	wp( [ 'plugin', 'activate', 'newspack-newsletters', 'newspack-listmonk-connector' ] );
-	wp( [
+	const result = wp( [
 		'plugin',
 		'check',
 		'newspack-listmonk-connector',
 		'--require=./wp-content/plugins/plugin-check/cli.php',
 		'--mode=new',
+		'--format=strict-json',
 		'--exclude-directories=artifacts,tests,node_modules,vendor,.wp-env,playwright-report,test-results',
-		'--exclude-files=.listmonk.env,.env.example,.wp-env.json,.phpunit.result.cache,.gitignore,phpunit.xml.dist,playwright.config.js,composer.json,composer.lock,docker-compose.listmonk.yml',
-	] );
+		'--exclude-files=.DS_Store,.listmonk.env,.staging.env,.env.example,.wp-env.json,.phpunit.result.cache,.gitignore,AGENTS.md,CLAUDE.md,phpunit.xml.dist,playwright.config.js,composer.json,composer.lock,docker-compose.listmonk.yml',
+	], { stdio: 'pipe' } );
+	assertNoPluginCheckFindings( result );
 }
 
 main();
