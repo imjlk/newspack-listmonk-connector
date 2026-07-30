@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       Newspack Listmonk Connector
+ * Plugin Name:       Connector for Newspack Newsletters and Listmonk
  * Description:       Companion ESP provider for sending Newspack Newsletters campaigns with Listmonk.
  * Version:           0.1.0
  * Requires at least: 6.7
@@ -10,8 +10,7 @@
  * Author:            imjlk
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       newspack-listmonk-connector
- * Domain Path:       /languages
+ * Text Domain:       connector-for-newspack-newsletters-and-listmonk
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -104,7 +103,7 @@ function newspack_listmonk_connector_enqueue_binding_sources_editor() {
 	}
 
 	wp_enqueue_script(
-		'newspack-listmonk-connector-binding-sources',
+		'connector-for-newspack-newsletters-and-listmonk-binding-sources',
 		plugins_url( 'build/bindings/index.js', __FILE__ ),
 		isset( $asset['dependencies'] ) && is_array( $asset['dependencies'] ) ? $asset['dependencies'] : array(),
 		isset( $asset['version'] ) ? $asset['version'] : filemtime( $script_path ),
@@ -128,18 +127,18 @@ function newspack_listmonk_connector_enqueue_editor_plugins_editor() {
 	}
 
 	wp_enqueue_script(
-		'newspack-listmonk-connector-editor-plugins',
+		'connector-for-newspack-newsletters-and-listmonk-editor-plugins',
 		plugins_url( 'build/editor-plugins/index.js', __FILE__ ),
 		isset( $asset['dependencies'] ) && is_array( $asset['dependencies'] ) ? $asset['dependencies'] : array(),
 		isset( $asset['version'] ) ? $asset['version'] : filemtime( $script_path ),
 		true
 	);
 	wp_add_inline_script(
-		'newspack-listmonk-connector-editor-plugins',
+		'connector-for-newspack-newsletters-and-listmonk-editor-plugins',
 		'window.newspack_listmonk_connector_editor = ' . wp_json_encode(
 			array(
 				'isConfigured' => ( new Newspack_Listmonk_Connector_Listmonk_Client() )->has_credentials(),
-				'settingsUrl' => admin_url( 'options-general.php?page=newspack-listmonk-connector' ),
+				'settingsUrl' => admin_url( 'options-general.php?page=connector-for-newspack-newsletters-and-listmonk' ),
 			)
 		) . ';',
 		'before'
@@ -147,13 +146,13 @@ function newspack_listmonk_connector_enqueue_editor_plugins_editor() {
 
 	if ( file_exists( $style_path ) ) {
 		wp_enqueue_style(
-			'newspack-listmonk-connector-editor-plugins',
+			'connector-for-newspack-newsletters-and-listmonk-editor-plugins',
 			plugins_url( 'build/editor-plugins/style-index.css', __FILE__ ),
 			array(),
 			isset( $asset['version'] ) ? $asset['version'] : filemtime( $style_path )
 		);
 		if ( file_exists( $style_rtl_path ) ) {
-			wp_style_add_data( 'newspack-listmonk-connector-editor-plugins', 'rtl', 'replace' );
+			wp_style_add_data( 'connector-for-newspack-newsletters-and-listmonk-editor-plugins', 'rtl', 'replace' );
 		}
 	}
 }
@@ -168,14 +167,14 @@ function newspack_listmonk_connector_enqueue_editor_plugins_editor() {
  */
 function newspack_listmonk_connector_enqueue_newspack_editor_compat() {
 	wp_register_script(
-		'newspack-listmonk-connector-newspack-editor-compat',
+		'connector-for-newspack-newsletters-and-listmonk-newspack-editor-compat',
 		false,
 		array( 'newspack-newsletters-editor' ),
 		NEWSPACK_LISTMONK_CONNECTOR_VERSION,
 		true
 	);
 	wp_add_inline_script(
-		'newspack-listmonk-connector-newspack-editor-compat',
+		'connector-for-newspack-newsletters-and-listmonk-newspack-editor-compat',
 		<<<'JS'
 ( function () {
 	var data = window.newspack_newsletters_data;
@@ -187,15 +186,15 @@ function newspack_listmonk_connector_enqueue_newspack_editor_compat() {
 } )();
 JS,
 	);
-	wp_enqueue_script( 'newspack-listmonk-connector-newspack-editor-compat' );
+	wp_enqueue_script( 'connector-for-newspack-newsletters-and-listmonk-newspack-editor-compat' );
 }
 
 function newspack_listmonk_connector_register_pattern_category() {
 	if ( function_exists( 'register_block_pattern_category' ) ) {
 		register_block_pattern_category(
-			'newspack-listmonk-connector',
+			'connector-for-newspack-newsletters-and-listmonk',
 			array(
-				'label' => __( 'Newspack Listmonk Connector Patterns', 'newspack-listmonk-connector' ),
+				'label' => __( 'Connector for Newspack Newsletters and Listmonk Patterns', 'connector-for-newspack-newsletters-and-listmonk' ),
 			)
 		);
 	}

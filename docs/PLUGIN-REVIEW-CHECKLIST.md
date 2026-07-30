@@ -13,15 +13,15 @@ pnpm run release:wporg
 plugin, and evaluates its strict JSON output so any finding fails the command:
 
 ```bash
-wp plugin check newspack-listmonk-connector --require=./wp-content/plugins/plugin-check/cli.php --mode=new --format=strict-json
+wp plugin check connector-for-newspack-newsletters-and-listmonk --require=./wp-content/plugins/plugin-check/cli.php --mode=new --format=strict-json
 ```
 
-The submission target is no findings. Warnings should either be fixed or
-documented below before submission.
+The submission target is no findings. Any new warning must be fixed before
+submission.
 
 ## Current Notes
 
-- Plugin Check 2.0.0 completed on WordPress 7.0.1 on 2026-07-15 with no
+- Plugin Check 2.0.0 completed on WordPress 7.0.2 on 2026-07-30 with no
   findings.
 - The plugin header and `readme.txt` both declare `Tested up to: 7.0`.
 - The plugin declares `Requires Plugins: newspack-newsletters`.
@@ -37,6 +37,6 @@ documented below before submission.
 - Uninstall removes local credential settings and sync-error transients only.
   Remote Listmonk data and newsletter post meta are intentionally preserved.
 
-## Warnings To Review
+## Unresolved Findings
 
-- None recorded yet.
+- None.

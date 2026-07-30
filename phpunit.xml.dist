@@ -8,7 +8,7 @@
 	verbose="true"
 >
 	<testsuites>
-		<testsuite name="Newspack Listmonk Connector">
+		<testsuite name="Connector for Newspack Newsletters and Listmonk">
 			<directory suffix="Test.php">tests/phpunit</directory>
 		</testsuite>
 	</testsuites>

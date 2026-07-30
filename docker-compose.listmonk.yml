@@ -1,4 +1,4 @@
-name: newspack-listmonk-connector
+name: connector-for-newspack-newsletters-and-listmonk
 
 x-db-credentials: &db-credentials
   POSTGRES_USER: listmonk
@@ -8,7 +8,7 @@ x-db-credentials: &db-credentials
 services:
   listmonk:
     image: listmonk/listmonk:latest
-    container_name: newspack-listmonk-connector-listmonk
+    container_name: connector-for-newspack-newsletters-and-listmonk-listmonk
     restart: unless-stopped
     depends_on:
       listmonk-db:
@@ -38,7 +38,7 @@ services:
 
   listmonk-db:
     image: postgres:17-alpine
-    container_name: newspack-listmonk-connector-listmonk-db
+    container_name: connector-for-newspack-newsletters-and-listmonk-listmonk-db
     restart: unless-stopped
     ports:
       - "${LISTMONK_DOCKER_PORT:-9000}:9000"

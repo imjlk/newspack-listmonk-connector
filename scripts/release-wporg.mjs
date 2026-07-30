@@ -10,7 +10,7 @@ const packageJson = JSON.parse(
 );
 const pluginSlug = packageJson.name;
 const version = packageJson.version;
-const pluginFile = 'newspack-listmonk-connector.php';
+const pluginFile = 'connector-for-newspack-newsletters-and-listmonk.php';
 const artifactsDir = path.join( rootDir, 'artifacts' );
 const releaseWorkDir = path.join( artifactsDir, 'wporg-release' );
 const distDir = path.join( releaseWorkDir, pluginSlug );
@@ -78,19 +78,19 @@ const restSchemaResources = [
 ];
 
 const forbiddenZipPatterns = [
-	/^newspack-listmonk-connector\/node_modules\//,
-	/^newspack-listmonk-connector\/vendor\//,
-	/^newspack-listmonk-connector\/tests\//,
-	/^newspack-listmonk-connector\/artifacts\//,
-	/^newspack-listmonk-connector\/\.git(?:\/|$)/,
-	/^newspack-listmonk-connector\/\.env(?:\.|$)/,
-	/^newspack-listmonk-connector\/\.listmonk\.env$/,
-	/^newspack-listmonk-connector\/\.staging\.env$/,
-	/^newspack-listmonk-connector\/\.wp-env(?:\.|\/|$)/,
-	/^newspack-listmonk-connector\/.*\/\.gitkeep$/,
-	/^newspack-listmonk-connector\/docker-compose\.listmonk\.yml$/,
-	/^newspack-listmonk-connector\/playwright-report\//,
-	/^newspack-listmonk-connector\/test-results\//,
+	/^connector-for-newspack-newsletters-and-listmonk\/node_modules\//,
+	/^connector-for-newspack-newsletters-and-listmonk\/vendor\//,
+	/^connector-for-newspack-newsletters-and-listmonk\/tests\//,
+	/^connector-for-newspack-newsletters-and-listmonk\/artifacts\//,
+	/^connector-for-newspack-newsletters-and-listmonk\/\.git(?:\/|$)/,
+	/^connector-for-newspack-newsletters-and-listmonk\/\.env(?:\.|$)/,
+	/^connector-for-newspack-newsletters-and-listmonk\/\.listmonk\.env$/,
+	/^connector-for-newspack-newsletters-and-listmonk\/\.staging\.env$/,
+	/^connector-for-newspack-newsletters-and-listmonk\/\.wp-env(?:\.|\/|$)/,
+	/^connector-for-newspack-newsletters-and-listmonk\/.*\/\.gitkeep$/,
+	/^connector-for-newspack-newsletters-and-listmonk\/docker-compose\.listmonk\.yml$/,
+	/^connector-for-newspack-newsletters-and-listmonk\/playwright-report\//,
+	/^connector-for-newspack-newsletters-and-listmonk\/test-results\//,
 ];
 
 function logStep( message ) {

@@ -1,6 +1,6 @@
-# Newspack Listmonk Connector Backlog
+# Connector for Newspack Newsletters and Listmonk Backlog
 
-Last updated: 2026-07-15
+Last updated: 2026-07-30
 
 Status legend:
 
@@ -40,7 +40,7 @@ Goal: Confirm the Newspack provider extension path and lock the MVP contracts.
 
 Goal: Create the plugin workspace with published `wp-typia` CLI.
 
-- `[x]` Create `/Users/imjlk/repos/newspack-listmonk-connector`.
+- `[x]` Create the plugin workspace.
 - `[x]` Use published `wp-typia@0.22.10`.
 - `[x]` Scaffold with `--template workspace`.
 - `[x]` Use `pnpm`.
@@ -130,7 +130,7 @@ Goal: Keep Newspack newsletter posts synced with Listmonk campaigns.
 
 Goal: Let operators manage the connection and preview/sync campaigns without code.
 
-- `[x]` Add Settings page under `Settings > Newspack Listmonk`.
+- `[x]` Add Settings page under `Settings > Newsletter Connector`.
 - `[x]` Save API URL, user, token, From email, template ID, and default list IDs.
 - `[x]` Add connection test action.
 - `[x]` Add typed settings REST resource.

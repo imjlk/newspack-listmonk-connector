@@ -6,9 +6,9 @@ const globalScope = globalThis as typeof globalThis & {
 
 globalScope.__wpTypiaCollections ??= {};
 
-if ( ! globalScope.__wpTypiaCollections[ 'newspack-listmonk-connector' ] ) {
-	registerBlockCollection( 'newspack-listmonk-connector', {
-		title: 'Newspack Listmonk Connector',
+if ( ! globalScope.__wpTypiaCollections[ 'connector-for-newspack-newsletters-and-listmonk' ] ) {
+	registerBlockCollection( 'connector-for-newspack-newsletters-and-listmonk', {
+		title: 'Connector for Newspack Newsletters and Listmonk',
 	} );
-	globalScope.__wpTypiaCollections[ 'newspack-listmonk-connector' ] = true;
+	globalScope.__wpTypiaCollections[ 'connector-for-newspack-newsletters-and-listmonk' ] = true;
 }

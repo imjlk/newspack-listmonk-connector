@@ -245,7 +245,7 @@ async function ensurePluginsActive() {
 	if (!connector) {
 		throw new Error(
 			[
-				`Newspack Listmonk Connector is not installed on staging.`,
+				`Connector for Newspack Newsletters and Listmonk is not installed on staging.`,
 				`Built beta zip: ${path.relative(rootDir, zipPath)}`,
 				'Upload that zip in WP Admin or install it with WP-CLI, then rerun pnpm run smoke:staging:zip.',
 				'WordPress core REST can install WordPress.org slugs, but does not accept arbitrary plugin zip uploads through application-password auth.',
@@ -259,7 +259,7 @@ async function ensurePluginsActive() {
 	}
 
 	await activatePlugin(newspack, 'Newspack Newsletters');
-	await activatePlugin(connector, 'Newspack Listmonk Connector');
+	await activatePlugin(connector, 'Connector for Newspack Newsletters and Listmonk');
 }
 
 async function saveConnectorSettings() {
@@ -274,7 +274,7 @@ async function saveConnectorSettings() {
 	};
 
 	const response = await wpRest(
-		'/newspack-listmonk-connector/v1/listmonk-settings',
+		'/connector-for-newspack-newsletters-and-listmonk/v1/listmonk-settings',
 		{
 			body: payload,
 			method: 'POST',
@@ -296,7 +296,7 @@ async function saveConnectorSettings() {
 	}
 
 	const hydrated = await wpRest(
-		'/newspack-listmonk-connector/v1/listmonk-settings/item'
+		'/connector-for-newspack-newsletters-and-listmonk/v1/listmonk-settings/item'
 	);
 	if (!hydrated.hasApiToken) {
 		throw new Error('Hydrated settings do not confirm a stored API token.');
@@ -387,7 +387,7 @@ async function trashNewsletter(restBase, postId) {
 async function syncNewsletter(postId, providerSelectionAttempts) {
 	try {
 		const response = await wpRest(
-			'/newspack-listmonk-connector/v1/newsletter-sync',
+			'/connector-for-newspack-newsletters-and-listmonk/v1/newsletter-sync',
 			{
 				body: {
 					postId,

@@ -76,7 +76,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_campaign_analytics_validate
 	function newspack_listmonk_connector_campaign_analytics_validate_rest_resource_payload( $value, $schema_name, $param_name ) {
 		$schema = newspack_listmonk_connector_campaign_analytics_load_rest_resource_schema( $schema_name );
 		if ( ! is_array( $schema ) ) {
-			return new WP_Error( 'missing_schema', __( 'Missing REST schema.', 'newspack-listmonk-connector' ), array( 'status' => 500 ) );
+			return new WP_Error( 'missing_schema', __( 'Missing REST schema.', 'connector-for-newspack-newsletters-and-listmonk' ), array( 'status' => 500 ) );
 		}
 
 		$rest_schema = newspack_listmonk_connector_campaign_analytics_sanitize_rest_resource_schema( $schema );
@@ -205,7 +205,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_campaign_analytics_build_re
 		if ( ! $post instanceof WP_Post ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_post',
-				__( 'Newsletter post not found.', 'newspack-listmonk-connector' ),
+				__( 'Newsletter post not found.', 'connector-for-newspack-newsletters-and-listmonk' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -213,7 +213,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_campaign_analytics_build_re
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_forbidden',
-				__( 'You are not allowed to read analytics for this newsletter.', 'newspack-listmonk-connector' ),
+				__( 'You are not allowed to read analytics for this newsletter.', 'connector-for-newspack-newsletters-and-listmonk' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -222,7 +222,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_campaign_analytics_build_re
 		if ( ! $campaign_id ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_missing_campaign_id',
-				__( 'This newsletter has not been synced to a Listmonk campaign yet.', 'newspack-listmonk-connector' ),
+				__( 'This newsletter has not been synced to a Listmonk campaign yet.', 'connector-for-newspack-newsletters-and-listmonk' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -301,7 +301,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_campaign_analytics_register
 	 */
 	function newspack_listmonk_connector_campaign_analytics_register_rest_routes() {
 		register_rest_route(
-			'newspack-listmonk-connector/v1',
+			'connector-for-newspack-newsletters-and-listmonk/v1',
 			'/campaign-analytics/item',
 			array(
 				array(

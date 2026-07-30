@@ -98,11 +98,11 @@ type WindowWithNewspack = typeof window & {
 
 const LISTMONK_MERGE_TAG_HELPERS = [
 	{
-		label: __( 'Unsubscribe URL', 'newspack-listmonk-connector' ),
+		label: __( 'Unsubscribe URL', 'connector-for-newspack-newsletters-and-listmonk' ),
 		tag: '{{ UnsubscribeURL }}',
 	},
 	{
-		label: __( 'Open tracking pixel', 'newspack-listmonk-connector' ),
+		label: __( 'Open tracking pixel', 'connector-for-newspack-newsletters-and-listmonk' ),
 		tag: '{{ TrackView }}',
 	},
 ];
@@ -196,7 +196,7 @@ function getErrorMessage( error: unknown ): string {
 		}
 	}
 
-	return __( 'Something went wrong.', 'newspack-listmonk-connector' );
+	return __( 'Something went wrong.', 'connector-for-newspack-newsletters-and-listmonk' );
 }
 
 function unwrapEndpointData< Req, Res >(
@@ -212,7 +212,7 @@ function unwrapEndpointData< Req, Res >(
 			? `${ firstError.path }: ${ firstError.expected }`
 			: __(
 					'The REST response failed validation.',
-					'newspack-listmonk-connector'
+					'connector-for-newspack-newsletters-and-listmonk'
 			  )
 	);
 }
@@ -282,7 +282,7 @@ function renderAnalyticsMetric( label: string, value: number | undefined ) {
 	return createElement(
 		'div',
 		{
-			className: 'newspack-listmonk-connector-panel__analytics-metric',
+			className: 'connector-for-newspack-newsletters-and-listmonk-panel__analytics-metric',
 			key: label,
 		},
 		createElement( 'span', null, label ),
@@ -327,22 +327,22 @@ function renderMergeTagHelpers() {
 	return createElement(
 		'div',
 		{
-			className: 'newspack-listmonk-connector-panel__merge-tags',
+			className: 'connector-for-newspack-newsletters-and-listmonk-panel__merge-tags',
 			key: 'merge-tags',
 		},
 		createElement(
 			'div',
 			{
 				className:
-					'newspack-listmonk-connector-panel__merge-tags-title',
+					'connector-for-newspack-newsletters-and-listmonk-panel__merge-tags-title',
 			},
-			__( 'Listmonk merge tags', 'newspack-listmonk-connector' )
+			__( 'Listmonk merge tags', 'connector-for-newspack-newsletters-and-listmonk' )
 		),
 		LISTMONK_MERGE_TAG_HELPERS.map( ( helper ) =>
 			createElement(
 				'div',
 				{
-					className: 'newspack-listmonk-connector-panel__merge-tag',
+					className: 'connector-for-newspack-newsletters-and-listmonk-panel__merge-tag',
 					key: helper.tag,
 				},
 				createElement( 'span', null, helper.label ),
@@ -419,7 +419,7 @@ function ListmonkPanel() {
 			{
 				label: __(
 					'Select a Listmonk list',
-					'newspack-listmonk-connector'
+					'connector-for-newspack-newsletters-and-listmonk'
 				),
 				value: '',
 			},
@@ -685,7 +685,7 @@ function ListmonkPanel() {
 		if ( ! editorData.postId || ! testEmail.trim() ) {
 			const message = __(
 				'Enter at least one test email address.',
-				'newspack-listmonk-connector'
+				'connector-for-newspack-newsletters-and-listmonk'
 			);
 			setErrorMessage( message );
 			createErrorNotice?.( message, { type: 'snackbar' } );
@@ -733,7 +733,7 @@ function ListmonkPanel() {
 						{ key: 'message' },
 						__(
 							'Configure Listmonk settings before syncing newsletters.',
-							'newspack-listmonk-connector'
+							'connector-for-newspack-newsletters-and-listmonk'
 						)
 					),
 					settingsUrl
@@ -746,7 +746,7 @@ function ListmonkPanel() {
 								},
 								__(
 									'Open Listmonk settings',
-									'newspack-listmonk-connector'
+									'connector-for-newspack-newsletters-and-listmonk'
 								)
 						  )
 						: null,
@@ -754,9 +754,9 @@ function ListmonkPanel() {
 				isDismissible: false,
 				status: 'warning',
 			} ),
-			className: 'newspack-listmonk-connector-panel',
-			name: 'newspack-listmonk-connector',
-			title: __( 'Listmonk', 'newspack-listmonk-connector' ),
+			className: 'connector-for-newspack-newsletters-and-listmonk-panel',
+			name: 'connector-for-newspack-newsletters-and-listmonk',
+			title: __( 'Listmonk', 'connector-for-newspack-newsletters-and-listmonk' ),
 		} );
 	}
 
@@ -788,7 +788,7 @@ function ListmonkPanel() {
 			createElement(
 				'div',
 				{
-					className: 'newspack-listmonk-connector-panel__status',
+					className: 'connector-for-newspack-newsletters-and-listmonk-panel__status',
 					key: 'status',
 				},
 				createElement(
@@ -797,7 +797,7 @@ function ListmonkPanel() {
 					createElement(
 						'span',
 						null,
-						__( 'Campaign', 'newspack-listmonk-connector' )
+						__( 'Campaign', 'connector-for-newspack-newsletters-and-listmonk' )
 					),
 					createElement( 'strong', null, campaignId || '-' )
 				),
@@ -807,7 +807,7 @@ function ListmonkPanel() {
 					createElement(
 						'span',
 						null,
-						__( 'Status', 'newspack-listmonk-connector' )
+						__( 'Status', 'connector-for-newspack-newsletters-and-listmonk' )
 					),
 					createElement( 'strong', null, lastStatus || '-' )
 				),
@@ -817,7 +817,7 @@ function ListmonkPanel() {
 					createElement(
 						'span',
 						null,
-						__( 'Last sync', 'newspack-listmonk-connector' )
+						__( 'Last sync', 'connector-for-newspack-newsletters-and-listmonk' )
 					),
 					createElement(
 						'strong',
@@ -847,7 +847,7 @@ function ListmonkPanel() {
 										},
 										__(
 											'Retry send',
-											'newspack-listmonk-connector'
+											'connector-for-newspack-newsletters-and-listmonk'
 										)
 								  )
 								: null,
@@ -860,19 +860,19 @@ function ListmonkPanel() {
 			createElement(
 				'div',
 				{
-					className: 'newspack-listmonk-connector-panel__analytics',
+					className: 'connector-for-newspack-newsletters-and-listmonk-panel__analytics',
 					key: 'analytics',
 				},
 				createElement(
 					'div',
 					{
 						className:
-							'newspack-listmonk-connector-panel__analytics-header',
+							'connector-for-newspack-newsletters-and-listmonk-panel__analytics-header',
 					},
 					createElement(
 						'strong',
 						null,
-						__( 'Analytics', 'newspack-listmonk-connector' )
+						__( 'Analytics', 'connector-for-newspack-newsletters-and-listmonk' )
 					),
 					isLoadingAnalytics ? createElement( Spinner ) : null
 				),
@@ -881,11 +881,11 @@ function ListmonkPanel() {
 							'p',
 							{
 								className:
-									'newspack-listmonk-connector-panel__muted',
+									'connector-for-newspack-newsletters-and-listmonk-panel__muted',
 							},
 							__(
 								'Sync to Listmonk to view analytics.',
-								'newspack-listmonk-connector'
+								'connector-for-newspack-newsletters-and-listmonk'
 							)
 					  )
 					: [
@@ -901,14 +901,14 @@ function ListmonkPanel() {
 								'div',
 								{
 									className:
-										'newspack-listmonk-connector-panel__analytics-range',
+										'connector-for-newspack-newsletters-and-listmonk-panel__analytics-range',
 									key: 'analytics-range',
 								},
 								createElement( TextControl, {
 									disabled: isBusy || isLoadingAnalytics,
 									label: __(
 										'From',
-										'newspack-listmonk-connector'
+										'connector-for-newspack-newsletters-and-listmonk'
 									),
 									onChange: setAnalyticsRangeFrom,
 									type: 'date',
@@ -918,7 +918,7 @@ function ListmonkPanel() {
 									disabled: isBusy || isLoadingAnalytics,
 									label: __(
 										'To',
-										'newspack-listmonk-connector'
+										'connector-for-newspack-newsletters-and-listmonk'
 									),
 									onChange: setAnalyticsRangeTo,
 									type: 'date',
@@ -929,7 +929,7 @@ function ListmonkPanel() {
 								Button,
 								{
 									className:
-										'newspack-listmonk-connector-panel__full-button',
+										'connector-for-newspack-newsletters-and-listmonk-panel__full-button',
 									disabled:
 										isBusy ||
 										isLoadingAnalytics ||
@@ -942,49 +942,49 @@ function ListmonkPanel() {
 								},
 								__(
 									'Refresh analytics',
-									'newspack-listmonk-connector'
+									'connector-for-newspack-newsletters-and-listmonk'
 								)
 							),
 							createElement(
 								'div',
 								{
 									className:
-										'newspack-listmonk-connector-panel__analytics-metrics',
+										'connector-for-newspack-newsletters-and-listmonk-panel__analytics-metrics',
 									key: 'analytics-metrics',
 								},
 								[
 									renderAnalyticsMetric(
 										__(
 											'Sent',
-											'newspack-listmonk-connector'
+											'connector-for-newspack-newsletters-and-listmonk'
 										),
 										analyticsTotals.sent
 									),
 									renderAnalyticsMetric(
 										__(
 											'To send',
-											'newspack-listmonk-connector'
+											'connector-for-newspack-newsletters-and-listmonk'
 										),
 										analyticsTotals.toSend
 									),
 									renderAnalyticsMetric(
 										__(
 											'Views',
-											'newspack-listmonk-connector'
+											'connector-for-newspack-newsletters-and-listmonk'
 										),
 										analyticsTotals.views
 									),
 									renderAnalyticsMetric(
 										__(
 											'Clicks',
-											'newspack-listmonk-connector'
+											'connector-for-newspack-newsletters-and-listmonk'
 										),
 										analyticsTotals.clicks
 									),
 									renderAnalyticsMetric(
 										__(
 											'Bounces',
-											'newspack-listmonk-connector'
+											'connector-for-newspack-newsletters-and-listmonk'
 										),
 										analyticsTotals.bounces
 									),
@@ -994,18 +994,18 @@ function ListmonkPanel() {
 								'div',
 								{
 									className:
-										'newspack-listmonk-connector-panel__analytics-links',
+										'connector-for-newspack-newsletters-and-listmonk-panel__analytics-links',
 									key: 'analytics-links',
 								},
 								createElement(
 									'div',
 									{
 										className:
-											'newspack-listmonk-connector-panel__analytics-subtitle',
+											'connector-for-newspack-newsletters-and-listmonk-panel__analytics-subtitle',
 									},
 									__(
 										'Top links',
-										'newspack-listmonk-connector'
+										'connector-for-newspack-newsletters-and-listmonk'
 									)
 								),
 								topAnalyticsLinks.length > 0
@@ -1014,7 +1014,7 @@ function ListmonkPanel() {
 												'div',
 												{
 													className:
-														'newspack-listmonk-connector-panel__analytics-link',
+														'connector-for-newspack-newsletters-and-listmonk-panel__analytics-link',
 													key: `${ link.url }-${ index }`,
 												},
 												createElement(
@@ -1033,11 +1033,11 @@ function ListmonkPanel() {
 											'p',
 											{
 												className:
-													'newspack-listmonk-connector-panel__muted',
+													'connector-for-newspack-newsletters-and-listmonk-panel__muted',
 											},
 											__(
 												'No tracked links for this range.',
-												'newspack-listmonk-connector'
+												'connector-for-newspack-newsletters-and-listmonk'
 											)
 									  )
 							),
@@ -1046,12 +1046,12 @@ function ListmonkPanel() {
 										'p',
 										{
 											className:
-												'newspack-listmonk-connector-panel__muted',
+												'connector-for-newspack-newsletters-and-listmonk-panel__muted',
 											key: 'analytics-checked-at',
 										},
 										`${ __(
 											'Checked',
-											'newspack-listmonk-connector'
+											'connector-for-newspack-newsletters-and-listmonk'
 										) } ${ analytics.checkedAt }`
 								  )
 								: null,
@@ -1060,7 +1060,7 @@ function ListmonkPanel() {
 			createElement( SelectControl, {
 				disabled: isBusy || listOptions.length <= 1,
 				key: 'list',
-				label: __( 'List', 'newspack-listmonk-connector' ),
+				label: __( 'List', 'connector-for-newspack-newsletters-and-listmonk' ),
 				onChange: handleListChange,
 				options: listOptions,
 				value: selectedListId,
@@ -1068,7 +1068,7 @@ function ListmonkPanel() {
 			createElement(
 				'div',
 				{
-					className: 'newspack-listmonk-connector-panel__actions',
+					className: 'connector-for-newspack-newsletters-and-listmonk-panel__actions',
 					key: 'actions',
 				},
 				createElement(
@@ -1082,7 +1082,7 @@ function ListmonkPanel() {
 						},
 						variant: 'secondary',
 					},
-					__( 'Refresh', 'newspack-listmonk-connector' )
+					__( 'Refresh', 'connector-for-newspack-newsletters-and-listmonk' )
 				),
 				createElement(
 					Button,
@@ -1092,27 +1092,27 @@ function ListmonkPanel() {
 						onClick: () => void handleSync(),
 						variant: 'primary',
 					},
-					__( 'Sync', 'newspack-listmonk-connector' )
+					__( 'Sync', 'connector-for-newspack-newsletters-and-listmonk' )
 				)
 			),
 			createElement( TextControl, {
 				disabled: isBusy,
 				key: 'test-email',
-				label: __( 'Test email', 'newspack-listmonk-connector' ),
+				label: __( 'Test email', 'connector-for-newspack-newsletters-and-listmonk' ),
 				onChange: setTestEmail,
 				value: testEmail,
 			} ),
 			createElement(
 				Button,
 				{
-					className: 'newspack-listmonk-connector-panel__full-button',
+					className: 'connector-for-newspack-newsletters-and-listmonk-panel__full-button',
 					disabled: isBusy || ! testEmail.trim(),
 					isBusy: isTesting,
 					key: 'send-test',
 					onClick: () => void handleSendTest(),
 					variant: 'secondary',
 				},
-				__( 'Send test', 'newspack-listmonk-connector' )
+				__( 'Send test', 'connector-for-newspack-newsletters-and-listmonk' )
 			),
 			renderMergeTagHelpers(),
 			isLoading || isPreviewing
@@ -1120,7 +1120,7 @@ function ListmonkPanel() {
 						'div',
 						{
 							className:
-								'newspack-listmonk-connector-panel__loading',
+								'connector-for-newspack-newsletters-and-listmonk-panel__loading',
 							key: 'loading',
 						},
 						createElement( Spinner )
@@ -1129,7 +1129,7 @@ function ListmonkPanel() {
 			createElement( TextareaControl, {
 				disabled: true,
 				key: 'raw-html',
-				label: __( 'Raw HTML preview', 'newspack-listmonk-connector' ),
+				label: __( 'Raw HTML preview', 'connector-for-newspack-newsletters-and-listmonk' ),
 				onChange: () => {},
 				rows: 8,
 				value: preview?.rawHtml || '',
@@ -1137,18 +1137,18 @@ function ListmonkPanel() {
 			createElement( TextareaControl, {
 				disabled: true,
 				key: 'payload',
-				label: __( 'Listmonk payload', 'newspack-listmonk-connector' ),
+				label: __( 'Listmonk payload', 'connector-for-newspack-newsletters-and-listmonk' ),
 				onChange: () => {},
 				rows: 8,
 				value: payloadPreview,
 			} ),
 		],
-		className: 'newspack-listmonk-connector-panel',
-		name: 'newspack-listmonk-connector',
-		title: __( 'Listmonk', 'newspack-listmonk-connector' ),
+		className: 'connector-for-newspack-newsletters-and-listmonk-panel',
+		name: 'connector-for-newspack-newsletters-and-listmonk',
+		title: __( 'Listmonk', 'connector-for-newspack-newsletters-and-listmonk' ),
 	} );
 }
 
-registerPlugin( 'newspack-listmonk-connector', {
+registerPlugin( 'connector-for-newspack-newsletters-and-listmonk', {
 	render: ListmonkPanel,
 } );

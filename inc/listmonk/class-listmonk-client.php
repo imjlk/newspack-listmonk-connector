@@ -65,7 +65,7 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 		if ( ! $this->has_credentials() ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_missing_credentials',
-				__( 'Listmonk API URL, user, and token are required.', 'newspack-listmonk-connector' )
+				__( 'Listmonk API URL, user, and token are required.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 
@@ -78,7 +78,13 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 		if ( ! in_array( $scheme, array( 'http', 'https' ), true ) ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_url',
-				__( 'Listmonk API URL must use http or https.', 'newspack-listmonk-connector' )
+				__( 'Listmonk API URL must use http or https.', 'connector-for-newspack-newsletters-and-listmonk' )
+			);
+		}
+		if ( 'http' === $scheme && ! $this->allows_insecure_http( $url ) ) {
+			return new WP_Error(
+				'newspack_listmonk_connector_insecure_url',
+				__( 'Listmonk API URL must use https outside local or development environments.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 
@@ -114,7 +120,7 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 		if ( null === $decoded && '' !== $raw_body ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_json',
-				__( 'Listmonk returned an invalid JSON response.', 'newspack-listmonk-connector' ),
+				__( 'Listmonk returned an invalid JSON response.', 'connector-for-newspack-newsletters-and-listmonk' ),
 				array(
 					'status' => $status_code,
 					'body'   => $raw_body,
@@ -133,7 +139,7 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 
 			return new WP_Error(
 				'newspack_listmonk_connector_api_error',
-				$message ? (string) $message : __( 'Listmonk API request failed.', 'newspack-listmonk-connector' ),
+				$message ? (string) $message : __( 'Listmonk API request failed.', 'connector-for-newspack-newsletters-and-listmonk' ),
 				array(
 					'status' => $status_code,
 					'body'   => $decoded,
@@ -142,6 +148,24 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 		}
 
 		return is_array( $decoded ) ? $decoded : array();
+	}
+
+	/**
+	 * Whether plain HTTP is allowed for the configured Listmonk URL.
+	 *
+	 * @param string $url Request URL.
+	 * @return bool
+	 */
+	private function allows_insecure_http( $url ) {
+		$allowed = in_array( wp_get_environment_type(), array( 'local', 'development' ), true );
+
+		/**
+		 * Filters whether Listmonk requests may use plain HTTP.
+		 *
+		 * @param bool   $allowed Whether plain HTTP is allowed.
+		 * @param string $url     Request URL.
+		 */
+		return (bool) apply_filters( 'newspack_listmonk_connector_allow_insecure_http', $allowed, $url );
 	}
 
 	/**
@@ -256,7 +280,7 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 		if ( '' === $email || ! is_email( $email ) ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_subscriber_email',
-				__( 'A valid subscriber email is required.', 'newspack-listmonk-connector' )
+				__( 'A valid subscriber email is required.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 
@@ -276,7 +300,7 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 
 		return new WP_Error(
 			'newspack_listmonk_connector_subscriber_not_found',
-			__( 'Listmonk subscriber was not found.', 'newspack-listmonk-connector' ),
+			__( 'Listmonk subscriber was not found.', 'connector-for-newspack-newsletters-and-listmonk' ),
 			array( 'email' => $email )
 		);
 	}
@@ -316,7 +340,7 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 		if ( ! in_array( $action, array( 'add', 'remove', 'unsubscribe' ), true ) ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_subscriber_list_action',
-				__( 'Invalid Listmonk subscriber list action.', 'newspack-listmonk-connector' )
+				__( 'Invalid Listmonk subscriber list action.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 
@@ -325,7 +349,7 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 		if ( empty( $subscriber_ids ) || empty( $list_ids ) ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_subscriber_list_payload',
-				__( 'Subscriber IDs and list IDs are required.', 'newspack-listmonk-connector' )
+				__( 'Subscriber IDs and list IDs are required.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 
@@ -340,7 +364,7 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 			if ( ! in_array( $status, array( 'confirmed', 'unconfirmed', 'unsubscribed' ), true ) ) {
 				return new WP_Error(
 					'newspack_listmonk_connector_invalid_subscription_status',
-					__( 'Invalid Listmonk subscription status.', 'newspack-listmonk-connector' )
+					__( 'Invalid Listmonk subscription status.', 'connector-for-newspack-newsletters-and-listmonk' )
 				);
 			}
 			$payload['status'] = $status;
@@ -391,7 +415,7 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 		if ( ! $campaign_id ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_campaign_id',
-				__( 'Invalid Listmonk campaign ID.', 'newspack-listmonk-connector' )
+				__( 'Invalid Listmonk campaign ID.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 
@@ -425,13 +449,13 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 		if ( ! in_array( $type, array( 'views', 'links', 'clicks', 'bounces' ), true ) ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_analytics_type',
-				__( 'Invalid Listmonk analytics type.', 'newspack-listmonk-connector' )
+				__( 'Invalid Listmonk analytics type.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 		if ( ! $campaign_id ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_campaign_id',
-				__( 'Invalid Listmonk campaign ID.', 'newspack-listmonk-connector' )
+				__( 'Invalid Listmonk campaign ID.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 
@@ -463,7 +487,7 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 		if ( ! $campaign_id ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_campaign_id',
-				__( 'Invalid Listmonk campaign ID.', 'newspack-listmonk-connector' )
+				__( 'Invalid Listmonk campaign ID.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 
@@ -552,7 +576,7 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 		if ( ! in_array( $status, $allowed, true ) ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_status',
-				__( 'Invalid Listmonk campaign status.', 'newspack-listmonk-connector' )
+				__( 'Invalid Listmonk campaign status.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 		return $this->request( 'PUT', sprintf( '/api/campaigns/%d/status', absint( $campaign_id ) ), array( 'status' => $status ) );
@@ -615,7 +639,7 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 
 		return new WP_Error(
 			'newspack_listmonk_connector_pagination_limit_exceeded',
-			__( 'Listmonk pagination exceeded the maximum page limit.', 'newspack-listmonk-connector' ),
+			__( 'Listmonk pagination exceeded the maximum page limit.', 'connector-for-newspack-newsletters-and-listmonk' ),
 			array(
 				'path'      => $path,
 				'max_pages' => self::MAX_PAGES,
@@ -666,7 +690,7 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 
 		return new WP_Error(
 			'newspack_listmonk_connector_pagination_limit_exceeded',
-			__( 'Listmonk pagination exceeded the maximum page limit.', 'newspack-listmonk-connector' ),
+			__( 'Listmonk pagination exceeded the maximum page limit.', 'connector-for-newspack-newsletters-and-listmonk' ),
 			array(
 				'path'      => $path,
 				'max_pages' => self::MAX_PAGES,

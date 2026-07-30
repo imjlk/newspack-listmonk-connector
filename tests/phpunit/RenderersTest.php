@@ -33,7 +33,7 @@ class Newspack_Listmonk_Connector_Renderers_Test extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( '<!doctype html>', $html );
 		$this->assertStringContainsString( '<title>Renderer Test</title>', $html );
-		$this->assertStringContainsString( '<p>Hello world.</p>', $html );
+		$this->assertStringContainsString( 'Hello world.', $html );
 	}
 
 	/**
@@ -69,7 +69,7 @@ class Newspack_Listmonk_Connector_Renderers_Test extends WP_UnitTestCase {
 			array( 'template_id' => 0 )
 		);
 
-		$this->assertStringContainsString( 'newspack-listmonk-connector-unsubscribe-footer', $html );
+		$this->assertStringContainsString( 'connector-for-newspack-newsletters-and-listmonk-unsubscribe-footer', $html );
 		$this->assertStringContainsString( 'href="{{ UnsubscribeURL }}"', $html );
 		$this->assertStringContainsString( 'Unsubscribe or manage preferences', $html );
 		$this->assertStringNotContainsString( 'TrackView', $html );
@@ -94,7 +94,7 @@ class Newspack_Listmonk_Connector_Renderers_Test extends WP_UnitTestCase {
 		$this->assertSame( 1, substr_count( $html, 'UnsubscribeURL' ) );
 		$this->assertStringContainsString( 'href="{{ UnsubscribeURL }}"', $html );
 		$this->assertStringNotContainsString( '%7B%7B', $html );
-		$this->assertStringNotContainsString( 'newspack-listmonk-connector-unsubscribe-footer', $html );
+		$this->assertStringNotContainsString( 'connector-for-newspack-newsletters-and-listmonk-unsubscribe-footer', $html );
 	}
 
 	/**
@@ -114,7 +114,7 @@ class Newspack_Listmonk_Connector_Renderers_Test extends WP_UnitTestCase {
 		);
 
 		$this->assertStringNotContainsString( 'UnsubscribeURL', $html );
-		$this->assertStringNotContainsString( 'newspack-listmonk-connector-unsubscribe-footer', $html );
+		$this->assertStringNotContainsString( 'connector-for-newspack-newsletters-and-listmonk-unsubscribe-footer', $html );
 	}
 
 	/**

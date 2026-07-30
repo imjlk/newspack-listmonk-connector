@@ -1,4 +1,4 @@
-# Newspack Listmonk Connector Setup
+# Connector for Newspack Newsletters and Listmonk Setup
 
 This guide is for beta validation on a staging WordPress site.
 
@@ -73,11 +73,12 @@ required consent.
 ## Install The Plugin
 
 1. In WordPress admin, install and activate Newspack Newsletters.
-2. Upload `artifacts/newspack-listmonk-connector-0.1.0.zip`.
-3. Activate Newspack Listmonk Connector.
-4. Open Settings > Newspack Listmonk.
+2. Upload `artifacts/connector-for-newspack-newsletters-and-listmonk-0.1.0.zip`.
+3. Activate Connector for Newspack Newsletters and Listmonk.
+4. Open Settings > Newsletter Connector.
 5. Enter:
-   - Listmonk API URL, for example `https://listmonk.example.com`
+   - Listmonk API URL over HTTPS, for example `https://listmonk.example.com`.
+     Plain HTTP is allowed only when WordPress runs in a local or development environment.
    - API user
    - API token
    - Default From email, for example `Newsroom <news@example.com>`

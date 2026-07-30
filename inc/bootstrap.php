@@ -29,7 +29,7 @@ function newspack_listmonk_connector_register_provider( array $providers ) {
 	}
 
 	$providers['listmonk'] = array(
-		'name'       => __( 'Listmonk', 'newspack-listmonk-connector' ),
+		'name'       => __( 'Listmonk', 'connector-for-newspack-newsletters-and-listmonk' ),
 		'class'      => 'Newspack_Listmonk_Connector_Provider',
 		'class_file' => NEWSPACK_LISTMONK_CONNECTOR_DIR . '/inc/provider/class-listmonk-provider.php',
 	);

@@ -146,7 +146,7 @@ class Newspack_Listmonk_Connector_Campaign_Analytics_Test extends WP_UnitTestCas
 		$post_id = $this->create_post_with_campaign( 77 );
 		wp_set_current_user( 0 );
 
-		$request = new WP_REST_Request( 'GET', '/newspack-listmonk-connector/v1/campaign-analytics/item' );
+		$request = new WP_REST_Request( 'GET', '/connector-for-newspack-newsletters-and-listmonk/v1/campaign-analytics/item' );
 		$request->set_query_params(
 			array(
 				'postId' => $post_id,

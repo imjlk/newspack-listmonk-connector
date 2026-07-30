@@ -62,7 +62,7 @@ pnpm run release:zip
 
 The release script rebuilds assets, validates version consistency, copies only
 runtime files into a staging directory, runs PHP syntax checks on the staged
-package, creates `artifacts/newspack-listmonk-connector-0.1.0.zip`, and verifies
+package, creates `artifacts/connector-for-newspack-newsletters-and-listmonk-0.1.0.zip`, and verifies
 that development-only files are excluded.
 
 ## Smoke: Beta Zip On Staging
@@ -97,7 +97,7 @@ pnpm run smoke:staging:zip
 The script uses WordPress Application Passwords for REST authentication. Core
 WordPress REST can activate an already-installed plugin and can install
 WordPress.org plugin slugs, but it does not upload arbitrary beta plugin zips.
-Upload `artifacts/newspack-listmonk-connector-0.1.0.zip` through WP Admin or
+Upload `artifacts/connector-for-newspack-newsletters-and-listmonk-0.1.0.zip` through WP Admin or
 install it with WP-CLI before running the smoke.
 
 If the Newspack provider option is registered in REST, the script sets
@@ -234,7 +234,7 @@ polls WordPress and Listmonk until campaign status and post meta match
 `running` and `scheduled`.
 
 The settings E2E builds the admin bundle, starts local Listmonk, starts/reuses
-wp-env, opens `Settings > Newspack Listmonk`, verifies REST hydration, saves
+wp-env, opens `Settings > Newsletter Connector`, verifies REST hydration, saves
 without replacing the stored token, tests the Listmonk connection, and confirms
 saved values persist after reload.
 

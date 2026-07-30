@@ -6,7 +6,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 
 const rootDir = process.cwd();
 const packageJsonPath = path.join(rootDir, 'package.json');
-const pluginFile = 'newspack-listmonk-connector.php';
+const pluginFile = 'connector-for-newspack-newsletters-and-listmonk.php';
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 const pluginSlug = packageJson.name;
 const version = packageJson.version;
@@ -84,25 +84,25 @@ const requiredRestSchemaFiles = restSchemaResources.flatMap((resource) => {
 });
 
 const forbiddenZipPatterns = [
-	/^newspack-listmonk-connector\/node_modules\//,
-	/^newspack-listmonk-connector\/vendor\//,
-	/^newspack-listmonk-connector\/src\//,
-	/^newspack-listmonk-connector\/tests\//,
-	/^newspack-listmonk-connector\/scripts\//,
-	/^newspack-listmonk-connector\/artifacts\//,
-	/^newspack-listmonk-connector\/\.git(?:\/|$)/,
-	/^newspack-listmonk-connector\/\.env(?:\.|$)/,
-	/^newspack-listmonk-connector\/\.listmonk\.env$/,
-	/^newspack-listmonk-connector\/\.wp-env(?:\.|\/|$)/,
-	/^newspack-listmonk-connector\/.*\/\.gitkeep$/,
-	/^newspack-listmonk-connector\/docker-compose\.listmonk\.yml$/,
-	/^newspack-listmonk-connector\/playwright\.config\.js$/,
-	/^newspack-listmonk-connector\/phpunit\.xml\.dist$/,
-	/^newspack-listmonk-connector\/composer\.(?:json|lock)$/,
-	/^newspack-listmonk-connector\/package\.json$/,
-	/^newspack-listmonk-connector\/pnpm-lock\.yaml$/,
-	/^newspack-listmonk-connector\/tsconfig\.json$/,
-	/^newspack-listmonk-connector\/webpack\.config\.js$/,
+	/^connector-for-newspack-newsletters-and-listmonk\/node_modules\//,
+	/^connector-for-newspack-newsletters-and-listmonk\/vendor\//,
+	/^connector-for-newspack-newsletters-and-listmonk\/src\//,
+	/^connector-for-newspack-newsletters-and-listmonk\/tests\//,
+	/^connector-for-newspack-newsletters-and-listmonk\/scripts\//,
+	/^connector-for-newspack-newsletters-and-listmonk\/artifacts\//,
+	/^connector-for-newspack-newsletters-and-listmonk\/\.git(?:\/|$)/,
+	/^connector-for-newspack-newsletters-and-listmonk\/\.env(?:\.|$)/,
+	/^connector-for-newspack-newsletters-and-listmonk\/\.listmonk\.env$/,
+	/^connector-for-newspack-newsletters-and-listmonk\/\.wp-env(?:\.|\/|$)/,
+	/^connector-for-newspack-newsletters-and-listmonk\/.*\/\.gitkeep$/,
+	/^connector-for-newspack-newsletters-and-listmonk\/docker-compose\.listmonk\.yml$/,
+	/^connector-for-newspack-newsletters-and-listmonk\/playwright\.config\.js$/,
+	/^connector-for-newspack-newsletters-and-listmonk\/phpunit\.xml\.dist$/,
+	/^connector-for-newspack-newsletters-and-listmonk\/composer\.(?:json|lock)$/,
+	/^connector-for-newspack-newsletters-and-listmonk\/package\.json$/,
+	/^connector-for-newspack-newsletters-and-listmonk\/pnpm-lock\.yaml$/,
+	/^connector-for-newspack-newsletters-and-listmonk\/tsconfig\.json$/,
+	/^connector-for-newspack-newsletters-and-listmonk\/webpack\.config\.js$/,
 ];
 
 function logStep(message) {

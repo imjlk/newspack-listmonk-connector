@@ -212,7 +212,7 @@
 	},
 	"openapi": "3.1.0",
 	"paths": {
-		"/newspack-listmonk-connector/v1/newsletter-sync": {
+		"/connector-for-newspack-newsletters-and-listmonk/v1/newsletter-sync": {
 			"post": {
 				"operationId": "createNewsletterSyncResource",
 				"responses": {

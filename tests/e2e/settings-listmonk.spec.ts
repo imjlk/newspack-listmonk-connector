@@ -139,7 +139,7 @@ function createFixture(): Fixture {
 		send_mode: 'campaign',
 	};
 
-	runWp( [ 'plugin', 'activate', 'newspack-listmonk-connector' ] );
+	runWp( [ 'plugin', 'activate', 'connector-for-newspack-newsletters-and-listmonk' ] );
 
 	const php = `
 $settings = json_decode( ${ phpString( JSON.stringify( settings ) ) }, true );
@@ -163,7 +163,7 @@ echo wp_json_encode( array( 'ok' => true ), JSON_PRETTY_PRINT ) . PHP_EOL;
 		defaultListIds: listIds.join( ', ' ),
 		optionToken: settings.api_token,
 		settingsPath:
-			'/wp-admin/options-general.php?page=newspack-listmonk-connector',
+			'/wp-admin/options-general.php?page=connector-for-newspack-newsletters-and-listmonk',
 	};
 }
 
@@ -205,7 +205,7 @@ test.describe( 'Listmonk settings screen', () => {
 		await page.goto( fixture.settingsPath );
 
 		const settings = page.locator(
-			'.newspack-listmonk-connector-settings'
+			'.connector-for-newspack-newsletters-and-listmonk-settings'
 		);
 		await expect( settings ).toBeVisible();
 

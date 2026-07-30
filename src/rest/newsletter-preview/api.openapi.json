@@ -360,7 +360,7 @@
 	},
 	"openapi": "3.1.0",
 	"paths": {
-		"/newspack-listmonk-connector/v1/newsletter-preview/item": {
+		"/connector-for-newspack-newsletters-and-listmonk/v1/newsletter-preview/item": {
 			"get": {
 				"operationId": "readNewsletterPreviewResource",
 				"responses": {
@@ -399,7 +399,7 @@
 				]
 			}
 		},
-		"/newspack-listmonk-connector/v1/newsletter-preview": {
+		"/connector-for-newspack-newsletters-and-listmonk/v1/newsletter-preview": {
 			"post": {
 				"operationId": "createNewsletterPreviewResource",
 				"responses": {

@@ -169,7 +169,7 @@ function createFixture(): Fixture {
 			'newspack-newsletters.latest-stable',
 		] ),
 	] );
-	runWp( [ 'plugin', 'activate', 'newspack-listmonk-connector' ] );
+	runWp( [ 'plugin', 'activate', 'connector-for-newspack-newsletters-and-listmonk' ] );
 	runWp( [
 		'option',
 		'update',
@@ -279,7 +279,7 @@ function createUnconfiguredFixture(): Pick< Fixture, 'editPath' | 'postId' > {
 			'newspack-newsletters.latest-stable',
 		] ),
 	] );
-	runWp( [ 'plugin', 'activate', 'newspack-listmonk-connector' ] );
+	runWp( [ 'plugin', 'activate', 'connector-for-newspack-newsletters-and-listmonk' ] );
 	runWp( [
 		'option',
 		'update',
@@ -423,11 +423,11 @@ test.describe( 'Listmonk editor panel', () => {
 		await page.goto( fixture.editPath );
 		await prepareEditorUi( page );
 
-		const panel = page.locator( '.newspack-listmonk-connector-panel' );
+		const panel = page.locator( '.connector-for-newspack-newsletters-and-listmonk-panel' );
 		await expect( panel ).toBeVisible();
 
 		const analyticsSection = panel.locator(
-			'.newspack-listmonk-connector-panel__analytics'
+			'.connector-for-newspack-newsletters-and-listmonk-panel__analytics'
 		);
 		await expect(
 			analyticsSection.getByText( 'Analytics', { exact: true } )
@@ -448,14 +448,14 @@ test.describe( 'Listmonk editor panel', () => {
 		await expect(
 			panel
 				.locator(
-					'.newspack-listmonk-connector-panel__merge-tags code'
+					'.connector-for-newspack-newsletters-and-listmonk-panel__merge-tags code'
 				)
 				.filter( { hasText: '{{ UnsubscribeURL }}' } )
 		).toBeVisible();
 		await expect(
 			panel
 				.locator(
-					'.newspack-listmonk-connector-panel__merge-tags code'
+					'.connector-for-newspack-newsletters-and-listmonk-panel__merge-tags code'
 				)
 				.filter( { hasText: '{{ TrackView }}' } )
 		).toBeVisible();
@@ -472,7 +472,7 @@ test.describe( 'Listmonk editor panel', () => {
 		);
 
 		const syncButton = panel
-			.locator( '.newspack-listmonk-connector-panel__actions button' )
+			.locator( '.connector-for-newspack-newsletters-and-listmonk-panel__actions button' )
 			.filter( { hasText: /^Sync$/ } );
 		await syncButton.scrollIntoViewIfNeeded();
 		await expect( syncButton ).toBeEnabled();
@@ -485,7 +485,7 @@ test.describe( 'Listmonk editor panel', () => {
 		).toBeVisible();
 		await expect(
 			panel
-				.locator( '.newspack-listmonk-connector-panel__status strong' )
+				.locator( '.connector-for-newspack-newsletters-and-listmonk-panel__status strong' )
 				.first()
 		).toHaveText( /\d+/ );
 		await expect( panel.getByText( 'draft' ) ).toBeVisible();
@@ -511,7 +511,7 @@ test.describe( 'Listmonk editor panel', () => {
 			await expect(
 				analyticsSection
 					.locator(
-						'.newspack-listmonk-connector-panel__analytics-metric'
+						'.connector-for-newspack-newsletters-and-listmonk-panel__analytics-metric'
 					)
 					.filter( { hasText: metric } )
 			).toBeVisible();
@@ -545,7 +545,7 @@ test.describe( 'Listmonk editor panel', () => {
 
 		await expect( page.getByText( 'Configure plugin' ) ).toHaveCount( 0 );
 
-		const panel = page.locator( '.newspack-listmonk-connector-panel' );
+		const panel = page.locator( '.connector-for-newspack-newsletters-and-listmonk-panel' );
 		await expect( panel ).toBeVisible();
 		await expect(
 			panel.getByText(

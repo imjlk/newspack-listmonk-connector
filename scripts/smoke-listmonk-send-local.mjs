@@ -49,7 +49,7 @@ const settings = {
 	send_mode: 'campaign',
 };
 
-const connectorSlug = 'newspack-listmonk-connector';
+const connectorSlug = 'connector-for-newspack-newsletters-and-listmonk';
 const newspackSlug = resolvePluginSlug([
 	'newspack-newsletters',
 	'newspack-newsletters.latest-stable',

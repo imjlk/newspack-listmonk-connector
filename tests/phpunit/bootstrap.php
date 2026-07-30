@@ -20,7 +20,7 @@ if ( file_exists( $polyfills ) ) {
 tests_add_filter(
 	'muplugins_loaded',
 	static function () {
-		require dirname( __DIR__, 2 ) . '/newspack-listmonk-connector.php';
+		require dirname( __DIR__, 2 ) . '/connector-for-newspack-newsletters-and-listmonk.php';
 	}
 );
 

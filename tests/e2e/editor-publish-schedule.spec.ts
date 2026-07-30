@@ -184,7 +184,7 @@ function createFixture(): Fixture {
 			'newspack-newsletters.latest-stable',
 		] ),
 	] );
-	runWp( [ 'plugin', 'activate', 'newspack-listmonk-connector' ] );
+	runWp( [ 'plugin', 'activate', 'connector-for-newspack-newsletters-and-listmonk' ] );
 	runWp( [
 		'option',
 		'update',
@@ -395,7 +395,7 @@ async function openNewsletterEditor( page: Page, scenario: ScenarioFixture ) {
 	await page.goto( scenario.editPath );
 	await prepareEditorUi( page );
 
-	const panel = page.locator( '.newspack-listmonk-connector-panel' );
+	const panel = page.locator( '.connector-for-newspack-newsletters-and-listmonk-panel' );
 	await expect( panel ).toBeVisible();
 	await expect( panel.getByLabel( 'List', { exact: true } ) ).toHaveValue(
 		scenario.listId

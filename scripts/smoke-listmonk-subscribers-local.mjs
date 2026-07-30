@@ -54,7 +54,7 @@ const settings = {
 const email = `smoke-subscriber-${Date.now()}@example.com`;
 const doubleOptInEmail = `smoke-double-optin-${Date.now()}@example.com`;
 const existingDoubleOptInEmail = `smoke-existing-double-optin-${Date.now()}@example.com`;
-const connectorSlug = 'newspack-listmonk-connector';
+const connectorSlug = 'connector-for-newspack-newsletters-and-listmonk';
 const newspackSlug = resolvePluginSlug([
 	'newspack-newsletters',
 	'newspack-newsletters.latest-stable',

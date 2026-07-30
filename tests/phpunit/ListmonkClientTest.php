@@ -28,6 +28,7 @@ class Newspack_Listmonk_Connector_Listmonk_Client_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		remove_filter( 'pre_http_request', array( $this, 'mock_http_request' ), 10 );
+		remove_filter( 'newspack_listmonk_connector_allow_insecure_http', '__return_false' );
 		$this->requests  = array();
 		$this->responses = array();
 		parent::tear_down();
@@ -41,6 +42,19 @@ class Newspack_Listmonk_Connector_Listmonk_Client_Test extends WP_UnitTestCase {
 
 		$this->assertWPError( $result );
 		$this->assertSame( 'newspack_listmonk_connector_missing_credentials', $result->get_error_code() );
+	}
+
+	/**
+	 * Plain HTTP is rejected when the local-development allowance is disabled.
+	 */
+	public function test_request_rejects_insecure_http_outside_local_development() {
+		add_filter( 'newspack_listmonk_connector_allow_insecure_http', '__return_false' );
+
+		$result = $this->client()->request( 'GET', '/api/lists' );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'newspack_listmonk_connector_insecure_url', $result->get_error_code() );
+		$this->assertEmpty( $this->requests );
 	}
 
 	/**

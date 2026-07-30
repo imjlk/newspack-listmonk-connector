@@ -59,7 +59,7 @@ function unwrapEndpointData< Req, Res >(
 			? `${ firstError.path }: ${ firstError.expected }`
 			: __(
 					'The REST response failed validation.',
-					'newspack-listmonk-connector'
+					'connector-for-newspack-newsletters-and-listmonk'
 			  )
 	);
 }
@@ -82,7 +82,7 @@ function getErrorMessage( error: unknown ): string {
 		}
 	}
 
-	return __( 'Something went wrong.', 'newspack-listmonk-connector' );
+	return __( 'Something went wrong.', 'connector-for-newspack-newsletters-and-listmonk' );
 }
 
 function formFromResponse( response: ListmonkSettingsResponse ): SettingsForm {
@@ -165,18 +165,18 @@ function SettingsApp() {
 		if ( form.apiToken.trim().length > 0 ) {
 			return __(
 				'This token will replace the saved token.',
-				'newspack-listmonk-connector'
+				'connector-for-newspack-newsletters-and-listmonk'
 			);
 		}
 
 		return form.hasApiToken
 			? __(
 					'A token is saved. Leave this blank to keep it unchanged.',
-					'newspack-listmonk-connector'
+					'connector-for-newspack-newsletters-and-listmonk'
 			  )
 			: __(
 					'Paste a Listmonk API token.',
-					'newspack-listmonk-connector'
+					'connector-for-newspack-newsletters-and-listmonk'
 			  );
 	}, [ form.apiToken, form.hasApiToken ] );
 
@@ -213,7 +213,7 @@ function SettingsApp() {
 					setNotice( {
 						message: __(
 							'Listmonk settings saved.',
-							'newspack-listmonk-connector'
+							'connector-for-newspack-newsletters-and-listmonk'
 						),
 						status: 'success',
 					} );
@@ -231,30 +231,30 @@ function SettingsApp() {
 	);
 
 	return (
-		<div className="newspack-listmonk-connector-settings">
+		<div className="connector-for-newspack-newsletters-and-listmonk-settings">
 			{ notice && (
 				<Notice status={ notice.status } isDismissible={ false }>
 					{ notice.message }
 				</Notice>
 			) }
 			{ isLoading ? (
-				<div className="newspack-listmonk-connector-settings__loading">
+				<div className="connector-for-newspack-newsletters-and-listmonk-settings__loading">
 					<Spinner />
 					<span>
 						{ __(
 							'Loading Listmonk settings…',
-							'newspack-listmonk-connector'
+							'connector-for-newspack-newsletters-and-listmonk'
 						) }
 					</span>
 				</div>
 			) : (
-				<div className="newspack-listmonk-connector-settings__form">
+				<div className="connector-for-newspack-newsletters-and-listmonk-settings__form">
 					<TextControl
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
 						label={ __(
 							'Listmonk API URL',
-							'newspack-listmonk-connector'
+							'connector-for-newspack-newsletters-and-listmonk'
 						) }
 						onChange={ updateField( 'baseUrl' ) }
 						placeholder="https://listmonk.example.com"
@@ -267,7 +267,7 @@ function SettingsApp() {
 						autoComplete="off"
 						label={ __(
 							'API user',
-							'newspack-listmonk-connector'
+							'connector-for-newspack-newsletters-and-listmonk'
 						) }
 						onChange={ updateField( 'apiUser' ) }
 						value={ form.apiUser }
@@ -279,7 +279,7 @@ function SettingsApp() {
 						help={ tokenHelp }
 						label={ __(
 							'API token',
-							'newspack-listmonk-connector'
+							'connector-for-newspack-newsletters-and-listmonk'
 						) }
 						onChange={ updateField( 'apiToken' ) }
 						type="password"
@@ -290,7 +290,7 @@ function SettingsApp() {
 						__next40pxDefaultSize
 						label={ __(
 							'Default From email',
-							'newspack-listmonk-connector'
+							'connector-for-newspack-newsletters-and-listmonk'
 						) }
 						onChange={ updateField( 'defaultFromEmail' ) }
 						placeholder="Newsroom <news@example.com>"
@@ -301,7 +301,7 @@ function SettingsApp() {
 						__next40pxDefaultSize
 						label={ __(
 							'Default template ID',
-							'newspack-listmonk-connector'
+							'connector-for-newspack-newsletters-and-listmonk'
 						) }
 						min={ 0 }
 						onChange={ updateField( 'defaultTemplateId' ) }
@@ -313,17 +313,17 @@ function SettingsApp() {
 						__next40pxDefaultSize
 						help={ __(
 							'Separate multiple Listmonk list IDs with commas.',
-							'newspack-listmonk-connector'
+							'connector-for-newspack-newsletters-and-listmonk'
 						) }
 						label={ __(
 							'Default list IDs',
-							'newspack-listmonk-connector'
+							'connector-for-newspack-newsletters-and-listmonk'
 						) }
 						onChange={ updateField( 'defaultListIds' ) }
 						placeholder="1, 2"
 						value={ form.defaultListIds }
 					/>
-					<div className="newspack-listmonk-connector-settings__actions">
+					<div className="connector-for-newspack-newsletters-and-listmonk-settings__actions">
 						<Button
 							disabled={ isSaving }
 							isBusy={ isSaving }
@@ -332,7 +332,7 @@ function SettingsApp() {
 						>
 							{ __(
 								'Save settings',
-								'newspack-listmonk-connector'
+								'connector-for-newspack-newsletters-and-listmonk'
 							) }
 						</Button>
 						<Button
@@ -342,20 +342,20 @@ function SettingsApp() {
 						>
 							{ __(
 								'Save and test connection',
-								'newspack-listmonk-connector'
+								'connector-for-newspack-newsletters-and-listmonk'
 							) }
 						</Button>
 					</div>
-					<p className="newspack-listmonk-connector-settings__token-status">
+					<p className="connector-for-newspack-newsletters-and-listmonk-settings__token-status">
 						{ sprintf(
 							/* translators: %s is whether an API token is saved. */
 							__(
 								'API token saved: %s',
-								'newspack-listmonk-connector'
+								'connector-for-newspack-newsletters-and-listmonk'
 							),
 							form.hasApiToken
-								? __( 'yes', 'newspack-listmonk-connector' )
-								: __( 'no', 'newspack-listmonk-connector' )
+								? __( 'yes', 'connector-for-newspack-newsletters-and-listmonk' )
+								: __( 'no', 'connector-for-newspack-newsletters-and-listmonk' )
 						) }
 					</p>
 				</div>
@@ -365,7 +365,7 @@ function SettingsApp() {
 }
 
 const rootElement = document.getElementById(
-	'newspack-listmonk-connector-settings-root'
+	'connector-for-newspack-newsletters-and-listmonk-settings-root'
 );
 
 if ( rootElement ) {

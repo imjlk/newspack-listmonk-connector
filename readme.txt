@@ -1,4 +1,4 @@
-=== Newspack Listmonk Connector ===
+=== Connector for Newspack Newsletters and Listmonk ===
 Contributors: imjlk
 Tags: newsletter, newspack, listmonk, email, campaigns
 Requires at least: 6.7
@@ -12,7 +12,7 @@ Companion ESP provider for sending Newspack Newsletters campaigns with Listmonk.
 
 == Description ==
 
-Newspack Listmonk Connector is a companion plugin for Newspack Newsletters that adds a Listmonk ESP provider.
+Connector for Newspack Newsletters and Listmonk is a companion plugin for Newspack Newsletters that adds a Listmonk ESP provider.
 It turns Newspack newsletter editor output into raw HTML Listmonk campaigns, then
 supports draft sync, test sends, immediate sends, and scheduled sends.
 
@@ -39,14 +39,14 @@ or the Listmonk project.
 * PHP 8.0 or later.
 * Newspack Newsletters installed and active.
 * Newspack platform plugin is optional; Newspack Newsletters is the required dependency for this connector.
-* A reachable Listmonk server.
+* A reachable Listmonk server over HTTPS. Plain HTTP is allowed only when WordPress runs in a local or development environment.
 * A Listmonk API user with `lists:get_all`, `campaigns:manage`, `campaigns:send`, `campaigns:get_analytics`, `subscribers:get`, `subscribers:manage`, and `bounces:get`.
 
 == Installation ==
 
 1. Install and activate Newspack Newsletters.
-2. Upload and activate `newspack-listmonk-connector.zip`.
-3. Open Settings > Newspack Listmonk.
+2. Upload and activate `connector-for-newspack-newsletters-and-listmonk.zip`.
+3. Open Settings > Newsletter Connector.
 4. Enter the Listmonk API URL, API user, API token, default From email, template ID, and list IDs.
 5. Use Save and test connection.
 6. Select `listmonk` as the active Newspack Newsletters service provider.
@@ -73,6 +73,6 @@ See `docs/PRIVACY.md` for suggested privacy-policy text.
 == Changelog ==
 
 = 0.1.0 =
-* Beta release packaging for the Newspack/Listmonk MVP.
+* Initial WordPress.org release for the Newspack Newsletters and Listmonk integration.
 * Declares Newspack Newsletters as the required companion dependency and adds Listmonk provider registration, settings, campaign sync, test send, send/schedule transitions, editor panel, subscriber sync, analytics, and compatibility fallbacks.
 * Documents that bounce and complaint webhooks should terminate at Listmonk, not WordPress.

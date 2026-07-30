@@ -1,4 +1,4 @@
-# Newspack Listmonk Connector
+# Connector for Newspack Newsletters and Listmonk
 
 Newspack Newsletters companion ESP provider for Listmonk campaign delivery.
 
@@ -42,7 +42,7 @@ Track phase-by-phase progress in [docs/BACKLOG.md](docs/BACKLOG.md).
 Admin screen:
 
 ```text
-Settings > Newspack Listmonk
+Settings > Newsletter Connector
 ```
 
 Optional constants can override stored credentials:
@@ -58,7 +58,7 @@ define( 'NEWSPACK_LISTMONK_CONNECTOR_API_TOKEN', 'token' );
 Namespace:
 
 ```text
-newspack-listmonk-connector/v1
+connector-for-newspack-newsletters-and-listmonk/v1
 ```
 
 Routes:
@@ -90,11 +90,11 @@ pnpm run review:plugin-check
 ```
 
 The beta zip is written to
-`artifacts/newspack-listmonk-connector-0.1.0.zip`. See
+`artifacts/connector-for-newspack-newsletters-and-listmonk-0.1.0.zip`. See
 [docs/SETUP.md](docs/SETUP.md) and
 [docs/STAGING-CHECKLIST.md](docs/STAGING-CHECKLIST.md) for staging validation.
 The WordPress.org source zip is written to
-`artifacts/newspack-listmonk-connector-0.1.0-wporg.zip`.
+`artifacts/connector-for-newspack-newsletters-and-listmonk-0.1.0-wporg.zip`.
 Webhook direction and bounce ownership are documented in
 [docs/WEBHOOK-POLICY.md](docs/WEBHOOK-POLICY.md).
 Privacy and uninstall behavior are documented in

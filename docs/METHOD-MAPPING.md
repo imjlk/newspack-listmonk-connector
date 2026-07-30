@@ -37,7 +37,7 @@ The active Newspack provider is stored in the
 
 ## Campaign Analytics
 
-The typed `GET /newspack-listmonk-connector/v1/campaign-analytics/item`
+The typed `GET /connector-for-newspack-newsletters-and-listmonk/v1/campaign-analytics/item`
 resource resolves the active Listmonk campaign ID from the newsletter post meta
 and reads:
 

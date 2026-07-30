@@ -1,8 +1,10 @@
 {
 	"plugins": [
-		".",
 		"https://downloads.wordpress.org/plugin/newspack-newsletters.zip"
 	],
+	"mappings": {
+		"wp-content/plugins/connector-for-newspack-newsletters-and-listmonk": "."
+	},
 	"config": {
 		"WP_DEBUG": true,
 		"SCRIPT_DEBUG": true

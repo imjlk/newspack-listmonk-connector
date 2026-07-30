@@ -7,7 +7,7 @@ import {
 	wpEval,
 } from './smoke-lib.mjs';
 
-const connectorSlug = 'newspack-listmonk-connector';
+const connectorSlug = 'connector-for-newspack-newsletters-and-listmonk';
 const newspackSlug = resolvePluginSlug([
 	'newspack-newsletters',
 	'newspack-newsletters.latest-stable',
@@ -79,16 +79,16 @@ if ( empty( $errors ) ) {
 			return 0 === strpos( $route, $route_namespaces['listmonk'] . '/' ) && false !== strpos( $route, 'test' );
 		},
 		'listmonk-settings' => static function ( $route ) {
-			return '/newspack-listmonk-connector/v1/listmonk-settings/item' === $route;
+			return '/connector-for-newspack-newsletters-and-listmonk/v1/listmonk-settings/item' === $route;
 		},
 		'newsletter-preview' => static function ( $route ) {
-			return '/newspack-listmonk-connector/v1/newsletter-preview/item' === $route;
+			return '/connector-for-newspack-newsletters-and-listmonk/v1/newsletter-preview/item' === $route;
 		},
 		'newsletter-sync' => static function ( $route ) {
-			return '/newspack-listmonk-connector/v1/newsletter-sync' === $route;
+			return '/connector-for-newspack-newsletters-and-listmonk/v1/newsletter-sync' === $route;
 		},
 		'campaign-analytics' => static function ( $route ) {
-			return '/newspack-listmonk-connector/v1/campaign-analytics/item' === $route;
+			return '/connector-for-newspack-newsletters-and-listmonk/v1/campaign-analytics/item' === $route;
 		},
 	);
 	$matched_routes = array();

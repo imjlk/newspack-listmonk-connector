@@ -17,7 +17,7 @@ export const readCampaignAnalyticsResourceEndpoint = createEndpoint<
   authMode: 'authenticated-rest-nonce',
   method: 'GET',
   operationId: 'readCampaignAnalyticsResource',
-  path: '/newspack-listmonk-connector/v1/campaign-analytics/item',
+  path: '/connector-for-newspack-newsletters-and-listmonk/v1/campaign-analytics/item',
   requestLocation: 'query',
   validateRequest: apiValidators.readQuery,
   validateResponse: apiValidators.readResponse,

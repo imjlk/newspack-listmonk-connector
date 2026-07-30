@@ -35,7 +35,7 @@ delivery plus bounce and complaint webhooks.
 
 - Staging has a recent database backup.
 - Newspack Newsletters is installed and active.
-- Newspack Listmonk Connector activates without PHP errors.
+- Connector for Newspack Newsletters and Listmonk activates without PHP errors.
 - Listmonk API credentials belong to a dedicated API user.
 - The API user has the permissions listed in `docs/SETUP.md`, including
   `bounces:get` for bounce reflection.
@@ -46,7 +46,7 @@ delivery plus bounce and complaint webhooks.
 
 ## Settings Validation
 
-- Settings > Newspack Listmonk loads the React settings screen.
+- Settings > Newsletter Connector loads the React settings screen.
 - Save without entering a new token preserves the stored token.
 - Save and test connection succeeds.
 - Reloading the page shows the saved API URL, API user, From email, template ID,
@@ -56,7 +56,7 @@ delivery plus bounce and complaint webhooks.
 ## Automated Smoke
 
 - Build the beta zip with `pnpm run release:zip`.
-- Upload `artifacts/newspack-listmonk-connector-0.1.0.zip` through WP Admin or
+- Upload `artifacts/connector-for-newspack-newsletters-and-listmonk-0.1.0.zip` through WP Admin or
   install it with WP-CLI.
 - Export the `STAGING_*` variables documented in
   `docs/INTEGRATION-TESTING.md`.
@@ -90,7 +90,7 @@ delivery plus bounce and complaint webhooks.
 
 ## Rollback
 
-- Deactivate Newspack Listmonk Connector.
+- Deactivate Connector for Newspack Newsletters and Listmonk.
 - Restore the previous Newspack Newsletters service provider.
 - Pause or cancel any staging Listmonk campaigns created during validation.
 - Keep the WordPress post meta in place unless a full cleanup is explicitly

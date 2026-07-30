@@ -114,10 +114,10 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 			parent::get_labels( $context ),
 			array(
 				'name'       => 'Listmonk',
-				'list'       => __( 'list', 'newspack-listmonk-connector' ),
-				'lists'      => __( 'lists', 'newspack-listmonk-connector' ),
-				'List'       => __( 'List', 'newspack-listmonk-connector' ),
-				'Lists'      => __( 'Lists', 'newspack-listmonk-connector' ),
+				'list'       => __( 'list', 'connector-for-newspack-newsletters-and-listmonk' ),
+				'lists'      => __( 'lists', 'connector-for-newspack-newsletters-and-listmonk' ),
+				'List'       => __( 'List', 'connector-for-newspack-newsletters-and-listmonk' ),
+				'Lists'      => __( 'Lists', 'connector-for-newspack-newsletters-and-listmonk' ),
 				'tag_prefix' => 'Newspack: ',
 			)
 		);
@@ -155,7 +155,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		if ( empty( $settings['base_url'] ) || empty( $settings['api_user'] ) || empty( $settings['api_token'] ) ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_credentials',
-				__( 'Please enter the Listmonk API URL, user, and token.', 'newspack-listmonk-connector' )
+				__( 'Please enter the Listmonk API URL, user, and token.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 
@@ -203,7 +203,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		if ( ! $post instanceof WP_Post ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_post',
-				__( 'Newsletter post not found.', 'newspack-listmonk-connector' )
+				__( 'Newsletter post not found.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 
@@ -259,7 +259,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		if ( empty( $emails ) ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_test_email',
-				__( 'Please enter at least one valid test email address.', 'newspack-listmonk-connector' )
+				__( 'Please enter at least one valid test email address.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 
@@ -267,7 +267,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		if ( ! $post instanceof WP_Post ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_post',
-				__( 'Newsletter post not found.', 'newspack-listmonk-connector' )
+				__( 'Newsletter post not found.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 
@@ -286,7 +286,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		return array(
 			'message' => sprintf(
 				/* translators: %s: comma-separated email addresses. */
-				__( 'Listmonk test message sent to %s.', 'newspack-listmonk-connector' ),
+				__( 'Listmonk test message sent to %s.', 'connector-for-newspack-newsletters-and-listmonk' ),
 				implode( ', ', $emails )
 			),
 			'result'  => $result,
@@ -303,13 +303,13 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		if ( ! $this->has_api_credentials() ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_missing_credentials',
-				__( 'Listmonk API credentials are missing.', 'newspack-listmonk-connector' )
+				__( 'Listmonk API credentials are missing.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 		if ( empty( $post->post_title ) ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_empty_subject',
-				__( 'The newsletter subject cannot be empty.', 'newspack-listmonk-connector' )
+				__( 'The newsletter subject cannot be empty.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 
@@ -322,7 +322,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		if ( empty( $payload['lists'] ) ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_missing_list',
-				__( 'Please select at least one Listmonk list.', 'newspack-listmonk-connector' )
+				__( 'Please select at least one Listmonk list.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 
@@ -335,7 +335,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 			$this->store_last_error( $post->ID, $result );
 			set_transient(
 				$this->get_sync_error_transient_name( $post->ID ),
-				__( 'Listmonk sync error: ', 'newspack-listmonk-connector' ) . $result->get_error_message(),
+				__( 'Listmonk sync error: ', 'connector-for-newspack-newsletters-and-listmonk' ) . $result->get_error_message(),
 				45
 			);
 			return $result;
@@ -368,7 +368,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 			$this->store_last_error( $post->ID, $sync );
 			set_transient(
 				$this->get_sync_error_transient_name( $post->ID ),
-				__( 'Listmonk send error: ', 'newspack-listmonk-connector' ) . $sync->get_error_message(),
+				__( 'Listmonk send error: ', 'connector-for-newspack-newsletters-and-listmonk' ) . $sync->get_error_message(),
 				45
 			);
 			return $sync;
@@ -380,7 +380,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 			$this->store_last_error( $post->ID, $result );
 			set_transient(
 				$this->get_sync_error_transient_name( $post->ID ),
-				__( 'Listmonk send error: ', 'newspack-listmonk-connector' ) . $result->get_error_message(),
+				__( 'Listmonk send error: ', 'connector-for-newspack-newsletters-and-listmonk' ) . $result->get_error_message(),
 				45
 			);
 			return $result;
@@ -565,7 +565,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		if ( ! $subscriber_id ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_subscriber_id',
-				__( 'Listmonk subscriber response did not include a valid ID.', 'newspack-listmonk-connector' )
+				__( 'Listmonk subscriber response did not include a valid ID.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 		if ( $this->is_subscriber_blocklisted( $subscriber ) ) {
@@ -670,7 +670,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		if ( '' === $email || ! is_email( $email ) ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_subscriber_email',
-				__( 'A valid subscriber email is required.', 'newspack-listmonk-connector' )
+				__( 'A valid subscriber email is required.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 
@@ -686,7 +686,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		if ( ! $subscriber_id ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_subscriber_id',
-				__( 'Listmonk subscriber response did not include a valid ID.', 'newspack-listmonk-connector' )
+				__( 'Listmonk subscriber response did not include a valid ID.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 		if ( $this->is_subscriber_blocklisted( $subscriber ) ) {
@@ -808,7 +808,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		if ( ! $post_id ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_missing_campaign_id',
-				__( 'A synced newsletter post ID is required to read Listmonk usage data.', 'newspack-listmonk-connector' ),
+				__( 'A synced newsletter post ID is required to read Listmonk usage data.', 'connector-for-newspack-newsletters-and-listmonk' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -856,7 +856,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	private function subscriber_blocklisted_error( $email, array $subscriber ) {
 		return new WP_Error(
 			'newspack_listmonk_connector_subscriber_blocklisted',
-			__( 'The Listmonk subscriber is blocklisted and must be reviewed in Listmonk before it can be resubscribed.', 'newspack-listmonk-connector' ),
+			__( 'The Listmonk subscriber is blocklisted and must be reviewed in Listmonk before it can be resubscribed.', 'connector-for-newspack-newsletters-and-listmonk' ),
 			array(
 				'email'         => sanitize_email( $email ),
 				'subscriber_id' => absint( $subscriber['id'] ?? 0 ),
@@ -878,7 +878,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 		if ( '' === $email || ! is_email( $email ) ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_subscriber_email',
-				__( 'A valid subscriber email is required.', 'newspack-listmonk-connector' )
+				__( 'A valid subscriber email is required.', 'connector-for-newspack-newsletters-and-listmonk' )
 			);
 		}
 
@@ -1236,7 +1236,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 			$this->store_last_error( $post_id, $result );
 			set_transient(
 				$this->get_sync_error_transient_name( $post_id ),
-				__( 'Listmonk archive error: ', 'newspack-listmonk-connector' ) . $result->get_error_message(),
+				__( 'Listmonk archive error: ', 'connector-for-newspack-newsletters-and-listmonk' ) . $result->get_error_message(),
 				45
 			);
 			return;
@@ -1300,7 +1300,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	private function not_implemented( $message = null ) {
 		return new WP_Error(
 			'newspack_listmonk_connector_not_implemented',
-			$message ? $message : __( 'This Listmonk provider method is not implemented yet.', 'newspack-listmonk-connector' )
+			$message ? $message : __( 'This Listmonk provider method is not implemented yet.', 'connector-for-newspack-newsletters-and-listmonk' )
 		);
 	}
 
@@ -1312,7 +1312,7 @@ final class Newspack_Listmonk_Connector_Provider extends Newspack_Newsletters_Se
 	private function tags_not_supported_error() {
 		return new WP_Error(
 			'newspack_listmonk_connector_tags_not_supported',
-			__( 'Listmonk subscriber tags are not mapped to Newspack local tags. Use Listmonk lists, subscriber attributes, or campaign template merge tags instead.', 'newspack-listmonk-connector' )
+			__( 'Listmonk subscriber tags are not mapped to Newspack local tags. Use Listmonk lists, subscriber attributes, or campaign template merge tags instead.', 'connector-for-newspack-newsletters-and-listmonk' )
 		);
 	}
 }
