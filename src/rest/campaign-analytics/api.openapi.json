@@ -190,7 +190,7 @@
 	},
 	"openapi": "3.1.0",
 	"paths": {
-		"/connector-for-newspack-newsletters-and-listmonk/v1/campaign-analytics/item": {
+		"/wp-typia-newsletter-connector/v1/campaign-analytics/item": {
 			"get": {
 				"operationId": "readCampaignAnalyticsResource",
 				"responses": {

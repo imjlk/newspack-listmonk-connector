@@ -14,10 +14,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function newspack_listmonk_connector_register_settings_page() {
 	add_options_page(
-		__( 'Newsletter Connector', 'connector-for-newspack-newsletters-and-listmonk' ),
-		__( 'Newsletter Connector', 'connector-for-newspack-newsletters-and-listmonk' ),
+		__( 'Newsletter Connector', 'wp-typia-newsletter-connector' ),
+		__( 'Newsletter Connector', 'wp-typia-newsletter-connector' ),
 		'manage_options',
-		'connector-for-newspack-newsletters-and-listmonk',
+		'wp-typia-newsletter-connector',
 		'newspack_listmonk_connector_render_settings_page'
 	);
 }
@@ -29,7 +29,7 @@ add_action( 'admin_menu', 'newspack_listmonk_connector_register_settings_page' )
  * @param string $hook_suffix Current admin page hook.
  */
 function newspack_listmonk_connector_enqueue_settings_page( $hook_suffix ) {
-	if ( 'settings_page_connector-for-newspack-newsletters-and-listmonk' !== $hook_suffix ) {
+	if ( 'settings_page_wp-typia-newsletter-connector' !== $hook_suffix ) {
 		return;
 	}
 
@@ -47,7 +47,7 @@ function newspack_listmonk_connector_enqueue_settings_page( $hook_suffix ) {
 		$asset = array();
 	}
 
-	$handle = 'connector-for-newspack-newsletters-and-listmonk-admin-views';
+	$handle = 'wp-typia-newsletter-connector-admin-views';
 
 	wp_enqueue_script(
 		$handle,
@@ -111,10 +111,10 @@ function newspack_listmonk_connector_maybe_save_settings() {
 		if ( is_wp_error( $result ) ) {
 			add_settings_error( 'newspack_listmonk_connector', 'connection_failed', $result->get_error_message(), 'error' );
 		} else {
-			add_settings_error( 'newspack_listmonk_connector', 'connection_ok', __( 'Listmonk connection succeeded.', 'connector-for-newspack-newsletters-and-listmonk' ), 'success' );
+			add_settings_error( 'newspack_listmonk_connector', 'connection_ok', __( 'Listmonk connection succeeded.', 'wp-typia-newsletter-connector' ), 'success' );
 		}
 	} else {
-		add_settings_error( 'newspack_listmonk_connector', 'settings_saved', __( 'Listmonk settings saved.', 'connector-for-newspack-newsletters-and-listmonk' ), 'success' );
+		add_settings_error( 'newspack_listmonk_connector', 'settings_saved', __( 'Listmonk settings saved.', 'wp-typia-newsletter-connector' ), 'success' );
 	}
 }
 add_action( 'admin_init', 'newspack_listmonk_connector_maybe_save_settings' );
@@ -128,10 +128,10 @@ function newspack_listmonk_connector_render_settings_page() {
 	}
 	?>
 	<div class="wrap">
-		<h1><?php esc_html_e( 'Connector for Newspack Newsletters and Listmonk', 'connector-for-newspack-newsletters-and-listmonk' ); ?></h1>
+		<h1><?php esc_html_e( 'WP Typia Connector for Newspack Newsletters with Listmonk', 'wp-typia-newsletter-connector' ); ?></h1>
 		<?php settings_errors( 'newspack_listmonk_connector' ); ?>
-		<div id="connector-for-newspack-newsletters-and-listmonk-settings-root">
-			<p><?php esc_html_e( 'Loading Listmonk settings...', 'connector-for-newspack-newsletters-and-listmonk' ); ?></p>
+		<div id="wp-typia-newsletter-connector-settings-root">
+			<p><?php esc_html_e( 'Loading Listmonk settings...', 'wp-typia-newsletter-connector' ); ?></p>
 		</div>
 	</div>
 	<?php

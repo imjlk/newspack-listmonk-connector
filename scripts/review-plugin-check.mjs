@@ -57,11 +57,11 @@ function assertNoPluginCheckFindings( result ) {
 function main() {
 	run( 'pnpm', [ 'run', 'env:start' ] );
 	ensurePluginCheck();
-	wp( [ 'plugin', 'activate', 'newspack-newsletters', 'connector-for-newspack-newsletters-and-listmonk' ] );
+	wp( [ 'plugin', 'activate', 'newspack-newsletters', 'wp-typia-newsletter-connector' ] );
 	const result = wp( [
 		'plugin',
 		'check',
-		'connector-for-newspack-newsletters-and-listmonk',
+		'wp-typia-newsletter-connector',
 		'--require=./wp-content/plugins/plugin-check/cli.php',
 		'--mode=new',
 		'--format=strict-json',

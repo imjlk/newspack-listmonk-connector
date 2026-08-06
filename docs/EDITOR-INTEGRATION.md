@@ -27,7 +27,7 @@ The connector's own editor panel uses the typed connector namespace for manual
 sync:
 
 ```text
-POST /connector-for-newspack-newsletters-and-listmonk/v1/newsletter-sync
+POST /wp-typia-newsletter-connector/v1/newsletter-sync
 ```
 
 The final `sync-error` route is inherited from
@@ -92,8 +92,8 @@ The minified Newspack editor bundle uses these provider routes:
 | Sync error | `GET /newspack-newsletters/v1/${postId}/sync-error` | Reads a transient message through the provider controller. |
 | Send lists | `GET /newspack-newsletters/v1/send-lists?provider=${provider}&type=list...` | Calls the active provider's `get_send_lists( $args, true )`. |
 | MJML preview | `POST /newspack-newsletters/v1/post-mjml` | Converts current editor content to MJML/HTML for preview. |
-| Connector sync | `POST /connector-for-newspack-newsletters-and-listmonk/v1/newsletter-sync` | Type-validated route used by the connector side panel's "Sync" action. |
-| Connector retry send | `POST /connector-for-newspack-newsletters-and-listmonk/v1/newsletter-sync` | Sends `{ "retrySend": true }` for failed published/scheduled sends and reuses the same typed response shape. |
+| Connector sync | `POST /wp-typia-newsletter-connector/v1/newsletter-sync` | Type-validated route used by the connector side panel's "Sync" action. |
+| Connector retry send | `POST /wp-typia-newsletter-connector/v1/newsletter-sync` | Sends `{ "retrySend": true }` for failed published/scheduled sends and reuses the same typed response shape. |
 
 The current route table with `listmonk` active includes:
 
@@ -109,12 +109,12 @@ The current route table with `listmonk` active includes:
 /newspack-newsletters/v1/{post_id}/sync-error
 /newspack-newsletters/v1/listmonk/{post_id}/retrieve
 /newspack-newsletters/v1/listmonk/{post_id}/test
-/connector-for-newspack-newsletters-and-listmonk/v1
-/connector-for-newspack-newsletters-and-listmonk/v1/listmonk-settings
-/connector-for-newspack-newsletters-and-listmonk/v1/listmonk-settings/item
-/connector-for-newspack-newsletters-and-listmonk/v1/newsletter-preview
-/connector-for-newspack-newsletters-and-listmonk/v1/newsletter-preview/item
-/connector-for-newspack-newsletters-and-listmonk/v1/newsletter-sync
+/wp-typia-newsletter-connector/v1
+/wp-typia-newsletter-connector/v1/listmonk-settings
+/wp-typia-newsletter-connector/v1/listmonk-settings/item
+/wp-typia-newsletter-connector/v1/newsletter-preview
+/wp-typia-newsletter-connector/v1/newsletter-preview/item
+/wp-typia-newsletter-connector/v1/newsletter-sync
 ```
 
 The provider's protected `controller` property is set to
@@ -243,7 +243,7 @@ The connector now adds a `Listmonk` document settings panel with:
    Listmonk panel renders against the local Listmonk stack.
 2. Keep the Newspack namespace REST routes as thin controller proxies; new
    typed connector-specific APIs should continue to live under
-   `connector-for-newspack-newsletters-and-listmonk/v1`.
+   `wp-typia-newsletter-connector/v1`.
 3. Keep the Newspack editor wire shapes mirrored in `src/types.ts` so wp-typia
    type checks can catch contract drift even though these Newspack routes are
    manually registered.

@@ -8,7 +8,7 @@
 	verbose="true"
 >
 	<testsuites>
-		<testsuite name="Connector for Newspack Newsletters and Listmonk">
+		<testsuite name="WP Typia Connector for Newspack Newsletters with Listmonk">
 			<directory suffix="Test.php">tests/phpunit</directory>
 		</testsuite>
 	</testsuites>

@@ -70,7 +70,7 @@ function createRenderFixture(): RenderFixture {
 			'newspack-newsletters.latest-stable',
 		] ),
 	] );
-	runWp( [ 'plugin', 'activate', 'connector-for-newspack-newsletters-and-listmonk' ] );
+	runWp( [ 'plugin', 'activate', 'wp-typia-newsletter-connector' ] );
 
 	const imageSvg =
 		'<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><rect width="480" height="220" fill="#f3f4f6"/><circle cx="110" cy="112" r="52" fill="#0069c2"/><rect x="190" y="72" width="210" height="24" rx="12" fill="#232323"/><rect x="190" y="116" width="160" height="18" rx="9" fill="#646970"/></svg>';
@@ -85,7 +85,7 @@ function createRenderFixture(): RenderFixture {
 			imageSrc +
 			'" alt="Abstract newsletter illustration"/><figcaption>Representative image block</figcaption></figure><!-- /wp:image -->',
 		'<!-- wp:columns --><div class="wp-block-columns"><!-- wp:column --><div class="wp-block-column"><p><strong>Left column</strong><br>Short summary item.</p></div><!-- /wp:column --><!-- wp:column --><div class="wp-block-column"><p><strong>Right column</strong><br>Secondary detail with enough text to wrap naturally.</p></div><!-- /wp:column --></div><!-- /wp:columns -->',
-		'<!-- wp:quote --><blockquote class="wp-block-quote"><p>Quotes should survive the raw HTML cleanup path.</p><cite>Connector for Newspack Newsletters and Listmonk</cite></blockquote><!-- /wp:quote -->',
+		'<!-- wp:quote --><blockquote class="wp-block-quote"><p>Quotes should survive the raw HTML cleanup path.</p><cite>WP Typia Connector for Newspack Newsletters with Listmonk</cite></blockquote><!-- /wp:quote -->',
 		'<!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link" href="/subscribe">Read more</a></div><!-- /wp:button --></div><!-- /wp:buttons -->',
 	].join( '\n' );
 

@@ -69,7 +69,7 @@ class Newspack_Listmonk_Connector_Renderers_Test extends WP_UnitTestCase {
 			array( 'template_id' => 0 )
 		);
 
-		$this->assertStringContainsString( 'connector-for-newspack-newsletters-and-listmonk-unsubscribe-footer', $html );
+		$this->assertStringContainsString( 'wp-typia-newsletter-connector-unsubscribe-footer', $html );
 		$this->assertStringContainsString( 'href="{{ UnsubscribeURL }}"', $html );
 		$this->assertStringContainsString( 'Unsubscribe or manage preferences', $html );
 		$this->assertStringNotContainsString( 'TrackView', $html );
@@ -94,7 +94,7 @@ class Newspack_Listmonk_Connector_Renderers_Test extends WP_UnitTestCase {
 		$this->assertSame( 1, substr_count( $html, 'UnsubscribeURL' ) );
 		$this->assertStringContainsString( 'href="{{ UnsubscribeURL }}"', $html );
 		$this->assertStringNotContainsString( '%7B%7B', $html );
-		$this->assertStringNotContainsString( 'connector-for-newspack-newsletters-and-listmonk-unsubscribe-footer', $html );
+		$this->assertStringNotContainsString( 'wp-typia-newsletter-connector-unsubscribe-footer', $html );
 	}
 
 	/**
@@ -114,7 +114,7 @@ class Newspack_Listmonk_Connector_Renderers_Test extends WP_UnitTestCase {
 		);
 
 		$this->assertStringNotContainsString( 'UnsubscribeURL', $html );
-		$this->assertStringNotContainsString( 'connector-for-newspack-newsletters-and-listmonk-unsubscribe-footer', $html );
+		$this->assertStringNotContainsString( 'wp-typia-newsletter-connector-unsubscribe-footer', $html );
 	}
 
 	/**

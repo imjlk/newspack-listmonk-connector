@@ -76,7 +76,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_preview_validate
 	function newspack_listmonk_connector_newsletter_preview_validate_rest_resource_payload( $value, $schema_name, $param_name ) {
 		$schema = newspack_listmonk_connector_newsletter_preview_load_rest_resource_schema( $schema_name );
 		if ( ! is_array( $schema ) ) {
-			return new WP_Error( 'missing_schema', __( 'Missing REST schema.', 'connector-for-newspack-newsletters-and-listmonk' ), array( 'status' => 500 ) );
+			return new WP_Error( 'missing_schema', __( 'Missing REST schema.', 'wp-typia-newsletter-connector' ), array( 'status' => 500 ) );
 		}
 
 		$rest_schema = newspack_listmonk_connector_newsletter_preview_sanitize_rest_resource_schema( $schema );
@@ -113,7 +113,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_preview_build_re
 		if ( ! $post instanceof WP_Post ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_post',
-				__( 'Newsletter post not found.', 'connector-for-newspack-newsletters-and-listmonk' ),
+				__( 'Newsletter post not found.', 'wp-typia-newsletter-connector' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -121,7 +121,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_preview_build_re
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_forbidden',
-				__( 'You are not allowed to preview this newsletter.', 'connector-for-newspack-newsletters-and-listmonk' ),
+				__( 'You are not allowed to preview this newsletter.', 'wp-typia-newsletter-connector' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -214,7 +214,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_preview_register
 	 * Register routes.
 	 */
 	function newspack_listmonk_connector_newsletter_preview_register_rest_routes() {
-		$namespace = 'connector-for-newspack-newsletters-and-listmonk/v1';
+		$namespace = 'wp-typia-newsletter-connector/v1';
 
 		register_rest_route(
 			$namespace,

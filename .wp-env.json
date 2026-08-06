@@ -3,7 +3,7 @@
 		"https://downloads.wordpress.org/plugin/newspack-newsletters.zip"
 	],
 	"mappings": {
-		"wp-content/plugins/connector-for-newspack-newsletters-and-listmonk": "."
+		"wp-content/plugins/wp-typia-newsletter-connector": "."
 	},
 	"config": {
 		"WP_DEBUG": true,

@@ -19,7 +19,7 @@ pnpm run changeset:add
 ```
 
 Select
-`packagist/imjlk/connector-for-newspack-newsletters-and-listmonk`, choose the
+`packagist/imjlk/wp-typia-newsletter-connector`, choose the
 appropriate SemVer bump, and use one of the configured changelog categories.
 Commit the generated file under `.sampo/changesets/` with the implementation.
 
@@ -57,7 +57,7 @@ deploy action skips versions already present in WordPress.org SVN.
 
 Leave SVN deployment disabled until WordPress.org approves the plugin and
 creates the repository for
-`connector-for-newspack-newsletters-and-listmonk`. Then configure:
+`wp-typia-newsletter-connector`. Then configure:
 
 - Repository variable `WPORG_DEPLOY_ENABLED` with value `true`.
 - Repository secret `SVN_USERNAME` with the WordPress.org account name.

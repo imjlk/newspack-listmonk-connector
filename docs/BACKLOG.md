@@ -1,4 +1,4 @@
-# Connector for Newspack Newsletters and Listmonk Backlog
+# WP Typia Connector for Newspack Newsletters with Listmonk Backlog
 
 Last updated: 2026-07-30
 

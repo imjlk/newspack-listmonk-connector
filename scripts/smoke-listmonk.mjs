@@ -28,7 +28,7 @@ const settings = {
 	send_mode: 'campaign',
 };
 
-const connectorSlug = 'connector-for-newspack-newsletters-and-listmonk';
+const connectorSlug = 'wp-typia-newsletter-connector';
 const newspackSlug = resolvePluginSlug([
 	'newspack-newsletters',
 	'newspack-newsletters.latest-stable',
@@ -136,7 +136,7 @@ if ( empty( $errors ) ) {
 }
 
 if ( empty( $errors ) ) {
-	$sync_request = new WP_REST_Request( 'POST', '/connector-for-newspack-newsletters-and-listmonk/v1/newsletter-sync' );
+	$sync_request = new WP_REST_Request( 'POST', '/wp-typia-newsletter-connector/v1/newsletter-sync' );
 	$sync_request->set_header( 'Content-Type', 'application/json' );
 	$sync_request->set_body( wp_json_encode( array( 'postId' => $post_id ) ) );
 	$sync_route_response = rest_do_request( $sync_request );

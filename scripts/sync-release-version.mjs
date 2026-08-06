@@ -5,7 +5,7 @@ import path from 'node:path';
 
 const rootDir = process.cwd();
 const checkOnly = process.argv.includes( '--check' );
-const pluginFile = 'connector-for-newspack-newsletters-and-listmonk.php';
+const pluginFile = 'wp-typia-newsletter-connector.php';
 const packageJsonPath = path.join( rootDir, 'package.json' );
 const composerJsonPath = path.join( rootDir, 'composer.json' );
 const pluginPath = path.join( rootDir, pluginFile );

@@ -2,10 +2,10 @@ version = 1
 
 [git]
 default_branch = "main"
-short_tags = "imjlk/connector-for-newspack-newsletters-and-listmonk"
+short_tags = "imjlk/wp-typia-newsletter-connector"
 
 [github]
-repository = "imjlk/newspack-listmonk-connector"
+repository = "imjlk/wp-typia-newsletter-connector"
 
 [changesets]
 tags = ["Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"]

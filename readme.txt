@@ -1,4 +1,4 @@
-=== Connector for Newspack Newsletters and Listmonk ===
+=== WP Typia Connector for Newspack Newsletters with Listmonk ===
 Contributors: imjlk
 Tags: newsletter, newspack, listmonk, email, campaigns
 Requires at least: 6.7
@@ -12,7 +12,7 @@ Companion ESP provider for sending Newspack Newsletters campaigns with Listmonk.
 
 == Description ==
 
-Connector for Newspack Newsletters and Listmonk is a companion plugin for Newspack Newsletters that adds a Listmonk ESP provider.
+WP Typia Connector for Newspack Newsletters with Listmonk is a companion plugin for Newspack Newsletters that adds a Listmonk ESP provider.
 It turns Newspack newsletter editor output into raw HTML Listmonk campaigns, then
 supports draft sync, test sends, immediate sends, and scheduled sends.
 
@@ -28,6 +28,16 @@ party depending on the URL you configure. Review your Listmonk deployment's own
 privacy policy, terms, and data retention settings before connecting it.
 
 Listmonk project documentation is available at https://listmonk.app/docs/.
+
+= Built with wp-typia =
+
+This plugin was scaffolded as a wp-typia workspace and continues to use
+wp-typia packages and synchronization tooling for typed REST contracts,
+generated schemas, and build consistency. wp-typia is maintained by this
+plugin's author at https://github.com/imjlk/wp-typia.
+
+The plugin also builds on the WordPress Block Editor and Interactivity API,
+Newspack Newsletters provider APIs, and the Listmonk REST API.
 
 Newspack and Listmonk are trademarks or project names of their respective
 owners. This plugin is not affiliated with or endorsed by Newspack, Automattic,
@@ -45,15 +55,15 @@ or the Listmonk project.
 == Installation ==
 
 1. Install and activate Newspack Newsletters.
-2. Upload and activate `connector-for-newspack-newsletters-and-listmonk.zip`.
+2. Upload and activate `wp-typia-newsletter-connector.zip`.
 3. Open Settings > Newsletter Connector.
 4. Enter the Listmonk API URL, API user, API token, default From email, template ID, and list IDs.
 5. Use Save and test connection.
 6. Select `listmonk` as the active Newspack Newsletters service provider.
 7. Create a Newspack newsletter and verify the Listmonk editor panel can preview, sync, and send a test.
 
-See `docs/SETUP.md` and `docs/STAGING-CHECKLIST.md` in the plugin package for
-the full validation flow.
+See `docs/SETUP.md` in the plugin package for the full setup and validation
+flow.
 
 == Privacy and Uninstall ==
 

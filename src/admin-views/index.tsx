@@ -59,7 +59,7 @@ function unwrapEndpointData< Req, Res >(
 			? `${ firstError.path }: ${ firstError.expected }`
 			: __(
 					'The REST response failed validation.',
-					'connector-for-newspack-newsletters-and-listmonk'
+					'wp-typia-newsletter-connector'
 			  )
 	);
 }
@@ -82,7 +82,7 @@ function getErrorMessage( error: unknown ): string {
 		}
 	}
 
-	return __( 'Something went wrong.', 'connector-for-newspack-newsletters-and-listmonk' );
+	return __( 'Something went wrong.', 'wp-typia-newsletter-connector' );
 }
 
 function formFromResponse( response: ListmonkSettingsResponse ): SettingsForm {
@@ -165,18 +165,18 @@ function SettingsApp() {
 		if ( form.apiToken.trim().length > 0 ) {
 			return __(
 				'This token will replace the saved token.',
-				'connector-for-newspack-newsletters-and-listmonk'
+				'wp-typia-newsletter-connector'
 			);
 		}
 
 		return form.hasApiToken
 			? __(
 					'A token is saved. Leave this blank to keep it unchanged.',
-					'connector-for-newspack-newsletters-and-listmonk'
+					'wp-typia-newsletter-connector'
 			  )
 			: __(
 					'Paste a Listmonk API token.',
-					'connector-for-newspack-newsletters-and-listmonk'
+					'wp-typia-newsletter-connector'
 			  );
 	}, [ form.apiToken, form.hasApiToken ] );
 
@@ -213,7 +213,7 @@ function SettingsApp() {
 					setNotice( {
 						message: __(
 							'Listmonk settings saved.',
-							'connector-for-newspack-newsletters-and-listmonk'
+							'wp-typia-newsletter-connector'
 						),
 						status: 'success',
 					} );
@@ -231,30 +231,30 @@ function SettingsApp() {
 	);
 
 	return (
-		<div className="connector-for-newspack-newsletters-and-listmonk-settings">
+		<div className="wp-typia-newsletter-connector-settings">
 			{ notice && (
 				<Notice status={ notice.status } isDismissible={ false }>
 					{ notice.message }
 				</Notice>
 			) }
 			{ isLoading ? (
-				<div className="connector-for-newspack-newsletters-and-listmonk-settings__loading">
+				<div className="wp-typia-newsletter-connector-settings__loading">
 					<Spinner />
 					<span>
 						{ __(
 							'Loading Listmonk settings…',
-							'connector-for-newspack-newsletters-and-listmonk'
+							'wp-typia-newsletter-connector'
 						) }
 					</span>
 				</div>
 			) : (
-				<div className="connector-for-newspack-newsletters-and-listmonk-settings__form">
+				<div className="wp-typia-newsletter-connector-settings__form">
 					<TextControl
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
 						label={ __(
 							'Listmonk API URL',
-							'connector-for-newspack-newsletters-and-listmonk'
+							'wp-typia-newsletter-connector'
 						) }
 						onChange={ updateField( 'baseUrl' ) }
 						placeholder="https://listmonk.example.com"
@@ -267,7 +267,7 @@ function SettingsApp() {
 						autoComplete="off"
 						label={ __(
 							'API user',
-							'connector-for-newspack-newsletters-and-listmonk'
+							'wp-typia-newsletter-connector'
 						) }
 						onChange={ updateField( 'apiUser' ) }
 						value={ form.apiUser }
@@ -279,7 +279,7 @@ function SettingsApp() {
 						help={ tokenHelp }
 						label={ __(
 							'API token',
-							'connector-for-newspack-newsletters-and-listmonk'
+							'wp-typia-newsletter-connector'
 						) }
 						onChange={ updateField( 'apiToken' ) }
 						type="password"
@@ -290,7 +290,7 @@ function SettingsApp() {
 						__next40pxDefaultSize
 						label={ __(
 							'Default From email',
-							'connector-for-newspack-newsletters-and-listmonk'
+							'wp-typia-newsletter-connector'
 						) }
 						onChange={ updateField( 'defaultFromEmail' ) }
 						placeholder="Newsroom <news@example.com>"
@@ -301,7 +301,7 @@ function SettingsApp() {
 						__next40pxDefaultSize
 						label={ __(
 							'Default template ID',
-							'connector-for-newspack-newsletters-and-listmonk'
+							'wp-typia-newsletter-connector'
 						) }
 						min={ 0 }
 						onChange={ updateField( 'defaultTemplateId' ) }
@@ -313,17 +313,17 @@ function SettingsApp() {
 						__next40pxDefaultSize
 						help={ __(
 							'Separate multiple Listmonk list IDs with commas.',
-							'connector-for-newspack-newsletters-and-listmonk'
+							'wp-typia-newsletter-connector'
 						) }
 						label={ __(
 							'Default list IDs',
-							'connector-for-newspack-newsletters-and-listmonk'
+							'wp-typia-newsletter-connector'
 						) }
 						onChange={ updateField( 'defaultListIds' ) }
 						placeholder="1, 2"
 						value={ form.defaultListIds }
 					/>
-					<div className="connector-for-newspack-newsletters-and-listmonk-settings__actions">
+					<div className="wp-typia-newsletter-connector-settings__actions">
 						<Button
 							disabled={ isSaving }
 							isBusy={ isSaving }
@@ -332,7 +332,7 @@ function SettingsApp() {
 						>
 							{ __(
 								'Save settings',
-								'connector-for-newspack-newsletters-and-listmonk'
+								'wp-typia-newsletter-connector'
 							) }
 						</Button>
 						<Button
@@ -342,20 +342,20 @@ function SettingsApp() {
 						>
 							{ __(
 								'Save and test connection',
-								'connector-for-newspack-newsletters-and-listmonk'
+								'wp-typia-newsletter-connector'
 							) }
 						</Button>
 					</div>
-					<p className="connector-for-newspack-newsletters-and-listmonk-settings__token-status">
+					<p className="wp-typia-newsletter-connector-settings__token-status">
 						{ sprintf(
 							/* translators: %s is whether an API token is saved. */
 							__(
 								'API token saved: %s',
-								'connector-for-newspack-newsletters-and-listmonk'
+								'wp-typia-newsletter-connector'
 							),
 							form.hasApiToken
-								? __( 'yes', 'connector-for-newspack-newsletters-and-listmonk' )
-								: __( 'no', 'connector-for-newspack-newsletters-and-listmonk' )
+								? __( 'yes', 'wp-typia-newsletter-connector' )
+								: __( 'no', 'wp-typia-newsletter-connector' )
 						) }
 					</p>
 				</div>
@@ -365,7 +365,7 @@ function SettingsApp() {
 }
 
 const rootElement = document.getElementById(
-	'connector-for-newspack-newsletters-and-listmonk-settings-root'
+	'wp-typia-newsletter-connector-settings-root'
 );
 
 if ( rootElement ) {

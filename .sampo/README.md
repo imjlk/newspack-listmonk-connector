@@ -11,7 +11,7 @@ pnpm run changeset:add
 ```
 
 Use the canonical package id
-`packagist/imjlk/connector-for-newspack-newsletters-and-listmonk`. Pending changesets live
+`packagist/imjlk/wp-typia-newsletter-connector`. Pending changesets live
 in `.sampo/changesets/` and are consumed by the release preparation workflow.
 
 See `docs/RELEASING.md` for the complete WordPress release flow.

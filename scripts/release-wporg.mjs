@@ -9,8 +9,13 @@ const packageJson = JSON.parse(
 	fs.readFileSync( path.join( rootDir, 'package.json' ), 'utf8' )
 );
 const pluginSlug = packageJson.name;
+const legacyPluginSlug = [
+	'connector-for-',
+	'newspack-newsletters-',
+	'and-listmonk',
+].join( '' );
 const version = packageJson.version;
-const pluginFile = 'connector-for-newspack-newsletters-and-listmonk.php';
+const pluginFile = 'wp-typia-newsletter-connector.php';
 const artifactsDir = path.join( rootDir, 'artifacts' );
 const releaseWorkDir = path.join( artifactsDir, 'wporg-release' );
 const distDir = path.join( releaseWorkDir, pluginSlug );
@@ -22,6 +27,11 @@ function getTrackedPaths( relativePath ) {
 		encoding: 'utf8',
 	} ).split( '\0' ).filter( Boolean );
 }
+
+const forbiddenReviewDocuments = new Set( [
+	[ 'docs/STAGING-', 'CHECKLIST.md' ].join( '' ),
+	[ 'docs/PLUGIN-REVIEW-', 'CHECKLIST.md' ].join( '' ),
+] );
 
 const sourcePaths = [
 	pluginFile,
@@ -49,7 +59,9 @@ const sourcePaths = [
 	'webpack.config.js',
 	'docs/RELEASING.md',
 	...getTrackedPaths( 'docs' ).filter(
-		( relativePath ) => relativePath !== 'docs/RELEASING.md'
+		( relativePath ) =>
+			relativePath !== 'docs/RELEASING.md' &&
+			! forbiddenReviewDocuments.has( relativePath )
 	),
 ];
 
@@ -76,7 +88,6 @@ const requiredEntries = [
 	'readme.txt',
 	'LICENSE',
 	'docs/PRIVACY.md',
-	'docs/PLUGIN-REVIEW-CHECKLIST.md',
 	'docs/RELEASING.md',
 ];
 
@@ -88,19 +99,19 @@ const restSchemaResources = [
 ];
 
 const forbiddenZipPatterns = [
-	/^connector-for-newspack-newsletters-and-listmonk\/node_modules\//,
-	/^connector-for-newspack-newsletters-and-listmonk\/vendor\//,
-	/^connector-for-newspack-newsletters-and-listmonk\/tests\//,
-	/^connector-for-newspack-newsletters-and-listmonk\/artifacts\//,
-	/^connector-for-newspack-newsletters-and-listmonk\/\.git(?:\/|$)/,
-	/^connector-for-newspack-newsletters-and-listmonk\/\.env(?:\.|$)/,
-	/^connector-for-newspack-newsletters-and-listmonk\/\.listmonk\.env$/,
-	/^connector-for-newspack-newsletters-and-listmonk\/\.staging\.env$/,
-	/^connector-for-newspack-newsletters-and-listmonk\/\.wp-env(?:\.|\/|$)/,
-	/^connector-for-newspack-newsletters-and-listmonk\/.*\/\.gitkeep$/,
-	/^connector-for-newspack-newsletters-and-listmonk\/docker-compose\.listmonk\.yml$/,
-	/^connector-for-newspack-newsletters-and-listmonk\/playwright-report\//,
-	/^connector-for-newspack-newsletters-and-listmonk\/test-results\//,
+	/^wp-typia-newsletter-connector\/node_modules\//,
+	/^wp-typia-newsletter-connector\/vendor\//,
+	/^wp-typia-newsletter-connector\/tests\//,
+	/^wp-typia-newsletter-connector\/artifacts\//,
+	/^wp-typia-newsletter-connector\/\.git(?:\/|$)/,
+	/^wp-typia-newsletter-connector\/\.env(?:\.|$)/,
+	/^wp-typia-newsletter-connector\/\.listmonk\.env$/,
+	/^wp-typia-newsletter-connector\/\.staging\.env$/,
+	/^wp-typia-newsletter-connector\/\.wp-env(?:\.|\/|$)/,
+	/^wp-typia-newsletter-connector\/.*\/\.gitkeep$/,
+	/^wp-typia-newsletter-connector\/docker-compose\.listmonk\.yml$/,
+	/^wp-typia-newsletter-connector\/playwright-report\//,
+	/^wp-typia-newsletter-connector\/test-results\//,
 ];
 
 function logStep( message ) {
@@ -198,6 +209,24 @@ function lintPhpFiles() {
 	}
 }
 
+function assertCleanReleaseTree() {
+	const legacySlugBuffer = Buffer.from( legacyPluginSlug );
+	for ( const file of collectFiles( distDir ) ) {
+		const relativePath = path
+			.relative( distDir, file )
+			.split( path.sep )
+			.join( '/' );
+		if ( forbiddenReviewDocuments.has( relativePath ) ) {
+			throw new Error(
+				`WP.org release tree contains review-only document: ${ relativePath }`
+			);
+		}
+		if ( fs.readFileSync( file ).includes( legacySlugBuffer ) ) {
+			throw new Error( `WP.org release tree contains legacy plugin slug: ${ relativePath }` );
+		}
+	}
+}
+
 function createZip() {
 	fs.mkdirSync( artifactsDir, { recursive: true } );
 	fs.rmSync( zipPath, { force: true } );
@@ -235,6 +264,9 @@ function assertZipContents() {
 	}
 
 	for ( const entry of entries ) {
+		if ( entry.includes( legacyPluginSlug ) ) {
+			throw new Error( `WP.org zip contains legacy plugin slug: ${ entry }` );
+		}
 		if ( forbiddenZipPatterns.some( ( pattern ) => pattern.test( entry ) ) ) {
 			throw new Error( `WP.org zip contains forbidden entry: ${ entry }` );
 		}
@@ -258,6 +290,7 @@ function main() {
 		copyPath( relativePath );
 	}
 	copyRestSchemasForRuntime();
+	assertCleanReleaseTree();
 	lintPhpFiles();
 
 	logStep( 'Creating WordPress.org source zip' );

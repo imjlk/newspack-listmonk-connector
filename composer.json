@@ -1,5 +1,5 @@
 {
-	"name": "imjlk/connector-for-newspack-newsletters-and-listmonk",
+	"name": "imjlk/wp-typia-newsletter-connector",
 	"version": "0.1.0",
 	"description": "Newspack Newsletters ESP provider for Listmonk campaigns.",
 	"type": "wordpress-plugin",

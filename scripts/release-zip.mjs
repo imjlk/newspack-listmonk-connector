@@ -6,9 +6,14 @@ import { execFileSync, spawnSync } from 'node:child_process';
 
 const rootDir = process.cwd();
 const packageJsonPath = path.join(rootDir, 'package.json');
-const pluginFile = 'connector-for-newspack-newsletters-and-listmonk.php';
+const pluginFile = 'wp-typia-newsletter-connector.php';
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 const pluginSlug = packageJson.name;
+const legacyPluginSlug = [
+	'connector-for-',
+	'newspack-newsletters-',
+	'and-listmonk',
+].join('');
 const version = packageJson.version;
 const artifactsDir = path.join(rootDir, 'artifacts');
 const releaseWorkDir = path.join(artifactsDir, 'release');
@@ -33,7 +38,6 @@ const runtimePaths = [
 	'LICENSE',
 	'docs/SETUP.md',
 	'docs/PRIVACY.md',
-	'docs/STAGING-CHECKLIST.md',
 	'docs/WEBHOOK-POLICY.md',
 	'docs/COMPATIBILITY.md',
 	'docs/METHOD-MAPPING.md',
@@ -69,9 +73,13 @@ const requiredFiles = [
 	'LICENSE',
 	'docs/SETUP.md',
 	'docs/PRIVACY.md',
-	'docs/STAGING-CHECKLIST.md',
 	'docs/WEBHOOK-POLICY.md',
 ];
+
+const forbiddenReviewDocuments = new Set([
+	[ 'docs/STAGING-', 'CHECKLIST.md' ].join(''),
+	[ 'docs/PLUGIN-REVIEW-', 'CHECKLIST.md' ].join(''),
+]);
 
 const requiredRestSchemaFiles = restSchemaResources.flatMap((resource) => {
 	const schemaDir = path.join(rootDir, 'src/rest', resource, 'api-schemas');
@@ -86,25 +94,25 @@ const requiredRestSchemaFiles = restSchemaResources.flatMap((resource) => {
 });
 
 const forbiddenZipPatterns = [
-	/^connector-for-newspack-newsletters-and-listmonk\/node_modules\//,
-	/^connector-for-newspack-newsletters-and-listmonk\/vendor\//,
-	/^connector-for-newspack-newsletters-and-listmonk\/src\//,
-	/^connector-for-newspack-newsletters-and-listmonk\/tests\//,
-	/^connector-for-newspack-newsletters-and-listmonk\/scripts\//,
-	/^connector-for-newspack-newsletters-and-listmonk\/artifacts\//,
-	/^connector-for-newspack-newsletters-and-listmonk\/\.git(?:\/|$)/,
-	/^connector-for-newspack-newsletters-and-listmonk\/\.env(?:\.|$)/,
-	/^connector-for-newspack-newsletters-and-listmonk\/\.listmonk\.env$/,
-	/^connector-for-newspack-newsletters-and-listmonk\/\.wp-env(?:\.|\/|$)/,
-	/^connector-for-newspack-newsletters-and-listmonk\/.*\/\.gitkeep$/,
-	/^connector-for-newspack-newsletters-and-listmonk\/docker-compose\.listmonk\.yml$/,
-	/^connector-for-newspack-newsletters-and-listmonk\/playwright\.config\.js$/,
-	/^connector-for-newspack-newsletters-and-listmonk\/phpunit\.xml\.dist$/,
-	/^connector-for-newspack-newsletters-and-listmonk\/composer\.(?:json|lock)$/,
-	/^connector-for-newspack-newsletters-and-listmonk\/package\.json$/,
-	/^connector-for-newspack-newsletters-and-listmonk\/pnpm-lock\.yaml$/,
-	/^connector-for-newspack-newsletters-and-listmonk\/tsconfig\.json$/,
-	/^connector-for-newspack-newsletters-and-listmonk\/webpack\.config\.js$/,
+	/^wp-typia-newsletter-connector\/node_modules\//,
+	/^wp-typia-newsletter-connector\/vendor\//,
+	/^wp-typia-newsletter-connector\/src\//,
+	/^wp-typia-newsletter-connector\/tests\//,
+	/^wp-typia-newsletter-connector\/scripts\//,
+	/^wp-typia-newsletter-connector\/artifacts\//,
+	/^wp-typia-newsletter-connector\/\.git(?:\/|$)/,
+	/^wp-typia-newsletter-connector\/\.env(?:\.|$)/,
+	/^wp-typia-newsletter-connector\/\.listmonk\.env$/,
+	/^wp-typia-newsletter-connector\/\.wp-env(?:\.|\/|$)/,
+	/^wp-typia-newsletter-connector\/.*\/\.gitkeep$/,
+	/^wp-typia-newsletter-connector\/docker-compose\.listmonk\.yml$/,
+	/^wp-typia-newsletter-connector\/playwright\.config\.js$/,
+	/^wp-typia-newsletter-connector\/phpunit\.xml\.dist$/,
+	/^wp-typia-newsletter-connector\/composer\.(?:json|lock)$/,
+	/^wp-typia-newsletter-connector\/package\.json$/,
+	/^wp-typia-newsletter-connector\/pnpm-lock\.yaml$/,
+	/^wp-typia-newsletter-connector\/tsconfig\.json$/,
+	/^wp-typia-newsletter-connector\/webpack\.config\.js$/,
 ];
 
 function logStep(message) {
@@ -217,6 +225,24 @@ function lintPhpFiles() {
 	}
 }
 
+function assertCleanReleaseTree() {
+	const legacySlugBuffer = Buffer.from(legacyPluginSlug);
+	for (const file of collectFiles(distDir)) {
+		const relativePath = path
+			.relative(distDir, file)
+			.split(path.sep)
+			.join('/');
+		if (forbiddenReviewDocuments.has(relativePath)) {
+			throw new Error(
+				`Release tree contains review-only document: ${relativePath}`
+			);
+		}
+		if (fs.readFileSync(file).includes(legacySlugBuffer)) {
+			throw new Error(`Release tree contains legacy plugin slug: ${relativePath}`);
+		}
+	}
+}
+
 function createZip() {
 	fs.mkdirSync(artifactsDir, { recursive: true });
 	fs.rmSync(zipPath, { force: true });
@@ -257,6 +283,9 @@ function assertZipContents() {
 	}
 
 	for (const entry of entries) {
+		if (entry.includes(legacyPluginSlug)) {
+			throw new Error(`Release zip contains legacy plugin slug: ${entry}`);
+		}
 		if (forbiddenZipPatterns.some((pattern) => pattern.test(entry))) {
 			throw new Error(`Release zip contains development-only entry: ${entry}`);
 		}
@@ -277,6 +306,7 @@ function main() {
 	logStep('Preparing release directory');
 	copyRuntimeFiles();
 	copyRestSchemas();
+	assertCleanReleaseTree();
 	lintPhpFiles();
 
 	logStep('Creating plugin zip');

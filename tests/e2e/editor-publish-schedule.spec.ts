@@ -184,7 +184,7 @@ function createFixture(): Fixture {
 			'newspack-newsletters.latest-stable',
 		] ),
 	] );
-	runWp( [ 'plugin', 'activate', 'connector-for-newspack-newsletters-and-listmonk' ] );
+	runWp( [ 'plugin', 'activate', 'wp-typia-newsletter-connector' ] );
 	runWp( [
 		'option',
 		'update',
@@ -395,11 +395,13 @@ async function openNewsletterEditor( page: Page, scenario: ScenarioFixture ) {
 	await page.goto( scenario.editPath );
 	await prepareEditorUi( page );
 
-	const panel = page.locator( '.connector-for-newspack-newsletters-and-listmonk-panel' );
+	const panel = page.locator( '.wp-typia-newsletter-connector-panel' );
 	await expect( panel ).toBeVisible();
-	await expect( panel.getByLabel( 'List', { exact: true } ) ).toHaveValue(
-		scenario.listId
-	);
+	const listSelect = panel.getByLabel( 'List', { exact: true } );
+	if ( ! ( await listSelect.isVisible().catch( () => false ) ) ) {
+		await panel.getByRole( 'button', { name: /^Listmonk$/ } ).click();
+	}
+	await expect( listSelect ).toHaveValue( scenario.listId );
 }
 
 async function savePostInEditor(

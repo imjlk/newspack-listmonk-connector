@@ -169,7 +169,7 @@ function createFixture(): Fixture {
 			'newspack-newsletters.latest-stable',
 		] ),
 	] );
-	runWp( [ 'plugin', 'activate', 'connector-for-newspack-newsletters-and-listmonk' ] );
+	runWp( [ 'plugin', 'activate', 'wp-typia-newsletter-connector' ] );
 	runWp( [
 		'option',
 		'update',
@@ -279,7 +279,7 @@ function createUnconfiguredFixture(): Pick< Fixture, 'editPath' | 'postId' > {
 			'newspack-newsletters.latest-stable',
 		] ),
 	] );
-	runWp( [ 'plugin', 'activate', 'connector-for-newspack-newsletters-and-listmonk' ] );
+	runWp( [ 'plugin', 'activate', 'wp-typia-newsletter-connector' ] );
 	runWp( [
 		'option',
 		'update',
@@ -423,11 +423,16 @@ test.describe( 'Listmonk editor panel', () => {
 		await page.goto( fixture.editPath );
 		await prepareEditorUi( page );
 
-		const panel = page.locator( '.connector-for-newspack-newsletters-and-listmonk-panel' );
+		const panel = page.locator( '.wp-typia-newsletter-connector-panel' );
 		await expect( panel ).toBeVisible();
+		const listSelect = panel.getByLabel( 'List', { exact: true } );
+		if ( ! ( await listSelect.isVisible().catch( () => false ) ) ) {
+			await panel.getByRole( 'button', { name: /^Listmonk$/ } ).click();
+		}
+		await expect( listSelect ).toBeVisible();
 
 		const analyticsSection = panel.locator(
-			'.connector-for-newspack-newsletters-and-listmonk-panel__analytics'
+			'.wp-typia-newsletter-connector-panel__analytics'
 		);
 		await expect(
 			analyticsSection.getByText( 'Analytics', { exact: true } )
@@ -436,11 +441,6 @@ test.describe( 'Listmonk editor panel', () => {
 			analyticsSection.getByText( 'Sync to Listmonk to view analytics.' )
 		).toBeVisible();
 
-		const listSelect = panel.getByLabel( 'List', { exact: true } );
-		if ( ! ( await listSelect.isVisible().catch( () => false ) ) ) {
-			await page.getByRole( 'button', { name: /^Listmonk$/ } ).click();
-		}
-		await expect( listSelect ).toBeVisible();
 		await listSelect.selectOption( fixture.listId );
 		await expect( listSelect ).toHaveValue( fixture.listId );
 
@@ -448,14 +448,14 @@ test.describe( 'Listmonk editor panel', () => {
 		await expect(
 			panel
 				.locator(
-					'.connector-for-newspack-newsletters-and-listmonk-panel__merge-tags code'
+					'.wp-typia-newsletter-connector-panel__merge-tags code'
 				)
 				.filter( { hasText: '{{ UnsubscribeURL }}' } )
 		).toBeVisible();
 		await expect(
 			panel
 				.locator(
-					'.connector-for-newspack-newsletters-and-listmonk-panel__merge-tags code'
+					'.wp-typia-newsletter-connector-panel__merge-tags code'
 				)
 				.filter( { hasText: '{{ TrackView }}' } )
 		).toBeVisible();
@@ -472,7 +472,7 @@ test.describe( 'Listmonk editor panel', () => {
 		);
 
 		const syncButton = panel
-			.locator( '.connector-for-newspack-newsletters-and-listmonk-panel__actions button' )
+			.locator( '.wp-typia-newsletter-connector-panel__actions button' )
 			.filter( { hasText: /^Sync$/ } );
 		await syncButton.scrollIntoViewIfNeeded();
 		await expect( syncButton ).toBeEnabled();
@@ -485,7 +485,7 @@ test.describe( 'Listmonk editor panel', () => {
 		).toBeVisible();
 		await expect(
 			panel
-				.locator( '.connector-for-newspack-newsletters-and-listmonk-panel__status strong' )
+				.locator( '.wp-typia-newsletter-connector-panel__status strong' )
 				.first()
 		).toHaveText( /\d+/ );
 		await expect( panel.getByText( 'draft' ) ).toBeVisible();
@@ -511,7 +511,7 @@ test.describe( 'Listmonk editor panel', () => {
 			await expect(
 				analyticsSection
 					.locator(
-						'.connector-for-newspack-newsletters-and-listmonk-panel__analytics-metric'
+						'.wp-typia-newsletter-connector-panel__analytics-metric'
 					)
 					.filter( { hasText: metric } )
 			).toBeVisible();
@@ -545,13 +545,15 @@ test.describe( 'Listmonk editor panel', () => {
 
 		await expect( page.getByText( 'Configure plugin' ) ).toHaveCount( 0 );
 
-		const panel = page.locator( '.connector-for-newspack-newsletters-and-listmonk-panel' );
+		const panel = page.locator( '.wp-typia-newsletter-connector-panel' );
 		await expect( panel ).toBeVisible();
-		await expect(
-			panel.getByText(
-				'Configure Listmonk settings before syncing newsletters.'
-			)
-		).toBeVisible();
+		const configurationNotice = panel.getByText(
+			'Configure Listmonk settings before syncing newsletters.'
+		);
+		if ( ! ( await configurationNotice.isVisible().catch( () => false ) ) ) {
+			await panel.getByRole( 'button', { name: /^Listmonk$/ } ).click();
+		}
+		await expect( configurationNotice ).toBeVisible();
 		await expect(
 			panel.getByText( 'Open Listmonk settings' )
 		).toBeVisible();

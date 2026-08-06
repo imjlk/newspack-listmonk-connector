@@ -139,7 +139,7 @@ function createFixture(): Fixture {
 		send_mode: 'campaign',
 	};
 
-	runWp( [ 'plugin', 'activate', 'connector-for-newspack-newsletters-and-listmonk' ] );
+	runWp( [ 'plugin', 'activate', 'wp-typia-newsletter-connector' ] );
 
 	const php = `
 $settings = json_decode( ${ phpString( JSON.stringify( settings ) ) }, true );
@@ -163,7 +163,7 @@ echo wp_json_encode( array( 'ok' => true ), JSON_PRETTY_PRINT ) . PHP_EOL;
 		defaultListIds: listIds.join( ', ' ),
 		optionToken: settings.api_token,
 		settingsPath:
-			'/wp-admin/options-general.php?page=connector-for-newspack-newsletters-and-listmonk',
+			'/wp-admin/options-general.php?page=wp-typia-newsletter-connector',
 	};
 }
 
@@ -205,7 +205,7 @@ test.describe( 'Listmonk settings screen', () => {
 		await page.goto( fixture.settingsPath );
 
 		const settings = page.locator(
-			'.connector-for-newspack-newsletters-and-listmonk-settings'
+			'.wp-typia-newsletter-connector-settings'
 		);
 		await expect( settings ).toBeVisible();
 

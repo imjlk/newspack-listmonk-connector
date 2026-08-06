@@ -17,7 +17,7 @@ export const createNewsletterSyncResourceEndpoint = createEndpoint<
   authMode: 'authenticated-rest-nonce',
   method: 'POST',
   operationId: 'createNewsletterSyncResource',
-  path: '/connector-for-newspack-newsletters-and-listmonk/v1/newsletter-sync',
+  path: '/wp-typia-newsletter-connector/v1/newsletter-sync',
   requestLocation: 'body',
   validateRequest: apiValidators.createRequest,
   validateResponse: apiValidators.createResponse,

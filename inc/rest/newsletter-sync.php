@@ -76,7 +76,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_sync_validate_re
 	function newspack_listmonk_connector_newsletter_sync_validate_rest_resource_payload( $value, $schema_name, $param_name ) {
 		$schema = newspack_listmonk_connector_newsletter_sync_load_rest_resource_schema( $schema_name );
 		if ( ! is_array( $schema ) ) {
-			return new WP_Error( 'missing_schema', __( 'Missing REST schema.', 'connector-for-newspack-newsletters-and-listmonk' ), array( 'status' => 500 ) );
+			return new WP_Error( 'missing_schema', __( 'Missing REST schema.', 'wp-typia-newsletter-connector' ), array( 'status' => 500 ) );
 		}
 
 		$rest_schema = newspack_listmonk_connector_newsletter_sync_sanitize_rest_resource_schema( $schema );
@@ -110,7 +110,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_sync_get_provide
 		if ( ! class_exists( 'Newspack_Newsletters' ) ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_newspack_missing',
-				__( 'Newspack Newsletters is not available.', 'connector-for-newspack-newsletters-and-listmonk' ),
+				__( 'Newspack Newsletters is not available.', 'wp-typia-newsletter-connector' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -118,7 +118,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_sync_get_provide
 		if ( 'listmonk' !== newspack_listmonk_connector_newspack_service_provider() ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_inactive_provider',
-				__( 'Listmonk is not the active Newspack Newsletters provider.', 'connector-for-newspack-newsletters-and-listmonk' ),
+				__( 'Listmonk is not the active Newspack Newsletters provider.', 'wp-typia-newsletter-connector' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -127,7 +127,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_sync_get_provide
 		if ( ! $provider instanceof Newspack_Listmonk_Connector_Provider ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_provider',
-				__( 'The Listmonk provider is not available.', 'connector-for-newspack-newsletters-and-listmonk' ),
+				__( 'The Listmonk provider is not available.', 'wp-typia-newsletter-connector' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -149,7 +149,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_sync_build_respo
 		if ( ! $post instanceof WP_Post ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_post',
-				__( 'Newsletter post not found.', 'connector-for-newspack-newsletters-and-listmonk' ),
+				__( 'Newsletter post not found.', 'wp-typia-newsletter-connector' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -157,7 +157,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_sync_build_respo
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_forbidden',
-				__( 'You are not allowed to sync this newsletter.', 'connector-for-newspack-newsletters-and-listmonk' ),
+				__( 'You are not allowed to sync this newsletter.', 'wp-typia-newsletter-connector' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -171,7 +171,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_sync_build_respo
 		if ( $retry_send && ! in_array( $post->post_status, array( 'publish', 'future' ), true ) ) {
 			return new WP_Error(
 				'newspack_listmonk_connector_invalid_retry_status',
-				__( 'Only published or scheduled newsletters can retry a Listmonk send.', 'connector-for-newspack-newsletters-and-listmonk' ),
+				__( 'Only published or scheduled newsletters can retry a Listmonk send.', 'wp-typia-newsletter-connector' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -199,7 +199,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_sync_build_respo
 
 		return array(
 			'postId'               => $post_id,
-			'message'              => $retry_send ? __( 'Listmonk send retried.', 'connector-for-newspack-newsletters-and-listmonk' ) : __( 'Newsletter synced to Listmonk.', 'connector-for-newspack-newsletters-and-listmonk' ),
+			'message'              => $retry_send ? __( 'Listmonk send retried.', 'wp-typia-newsletter-connector' ) : __( 'Newsletter synced to Listmonk.', 'wp-typia-newsletter-connector' ),
 			'campaignId'           => $campaign_id,
 			'listmonkCampaignId'   => $campaign_id,
 			'listmonkCampaignUuid' => (string) ( $retrieve['listmonk_campaign_uuid'] ?? '' ),
@@ -235,7 +235,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_newsletter_sync_register_re
 	 */
 	function newspack_listmonk_connector_newsletter_sync_register_rest_routes() {
 		register_rest_route(
-			'connector-for-newspack-newsletters-and-listmonk/v1',
+			'wp-typia-newsletter-connector/v1',
 			'/newsletter-sync',
 			array(
 				array(

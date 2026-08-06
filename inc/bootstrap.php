@@ -29,7 +29,7 @@ function newspack_listmonk_connector_register_provider( array $providers ) {
 	}
 
 	$providers['listmonk'] = array(
-		'name'       => __( 'Listmonk', 'connector-for-newspack-newsletters-and-listmonk' ),
+		'name'       => __( 'Listmonk', 'wp-typia-newsletter-connector' ),
 		'class'      => 'Newspack_Listmonk_Connector_Provider',
 		'class_file' => NEWSPACK_LISTMONK_CONNECTOR_DIR . '/inc/provider/class-listmonk-provider.php',
 	);

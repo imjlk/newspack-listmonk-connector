@@ -213,8 +213,8 @@ jobs:
           command: publish
           create-github-release: true
           release-assets: >-
-            artifacts/connector-for-newspack-newsletters-and-listmonk-{{version}}-wporg.zip
-            => connector-for-newspack-newsletters-and-listmonk-{{version}}.zip
+            artifacts/wp-typia-newsletter-connector-{{version}}-wporg.zip
+            => wp-typia-newsletter-connector-{{version}}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SAMPO_RELEASE_BRANCH: main
@@ -226,8 +226,8 @@ jobs:
           env.SVN_PASSWORD != ''
         uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2
         env:
-          BUILD_DIR: artifacts/wporg-release/connector-for-newspack-newsletters-and-listmonk
-          SLUG: connector-for-newspack-newsletters-and-listmonk
+          BUILD_DIR: artifacts/wporg-release/wp-typia-newsletter-connector
+          SLUG: wp-typia-newsletter-connector
           SVN_USERNAME: ${{ env.SVN_USERNAME }}
           SVN_PASSWORD: ${{ env.SVN_PASSWORD }}
           VERSION: ${{ steps.version.outputs.value }}

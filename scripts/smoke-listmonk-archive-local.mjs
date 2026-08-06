@@ -51,7 +51,7 @@ const settings = {
 	send_mode: 'campaign',
 };
 
-const connectorSlug = 'connector-for-newspack-newsletters-and-listmonk';
+const connectorSlug = 'wp-typia-newsletter-connector';
 const newspackSlug = resolvePluginSlug([
 	'newspack-newsletters',
 	'newspack-newsletters.latest-stable',

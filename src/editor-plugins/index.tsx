@@ -98,11 +98,11 @@ type WindowWithNewspack = typeof window & {
 
 const LISTMONK_MERGE_TAG_HELPERS = [
 	{
-		label: __( 'Unsubscribe URL', 'connector-for-newspack-newsletters-and-listmonk' ),
+		label: __( 'Unsubscribe URL', 'wp-typia-newsletter-connector' ),
 		tag: '{{ UnsubscribeURL }}',
 	},
 	{
-		label: __( 'Open tracking pixel', 'connector-for-newspack-newsletters-and-listmonk' ),
+		label: __( 'Open tracking pixel', 'wp-typia-newsletter-connector' ),
 		tag: '{{ TrackView }}',
 	},
 ];
@@ -196,7 +196,7 @@ function getErrorMessage( error: unknown ): string {
 		}
 	}
 
-	return __( 'Something went wrong.', 'connector-for-newspack-newsletters-and-listmonk' );
+	return __( 'Something went wrong.', 'wp-typia-newsletter-connector' );
 }
 
 function unwrapEndpointData< Req, Res >(
@@ -212,7 +212,7 @@ function unwrapEndpointData< Req, Res >(
 			? `${ firstError.path }: ${ firstError.expected }`
 			: __(
 					'The REST response failed validation.',
-					'connector-for-newspack-newsletters-and-listmonk'
+					'wp-typia-newsletter-connector'
 			  )
 	);
 }
@@ -282,7 +282,7 @@ function renderAnalyticsMetric( label: string, value: number | undefined ) {
 	return createElement(
 		'div',
 		{
-			className: 'connector-for-newspack-newsletters-and-listmonk-panel__analytics-metric',
+			className: 'wp-typia-newsletter-connector-panel__analytics-metric',
 			key: label,
 		},
 		createElement( 'span', null, label ),
@@ -327,22 +327,22 @@ function renderMergeTagHelpers() {
 	return createElement(
 		'div',
 		{
-			className: 'connector-for-newspack-newsletters-and-listmonk-panel__merge-tags',
+			className: 'wp-typia-newsletter-connector-panel__merge-tags',
 			key: 'merge-tags',
 		},
 		createElement(
 			'div',
 			{
 				className:
-					'connector-for-newspack-newsletters-and-listmonk-panel__merge-tags-title',
+					'wp-typia-newsletter-connector-panel__merge-tags-title',
 			},
-			__( 'Listmonk merge tags', 'connector-for-newspack-newsletters-and-listmonk' )
+			__( 'Listmonk merge tags', 'wp-typia-newsletter-connector' )
 		),
 		LISTMONK_MERGE_TAG_HELPERS.map( ( helper ) =>
 			createElement(
 				'div',
 				{
-					className: 'connector-for-newspack-newsletters-and-listmonk-panel__merge-tag',
+					className: 'wp-typia-newsletter-connector-panel__merge-tag',
 					key: helper.tag,
 				},
 				createElement( 'span', null, helper.label ),
@@ -419,7 +419,7 @@ function ListmonkPanel() {
 			{
 				label: __(
 					'Select a Listmonk list',
-					'connector-for-newspack-newsletters-and-listmonk'
+					'wp-typia-newsletter-connector'
 				),
 				value: '',
 			},
@@ -685,7 +685,7 @@ function ListmonkPanel() {
 		if ( ! editorData.postId || ! testEmail.trim() ) {
 			const message = __(
 				'Enter at least one test email address.',
-				'connector-for-newspack-newsletters-and-listmonk'
+				'wp-typia-newsletter-connector'
 			);
 			setErrorMessage( message );
 			createErrorNotice?.( message, { type: 'snackbar' } );
@@ -733,7 +733,7 @@ function ListmonkPanel() {
 						{ key: 'message' },
 						__(
 							'Configure Listmonk settings before syncing newsletters.',
-							'connector-for-newspack-newsletters-and-listmonk'
+							'wp-typia-newsletter-connector'
 						)
 					),
 					settingsUrl
@@ -746,7 +746,7 @@ function ListmonkPanel() {
 								},
 								__(
 									'Open Listmonk settings',
-									'connector-for-newspack-newsletters-and-listmonk'
+									'wp-typia-newsletter-connector'
 								)
 						  )
 						: null,
@@ -754,9 +754,9 @@ function ListmonkPanel() {
 				isDismissible: false,
 				status: 'warning',
 			} ),
-			className: 'connector-for-newspack-newsletters-and-listmonk-panel',
-			name: 'connector-for-newspack-newsletters-and-listmonk',
-			title: __( 'Listmonk', 'connector-for-newspack-newsletters-and-listmonk' ),
+			className: 'wp-typia-newsletter-connector-panel',
+			name: 'wp-typia-newsletter-connector',
+			title: __( 'Listmonk', 'wp-typia-newsletter-connector' ),
 		} );
 	}
 
@@ -788,7 +788,7 @@ function ListmonkPanel() {
 			createElement(
 				'div',
 				{
-					className: 'connector-for-newspack-newsletters-and-listmonk-panel__status',
+					className: 'wp-typia-newsletter-connector-panel__status',
 					key: 'status',
 				},
 				createElement(
@@ -797,7 +797,7 @@ function ListmonkPanel() {
 					createElement(
 						'span',
 						null,
-						__( 'Campaign', 'connector-for-newspack-newsletters-and-listmonk' )
+						__( 'Campaign', 'wp-typia-newsletter-connector' )
 					),
 					createElement( 'strong', null, campaignId || '-' )
 				),
@@ -807,7 +807,7 @@ function ListmonkPanel() {
 					createElement(
 						'span',
 						null,
-						__( 'Status', 'connector-for-newspack-newsletters-and-listmonk' )
+						__( 'Status', 'wp-typia-newsletter-connector' )
 					),
 					createElement( 'strong', null, lastStatus || '-' )
 				),
@@ -817,7 +817,7 @@ function ListmonkPanel() {
 					createElement(
 						'span',
 						null,
-						__( 'Last sync', 'connector-for-newspack-newsletters-and-listmonk' )
+						__( 'Last sync', 'wp-typia-newsletter-connector' )
 					),
 					createElement(
 						'strong',
@@ -847,7 +847,7 @@ function ListmonkPanel() {
 										},
 										__(
 											'Retry send',
-											'connector-for-newspack-newsletters-and-listmonk'
+											'wp-typia-newsletter-connector'
 										)
 								  )
 								: null,
@@ -860,19 +860,19 @@ function ListmonkPanel() {
 			createElement(
 				'div',
 				{
-					className: 'connector-for-newspack-newsletters-and-listmonk-panel__analytics',
+					className: 'wp-typia-newsletter-connector-panel__analytics',
 					key: 'analytics',
 				},
 				createElement(
 					'div',
 					{
 						className:
-							'connector-for-newspack-newsletters-and-listmonk-panel__analytics-header',
+							'wp-typia-newsletter-connector-panel__analytics-header',
 					},
 					createElement(
 						'strong',
 						null,
-						__( 'Analytics', 'connector-for-newspack-newsletters-and-listmonk' )
+						__( 'Analytics', 'wp-typia-newsletter-connector' )
 					),
 					isLoadingAnalytics ? createElement( Spinner ) : null
 				),
@@ -881,11 +881,11 @@ function ListmonkPanel() {
 							'p',
 							{
 								className:
-									'connector-for-newspack-newsletters-and-listmonk-panel__muted',
+									'wp-typia-newsletter-connector-panel__muted',
 							},
 							__(
 								'Sync to Listmonk to view analytics.',
-								'connector-for-newspack-newsletters-and-listmonk'
+								'wp-typia-newsletter-connector'
 							)
 					  )
 					: [
@@ -901,14 +901,14 @@ function ListmonkPanel() {
 								'div',
 								{
 									className:
-										'connector-for-newspack-newsletters-and-listmonk-panel__analytics-range',
+										'wp-typia-newsletter-connector-panel__analytics-range',
 									key: 'analytics-range',
 								},
 								createElement( TextControl, {
 									disabled: isBusy || isLoadingAnalytics,
 									label: __(
 										'From',
-										'connector-for-newspack-newsletters-and-listmonk'
+										'wp-typia-newsletter-connector'
 									),
 									onChange: setAnalyticsRangeFrom,
 									type: 'date',
@@ -918,7 +918,7 @@ function ListmonkPanel() {
 									disabled: isBusy || isLoadingAnalytics,
 									label: __(
 										'To',
-										'connector-for-newspack-newsletters-and-listmonk'
+										'wp-typia-newsletter-connector'
 									),
 									onChange: setAnalyticsRangeTo,
 									type: 'date',
@@ -929,7 +929,7 @@ function ListmonkPanel() {
 								Button,
 								{
 									className:
-										'connector-for-newspack-newsletters-and-listmonk-panel__full-button',
+										'wp-typia-newsletter-connector-panel__full-button',
 									disabled:
 										isBusy ||
 										isLoadingAnalytics ||
@@ -942,49 +942,49 @@ function ListmonkPanel() {
 								},
 								__(
 									'Refresh analytics',
-									'connector-for-newspack-newsletters-and-listmonk'
+									'wp-typia-newsletter-connector'
 								)
 							),
 							createElement(
 								'div',
 								{
 									className:
-										'connector-for-newspack-newsletters-and-listmonk-panel__analytics-metrics',
+										'wp-typia-newsletter-connector-panel__analytics-metrics',
 									key: 'analytics-metrics',
 								},
 								[
 									renderAnalyticsMetric(
 										__(
 											'Sent',
-											'connector-for-newspack-newsletters-and-listmonk'
+											'wp-typia-newsletter-connector'
 										),
 										analyticsTotals.sent
 									),
 									renderAnalyticsMetric(
 										__(
 											'To send',
-											'connector-for-newspack-newsletters-and-listmonk'
+											'wp-typia-newsletter-connector'
 										),
 										analyticsTotals.toSend
 									),
 									renderAnalyticsMetric(
 										__(
 											'Views',
-											'connector-for-newspack-newsletters-and-listmonk'
+											'wp-typia-newsletter-connector'
 										),
 										analyticsTotals.views
 									),
 									renderAnalyticsMetric(
 										__(
 											'Clicks',
-											'connector-for-newspack-newsletters-and-listmonk'
+											'wp-typia-newsletter-connector'
 										),
 										analyticsTotals.clicks
 									),
 									renderAnalyticsMetric(
 										__(
 											'Bounces',
-											'connector-for-newspack-newsletters-and-listmonk'
+											'wp-typia-newsletter-connector'
 										),
 										analyticsTotals.bounces
 									),
@@ -994,18 +994,18 @@ function ListmonkPanel() {
 								'div',
 								{
 									className:
-										'connector-for-newspack-newsletters-and-listmonk-panel__analytics-links',
+										'wp-typia-newsletter-connector-panel__analytics-links',
 									key: 'analytics-links',
 								},
 								createElement(
 									'div',
 									{
 										className:
-											'connector-for-newspack-newsletters-and-listmonk-panel__analytics-subtitle',
+											'wp-typia-newsletter-connector-panel__analytics-subtitle',
 									},
 									__(
 										'Top links',
-										'connector-for-newspack-newsletters-and-listmonk'
+										'wp-typia-newsletter-connector'
 									)
 								),
 								topAnalyticsLinks.length > 0
@@ -1014,7 +1014,7 @@ function ListmonkPanel() {
 												'div',
 												{
 													className:
-														'connector-for-newspack-newsletters-and-listmonk-panel__analytics-link',
+														'wp-typia-newsletter-connector-panel__analytics-link',
 													key: `${ link.url }-${ index }`,
 												},
 												createElement(
@@ -1033,11 +1033,11 @@ function ListmonkPanel() {
 											'p',
 											{
 												className:
-													'connector-for-newspack-newsletters-and-listmonk-panel__muted',
+													'wp-typia-newsletter-connector-panel__muted',
 											},
 											__(
 												'No tracked links for this range.',
-												'connector-for-newspack-newsletters-and-listmonk'
+												'wp-typia-newsletter-connector'
 											)
 									  )
 							),
@@ -1046,12 +1046,12 @@ function ListmonkPanel() {
 										'p',
 										{
 											className:
-												'connector-for-newspack-newsletters-and-listmonk-panel__muted',
+												'wp-typia-newsletter-connector-panel__muted',
 											key: 'analytics-checked-at',
 										},
 										`${ __(
 											'Checked',
-											'connector-for-newspack-newsletters-and-listmonk'
+											'wp-typia-newsletter-connector'
 										) } ${ analytics.checkedAt }`
 								  )
 								: null,
@@ -1060,7 +1060,7 @@ function ListmonkPanel() {
 			createElement( SelectControl, {
 				disabled: isBusy || listOptions.length <= 1,
 				key: 'list',
-				label: __( 'List', 'connector-for-newspack-newsletters-and-listmonk' ),
+				label: __( 'List', 'wp-typia-newsletter-connector' ),
 				onChange: handleListChange,
 				options: listOptions,
 				value: selectedListId,
@@ -1068,7 +1068,7 @@ function ListmonkPanel() {
 			createElement(
 				'div',
 				{
-					className: 'connector-for-newspack-newsletters-and-listmonk-panel__actions',
+					className: 'wp-typia-newsletter-connector-panel__actions',
 					key: 'actions',
 				},
 				createElement(
@@ -1082,7 +1082,7 @@ function ListmonkPanel() {
 						},
 						variant: 'secondary',
 					},
-					__( 'Refresh', 'connector-for-newspack-newsletters-and-listmonk' )
+					__( 'Refresh', 'wp-typia-newsletter-connector' )
 				),
 				createElement(
 					Button,
@@ -1092,27 +1092,27 @@ function ListmonkPanel() {
 						onClick: () => void handleSync(),
 						variant: 'primary',
 					},
-					__( 'Sync', 'connector-for-newspack-newsletters-and-listmonk' )
+					__( 'Sync', 'wp-typia-newsletter-connector' )
 				)
 			),
 			createElement( TextControl, {
 				disabled: isBusy,
 				key: 'test-email',
-				label: __( 'Test email', 'connector-for-newspack-newsletters-and-listmonk' ),
+				label: __( 'Test email', 'wp-typia-newsletter-connector' ),
 				onChange: setTestEmail,
 				value: testEmail,
 			} ),
 			createElement(
 				Button,
 				{
-					className: 'connector-for-newspack-newsletters-and-listmonk-panel__full-button',
+					className: 'wp-typia-newsletter-connector-panel__full-button',
 					disabled: isBusy || ! testEmail.trim(),
 					isBusy: isTesting,
 					key: 'send-test',
 					onClick: () => void handleSendTest(),
 					variant: 'secondary',
 				},
-				__( 'Send test', 'connector-for-newspack-newsletters-and-listmonk' )
+				__( 'Send test', 'wp-typia-newsletter-connector' )
 			),
 			renderMergeTagHelpers(),
 			isLoading || isPreviewing
@@ -1120,7 +1120,7 @@ function ListmonkPanel() {
 						'div',
 						{
 							className:
-								'connector-for-newspack-newsletters-and-listmonk-panel__loading',
+								'wp-typia-newsletter-connector-panel__loading',
 							key: 'loading',
 						},
 						createElement( Spinner )
@@ -1129,7 +1129,7 @@ function ListmonkPanel() {
 			createElement( TextareaControl, {
 				disabled: true,
 				key: 'raw-html',
-				label: __( 'Raw HTML preview', 'connector-for-newspack-newsletters-and-listmonk' ),
+				label: __( 'Raw HTML preview', 'wp-typia-newsletter-connector' ),
 				onChange: () => {},
 				rows: 8,
 				value: preview?.rawHtml || '',
@@ -1137,18 +1137,18 @@ function ListmonkPanel() {
 			createElement( TextareaControl, {
 				disabled: true,
 				key: 'payload',
-				label: __( 'Listmonk payload', 'connector-for-newspack-newsletters-and-listmonk' ),
+				label: __( 'Listmonk payload', 'wp-typia-newsletter-connector' ),
 				onChange: () => {},
 				rows: 8,
 				value: payloadPreview,
 			} ),
 		],
-		className: 'connector-for-newspack-newsletters-and-listmonk-panel',
-		name: 'connector-for-newspack-newsletters-and-listmonk',
-		title: __( 'Listmonk', 'connector-for-newspack-newsletters-and-listmonk' ),
+		className: 'wp-typia-newsletter-connector-panel',
+		name: 'wp-typia-newsletter-connector',
+		title: __( 'Listmonk', 'wp-typia-newsletter-connector' ),
 	} );
 }
 
-registerPlugin( 'connector-for-newspack-newsletters-and-listmonk', {
+registerPlugin( 'wp-typia-newsletter-connector', {
 	render: ListmonkPanel,
 } );

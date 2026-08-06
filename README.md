@@ -1,9 +1,19 @@
-# Connector for Newspack Newsletters and Listmonk
+# WP Typia Connector for Newspack Newsletters with Listmonk
 
 Newspack Newsletters companion ESP provider for Listmonk campaign delivery.
 
-This plugin was scaffolded with the published `wp-typia` CLI and keeps the
-settings, preview, editor sync, and analytics REST contracts in TypeScript:
+## Built with wp-typia
+
+This plugin was scaffolded as a
+[`wp-typia`](https://github.com/imjlk/wp-typia) workspace and continues to use
+wp-typia packages and synchronization tooling for block metadata, typed REST
+contracts, generated schemas, and build consistency. The wp-typia project is
+maintained by this plugin's author.
+
+The plugin also builds on the WordPress Block Editor and Interactivity API,
+Newspack Newsletters provider APIs, and the Listmonk REST API. Its settings,
+preview, editor sync, and analytics REST contracts remain defined in
+TypeScript:
 
 - `src/types.ts`
 - `src/rest/listmonk-settings/api-types.ts`
@@ -58,7 +68,7 @@ define( 'NEWSPACK_LISTMONK_CONNECTOR_API_TOKEN', 'token' );
 Namespace:
 
 ```text
-connector-for-newspack-newsletters-and-listmonk/v1
+wp-typia-newsletter-connector/v1
 ```
 
 Routes:
@@ -92,18 +102,16 @@ pnpm run review:plugin-check
 ```
 
 The beta zip is written to
-`artifacts/connector-for-newspack-newsletters-and-listmonk-<version>.zip`. See
-[docs/SETUP.md](docs/SETUP.md) and
-[docs/STAGING-CHECKLIST.md](docs/STAGING-CHECKLIST.md) for staging validation.
+`artifacts/wp-typia-newsletter-connector-<version>.zip`. See
+[docs/SETUP.md](docs/SETUP.md) for setup and validation guidance.
 The WordPress.org source zip is written to
-`artifacts/connector-for-newspack-newsletters-and-listmonk-<version>-wporg.zip`.
+`artifacts/wp-typia-newsletter-connector-<version>-wporg.zip`.
 Changeset-driven release PRs, GitHub releases, and optional WordPress.org SVN
 deployment are documented in [docs/RELEASING.md](docs/RELEASING.md).
 Webhook direction and bounce ownership are documented in
 [docs/WEBHOOK-POLICY.md](docs/WEBHOOK-POLICY.md).
 Privacy and uninstall behavior are documented in
-[docs/PRIVACY.md](docs/PRIVACY.md), and review checks are tracked in
-[docs/PLUGIN-REVIEW-CHECKLIST.md](docs/PLUGIN-REVIEW-CHECKLIST.md).
+[docs/PRIVACY.md](docs/PRIVACY.md).
 
 ## Integration Smoke Tests
 

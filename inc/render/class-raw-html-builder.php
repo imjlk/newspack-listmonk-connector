@@ -128,7 +128,7 @@ class Newspack_Listmonk_Connector_Raw_HTML_Builder {
 	 * @return string
 	 */
 	private function get_unsubscribe_footer_html( WP_Post $post, array $context ) {
-		$footer = '<footer class="connector-for-newspack-newsletters-and-listmonk-unsubscribe-footer" style="border-top: 1px solid #dcdcde; color: #646970; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.5; margin-top: 32px; padding-top: 16px; text-align: center;"><p style="margin: 0;"><a href="{{ UnsubscribeURL }}" style="color: #646970; text-decoration: underline;">Unsubscribe or manage preferences</a></p></footer>';
+		$footer = '<footer class="wp-typia-newsletter-connector-unsubscribe-footer" style="border-top: 1px solid #dcdcde; color: #646970; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.5; margin-top: 32px; padding-top: 16px; text-align: center;"><p style="margin: 0;"><a href="{{ UnsubscribeURL }}" style="color: #646970; text-decoration: underline;">Unsubscribe or manage preferences</a></p></footer>';
 
 		/**
 		 * Filter the default Listmonk unsubscribe footer HTML.

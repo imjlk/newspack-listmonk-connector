@@ -76,7 +76,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_listmonk_settings_validate_
 	function newspack_listmonk_connector_listmonk_settings_validate_rest_resource_payload( $value, $schema_name, $param_name ) {
 		$schema = newspack_listmonk_connector_listmonk_settings_load_rest_resource_schema( $schema_name );
 		if ( ! is_array( $schema ) ) {
-			return new WP_Error( 'missing_schema', __( 'Missing REST schema.', 'connector-for-newspack-newsletters-and-listmonk' ), array( 'status' => 500 ) );
+			return new WP_Error( 'missing_schema', __( 'Missing REST schema.', 'wp-typia-newsletter-connector' ), array( 'status' => 500 ) );
 		}
 
 		$rest_schema = newspack_listmonk_connector_listmonk_settings_sanitize_rest_resource_schema( $schema );
@@ -153,7 +153,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_listmonk_settings_handle_cr
 			$result = ( new Newspack_Listmonk_Connector_Listmonk_Client() )->test_connection();
 			$response['connection'] = array(
 				'ok'        => ! is_wp_error( $result ),
-				'message'   => is_wp_error( $result ) ? $result->get_error_message() : __( 'Listmonk connection succeeded.', 'connector-for-newspack-newsletters-and-listmonk' ),
+				'message'   => is_wp_error( $result ) ? $result->get_error_message() : __( 'Listmonk connection succeeded.', 'wp-typia-newsletter-connector' ),
 				'checkedAt' => gmdate( 'c' ),
 			);
 		}
@@ -167,7 +167,7 @@ if ( ! function_exists( 'newspack_listmonk_connector_listmonk_settings_register_
 	 * Register routes.
 	 */
 	function newspack_listmonk_connector_listmonk_settings_register_rest_routes() {
-		$namespace = 'connector-for-newspack-newsletters-and-listmonk/v1';
+		$namespace = 'wp-typia-newsletter-connector/v1';
 
 		register_rest_route(
 			$namespace,

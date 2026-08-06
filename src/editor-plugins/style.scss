@@ -1,4 +1,4 @@
-.connector-for-newspack-newsletters-and-listmonk-panel {
+.wp-typia-newsletter-connector-panel {
 
 	.components-notice {
 		margin: 0 0 12px;
@@ -9,7 +9,7 @@
 	}
 }
 
-.connector-for-newspack-newsletters-and-listmonk-panel__status {
+.wp-typia-newsletter-connector-panel__status {
 	border: 1px solid #dcdcde;
 	margin-bottom: 16px;
 
@@ -39,7 +39,7 @@
 	}
 }
 
-.connector-for-newspack-newsletters-and-listmonk-panel__actions {
+.wp-typia-newsletter-connector-panel__actions {
 	display: grid;
 	gap: 8px;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -51,13 +51,13 @@
 	}
 }
 
-.connector-for-newspack-newsletters-and-listmonk-panel__full-button {
+.wp-typia-newsletter-connector-panel__full-button {
 	justify-content: center;
 	margin-bottom: 16px;
 	width: 100%;
 }
 
-.connector-for-newspack-newsletters-and-listmonk-panel__analytics {
+.wp-typia-newsletter-connector-panel__analytics {
 	border: 1px solid #dcdcde;
 	margin-bottom: 16px;
 	padding: 10px;
@@ -67,7 +67,7 @@
 	}
 }
 
-.connector-for-newspack-newsletters-and-listmonk-panel__analytics-header {
+.wp-typia-newsletter-connector-panel__analytics-header {
 	align-items: center;
 	display: flex;
 	justify-content: space-between;
@@ -84,21 +84,21 @@
 	}
 }
 
-.connector-for-newspack-newsletters-and-listmonk-panel__analytics-range {
+.wp-typia-newsletter-connector-panel__analytics-range {
 	display: grid;
 	gap: 8px;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	margin-bottom: 12px;
 }
 
-.connector-for-newspack-newsletters-and-listmonk-panel__analytics-metrics {
+.wp-typia-newsletter-connector-panel__analytics-metrics {
 	display: grid;
 	gap: 8px;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	margin-bottom: 12px;
 }
 
-.connector-for-newspack-newsletters-and-listmonk-panel__analytics-metric {
+.wp-typia-newsletter-connector-panel__analytics-metric {
 	background: #f6f7f7;
 	border: 1px solid #dcdcde;
 	padding: 8px;
@@ -121,20 +121,20 @@
 	}
 }
 
-.connector-for-newspack-newsletters-and-listmonk-panel__analytics-subtitle {
+.wp-typia-newsletter-connector-panel__analytics-subtitle {
 	color: #1e1e1e;
 	font-weight: 600;
 	margin-bottom: 8px;
 }
 
-.connector-for-newspack-newsletters-and-listmonk-panel__analytics-link {
+.wp-typia-newsletter-connector-panel__analytics-link {
 	align-items: center;
 	display: grid;
 	gap: 8px;
 	grid-template-columns: minmax(0, 1fr) auto;
 	min-height: 28px;
 
-	+ .connector-for-newspack-newsletters-and-listmonk-panel__analytics-link {
+	+ .wp-typia-newsletter-connector-panel__analytics-link {
 		border-top: 1px solid #f0f0f0;
 		padding-top: 6px;
 	}
@@ -150,31 +150,31 @@
 	}
 }
 
-.connector-for-newspack-newsletters-and-listmonk-panel__muted {
+.wp-typia-newsletter-connector-panel__muted {
 	color: #646970;
 	margin: 0 0 12px;
 }
 
-.connector-for-newspack-newsletters-and-listmonk-panel__merge-tags {
+.wp-typia-newsletter-connector-panel__merge-tags {
 	border: 1px solid #dcdcde;
 	margin-bottom: 16px;
 	padding: 10px;
 }
 
-.connector-for-newspack-newsletters-and-listmonk-panel__merge-tags-title {
+.wp-typia-newsletter-connector-panel__merge-tags-title {
 	color: #1e1e1e;
 	font-weight: 600;
 	margin-bottom: 8px;
 }
 
-.connector-for-newspack-newsletters-and-listmonk-panel__merge-tag {
+.wp-typia-newsletter-connector-panel__merge-tag {
 	align-items: center;
 	display: flex;
 	gap: 8px;
 	justify-content: space-between;
 	min-height: 28px;
 
-	+ .connector-for-newspack-newsletters-and-listmonk-panel__merge-tag {
+	+ .wp-typia-newsletter-connector-panel__merge-tag {
 		border-top: 1px solid #f0f0f0;
 		padding-top: 6px;
 	}
@@ -194,7 +194,7 @@
 	}
 }
 
-.connector-for-newspack-newsletters-and-listmonk-panel__loading {
+.wp-typia-newsletter-connector-panel__loading {
 	align-items: center;
 	display: flex;
 	justify-content: center;

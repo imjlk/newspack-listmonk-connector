@@ -1,5 +1,5 @@
 {
-	"name": "connector-for-newspack-newsletters-and-listmonk",
+	"name": "wp-typia-newsletter-connector",
 	"version": "0.1.0",
 	"private": true,
 	"packageManager": "pnpm@8.3.1",
@@ -24,7 +24,7 @@
 		"env:stop": "wp-env stop",
 		"env:destroy": "wp-env destroy",
 		"env:cli": "wp-env run cli wp",
-		"composer:install": "wp-env run cli --env-cwd=wp-content/plugins/connector-for-newspack-newsletters-and-listmonk composer install --no-interaction",
+		"composer:install": "wp-env run cli --env-cwd=wp-content/plugins/wp-typia-newsletter-connector composer install --no-interaction",
 		"listmonk:start": "node scripts/listmonk-local.mjs start",
 		"listmonk:env": "node scripts/listmonk-local.mjs env",
 		"listmonk:logs": "node scripts/listmonk-local.mjs logs",
@@ -43,7 +43,7 @@
 		"e2e:publish-schedule:local": "pnpm run build && pnpm run listmonk:start && pnpm exec playwright install chromium && pnpm exec playwright test --config=playwright.config.js tests/e2e/editor-publish-schedule.spec.ts",
 		"e2e:settings:local": "pnpm run build && pnpm run listmonk:start && pnpm exec playwright install chromium && pnpm exec playwright test --config=playwright.config.js tests/e2e/settings-listmonk.spec.ts",
 		"e2e:visual:local": "pnpm run build && pnpm exec playwright install chromium && pnpm exec playwright test --config=playwright.config.js tests/e2e/render-visual.spec.ts",
-		"test:php": "pnpm run env:start && pnpm run composer:install && wp-env run tests-cli --env-cwd=wp-content/plugins/connector-for-newspack-newsletters-and-listmonk vendor/bin/phpunit",
+		"test:php": "pnpm run env:start && pnpm run composer:install && wp-env run tests-cli --env-cwd=wp-content/plugins/wp-typia-newsletter-connector vendor/bin/phpunit",
 		"typecheck": "pnpm run sync --check && tsc --noEmit",
 		"lint:js": "wp-scripts lint-js",
 		"lint:css": "wp-scripts lint-style --allow-empty-input",
@@ -53,8 +53,8 @@
 	"wpTypia": {
 		"projectType": "workspace",
 		"templatePackage": "@wp-typia/create-workspace-template",
-		"namespace": "connector-for-newspack-newsletters-and-listmonk",
-		"textDomain": "connector-for-newspack-newsletters-and-listmonk",
+		"namespace": "wp-typia-newsletter-connector",
+		"textDomain": "wp-typia-newsletter-connector",
 		"phpPrefix": "newspack_listmonk_connector"
 	},
 	"devDependencies": {
