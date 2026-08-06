@@ -18,6 +18,7 @@ const packageJson = JSON.parse(
 	fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8')
 );
 const pluginSlug = packageJson.name;
+const restNamespace = `${pluginSlug}/v1`;
 const version = packageJson.version;
 const zipPath = path.join(
 	rootDir,
@@ -274,7 +275,7 @@ async function saveConnectorSettings() {
 	};
 
 	const response = await wpRest(
-		'/wp-typia-newsletter-connector/v1/listmonk-settings',
+		`/${restNamespace}/listmonk-settings`,
 		{
 			body: payload,
 			method: 'POST',
@@ -296,7 +297,7 @@ async function saveConnectorSettings() {
 	}
 
 	const hydrated = await wpRest(
-		'/wp-typia-newsletter-connector/v1/listmonk-settings/item'
+		`/${restNamespace}/listmonk-settings/item`
 	);
 	if (!hydrated.hasApiToken) {
 		throw new Error('Hydrated settings do not confirm a stored API token.');
@@ -387,7 +388,7 @@ async function trashNewsletter(restBase, postId) {
 async function syncNewsletter(postId, providerSelectionAttempts) {
 	try {
 		const response = await wpRest(
-			'/wp-typia-newsletter-connector/v1/newsletter-sync',
+			`/${restNamespace}/newsletter-sync`,
 			{
 				body: {
 					postId,

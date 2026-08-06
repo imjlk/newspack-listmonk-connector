@@ -162,6 +162,9 @@ class Newspack_Listmonk_Connector_Listmonk_Client {
 		/**
 		 * Filters whether Listmonk requests may use plain HTTP.
 		 *
+		 * Warning: enabling this outside local or development environments transmits
+		 * the Listmonk Basic Auth credentials over an unencrypted connection.
+		 *
 		 * @param bool   $allowed Whether plain HTTP is allowed.
 		 * @param string $url     Request URL.
 		 */

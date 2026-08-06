@@ -15,9 +15,12 @@ function run( command, args ) {
 		throw result.error;
 	}
 
-	if ( result.status !== 0 ) {
+	if ( result.status !== 0 || result.signal ) {
+		const detail = result.signal
+			? `was terminated by signal ${ result.signal }`
+			: `failed with exit code ${ result.status }`;
 		throw new Error(
-			`${ command } ${ args.join( ' ' ) } failed with exit code ${ result.status }`
+			`${ command } ${ args.join( ' ' ) } ${ detail }`
 		);
 	}
 }

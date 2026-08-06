@@ -2,6 +2,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const rootDir = process.cwd();
 const checkOnly = process.argv.includes( '--check' );
@@ -31,7 +32,7 @@ function replaceSingle( content, pattern, replacement, label ) {
 	return content.replace( pattern, replacement );
 }
 
-function getReadmeChangelogEntry( changelog, version ) {
+export function getReadmeChangelogEntry( changelog, version ) {
 	const lines = changelog.split( /\r?\n/ );
 	const versionHeading = new RegExp(
 		`^##\\s+${ escapeRegExp( version ) }(?:\\s|$)`
@@ -66,7 +67,8 @@ function getReadmeChangelogEntry( changelog, version ) {
 		}
 
 		if ( bullets.length > 0 && /^\s{2,}\S/.test( line ) ) {
-			bullets[ bullets.length - 1 ] += `\n  ${ line.trim() }`;
+			const indentation = line.match( /^\s+/ )?.[ 0 ] ?? '';
+			bullets[ bullets.length - 1 ] += `\n${ indentation }${ line.trimStart() }`;
 		}
 	}
 
@@ -194,4 +196,9 @@ function main() {
 	);
 }
 
-main();
+if (
+	process.argv[ 1 ] &&
+	import.meta.url === pathToFileURL( path.resolve( process.argv[ 1 ] ) ).href
+) {
+	main();
+}

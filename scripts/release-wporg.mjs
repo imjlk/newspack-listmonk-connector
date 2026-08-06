@@ -9,6 +9,9 @@ const packageJson = JSON.parse(
 	fs.readFileSync( path.join( rootDir, 'package.json' ), 'utf8' )
 );
 const pluginSlug = packageJson.name;
+const escapedPluginSlug = escapeRegExp( pluginSlug );
+// Keep exact forbidden markers fragmented: this source archive includes its
+// release scripts and is itself scanned byte-for-byte for those markers.
 const legacyPluginSlug = [
 	'connector-for-',
 	'newspack-newsletters-',
@@ -99,20 +102,24 @@ const restSchemaResources = [
 ];
 
 const forbiddenZipPatterns = [
-	/^wp-typia-newsletter-connector\/node_modules\//,
-	/^wp-typia-newsletter-connector\/vendor\//,
-	/^wp-typia-newsletter-connector\/tests\//,
-	/^wp-typia-newsletter-connector\/artifacts\//,
-	/^wp-typia-newsletter-connector\/\.git(?:\/|$)/,
-	/^wp-typia-newsletter-connector\/\.env(?:\.|$)/,
-	/^wp-typia-newsletter-connector\/\.listmonk\.env$/,
-	/^wp-typia-newsletter-connector\/\.staging\.env$/,
-	/^wp-typia-newsletter-connector\/\.wp-env(?:\.|\/|$)/,
-	/^wp-typia-newsletter-connector\/.*\/\.gitkeep$/,
-	/^wp-typia-newsletter-connector\/docker-compose\.listmonk\.yml$/,
-	/^wp-typia-newsletter-connector\/playwright-report\//,
-	/^wp-typia-newsletter-connector\/test-results\//,
+	new RegExp( `^${ escapedPluginSlug }/node_modules/` ),
+	new RegExp( `^${ escapedPluginSlug }/vendor/` ),
+	new RegExp( `^${ escapedPluginSlug }/tests/` ),
+	new RegExp( `^${ escapedPluginSlug }/artifacts/` ),
+	new RegExp( `^${ escapedPluginSlug }/\\.git(?:/|$)` ),
+	new RegExp( `^${ escapedPluginSlug }/\\.env(?:\\.|$)` ),
+	new RegExp( `^${ escapedPluginSlug }/\\.listmonk\\.env$` ),
+	new RegExp( `^${ escapedPluginSlug }/\\.staging\\.env$` ),
+	new RegExp( `^${ escapedPluginSlug }/\\.wp-env(?:\\.|/|$)` ),
+	new RegExp( `^${ escapedPluginSlug }/.*/\\.gitkeep$` ),
+	new RegExp( `^${ escapedPluginSlug }/docker-compose\\.listmonk\\.yml$` ),
+	new RegExp( `^${ escapedPluginSlug }/playwright-report/` ),
+	new RegExp( `^${ escapedPluginSlug }/test-results/` ),
 ];
+
+function escapeRegExp( value ) {
+	return value.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
+}
 
 function logStep( message ) {
 	console.log( `\n> ${ message }` );

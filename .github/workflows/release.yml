@@ -40,10 +40,12 @@ jobs:
       github.event_name == 'push' ||
       (github.event_name == 'workflow_dispatch' && inputs.operation == 'prepare')
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout main
-        uses: actions/checkout@v6
+        # actions/checkout v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           fetch-depth: 0
           ref: main
@@ -62,13 +64,15 @@ jobs:
 
       - name: Setup Node.js
         if: steps.changesets.outputs.pending == 'true'
-        uses: actions/setup-node@v6
+        # actions/setup-node v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
           node-version: "24"
 
       - name: Setup pnpm
         if: steps.changesets.outputs.pending == 'true'
-        uses: pnpm/action-setup@v6
+        # pnpm/action-setup v6
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
         with:
           version: 8.3.1
 
@@ -99,14 +103,48 @@ jobs:
 
       - name: Push release branch
         if: steps.changesets.outputs.pending == 'true'
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.value }}
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -C release/main
-          git add --all
-          git commit -m "Prepare release v${{ steps.version.outputs.value }}"
-          git fetch origin release/main:refs/remotes/origin/release/main || true
-          git push --force-with-lease origin HEAD:refs/heads/release/main
+          git add -- \
+            .sampo/changesets \
+            CHANGELOG.md \
+            composer.json \
+            composer.lock \
+            package.json \
+            readme.txt \
+            wp-typia-newsletter-connector.php
+          if ! git diff --quiet; then
+            echo "::error::Release preparation changed unexpected tracked files."
+            git status --short
+            exit 1
+          fi
+          untracked="$(git ls-files --others --exclude-standard)"
+          if [[ -n "$untracked" ]]; then
+            echo "::error::Release preparation created unexpected untracked files."
+            printf '%s\n' "$untracked"
+            exit 1
+          fi
+          git commit -m "Prepare release v${RELEASE_VERSION}"
+
+          remote_status=0
+          git ls-remote --exit-code --heads origin release/main > /dev/null || remote_status=$?
+          if (( remote_status == 0 )); then
+            git fetch origin +release/main:refs/remotes/origin/release/main
+            expected_sha="$(git rev-parse refs/remotes/origin/release/main)"
+            git push \
+              --force-with-lease="refs/heads/release/main:${expected_sha}" \
+              origin HEAD:refs/heads/release/main
+          elif (( remote_status == 2 )); then
+            git push origin HEAD:refs/heads/release/main
+          else
+            echo "::error::Unable to inspect the remote release/main branch."
+            exit "$remote_status"
+          fi
 
       - name: Create or update release pull request
         if: steps.changesets.outputs.pending == 'true'
@@ -146,24 +184,28 @@ jobs:
       ) ||
       (github.event_name == 'workflow_dispatch' && inputs.operation == 'publish')
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     env:
       SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
       SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
 
     steps:
       - name: Checkout released commit
-        uses: actions/checkout@v6
+        # actions/checkout v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           fetch-depth: 0
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.merge_commit_sha || 'main' }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+        # pnpm/action-setup v6
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
         with:
           version: 8.3.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        # actions/setup-node v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
           cache: pnpm
           node-version: "24"
@@ -189,6 +231,9 @@ jobs:
 
       - name: Verify synchronized release metadata
         run: pnpm run release:check-version
+
+      - name: Test release tooling
+        run: pnpm run test:release
 
       - name: Typecheck
         run: pnpm run typecheck

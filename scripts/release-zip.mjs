@@ -9,6 +9,9 @@ const packageJsonPath = path.join(rootDir, 'package.json');
 const pluginFile = 'wp-typia-newsletter-connector.php';
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 const pluginSlug = packageJson.name;
+const escapedPluginSlug = escapeRegExp(pluginSlug);
+// Keep exact forbidden markers fragmented: the WP.org source archive includes
+// these scripts and is itself scanned byte-for-byte for those markers.
 const legacyPluginSlug = [
 	'connector-for-',
 	'newspack-newsletters-',
@@ -94,26 +97,30 @@ const requiredRestSchemaFiles = restSchemaResources.flatMap((resource) => {
 });
 
 const forbiddenZipPatterns = [
-	/^wp-typia-newsletter-connector\/node_modules\//,
-	/^wp-typia-newsletter-connector\/vendor\//,
-	/^wp-typia-newsletter-connector\/src\//,
-	/^wp-typia-newsletter-connector\/tests\//,
-	/^wp-typia-newsletter-connector\/scripts\//,
-	/^wp-typia-newsletter-connector\/artifacts\//,
-	/^wp-typia-newsletter-connector\/\.git(?:\/|$)/,
-	/^wp-typia-newsletter-connector\/\.env(?:\.|$)/,
-	/^wp-typia-newsletter-connector\/\.listmonk\.env$/,
-	/^wp-typia-newsletter-connector\/\.wp-env(?:\.|\/|$)/,
-	/^wp-typia-newsletter-connector\/.*\/\.gitkeep$/,
-	/^wp-typia-newsletter-connector\/docker-compose\.listmonk\.yml$/,
-	/^wp-typia-newsletter-connector\/playwright\.config\.js$/,
-	/^wp-typia-newsletter-connector\/phpunit\.xml\.dist$/,
-	/^wp-typia-newsletter-connector\/composer\.(?:json|lock)$/,
-	/^wp-typia-newsletter-connector\/package\.json$/,
-	/^wp-typia-newsletter-connector\/pnpm-lock\.yaml$/,
-	/^wp-typia-newsletter-connector\/tsconfig\.json$/,
-	/^wp-typia-newsletter-connector\/webpack\.config\.js$/,
+	new RegExp(`^${escapedPluginSlug}/node_modules/`),
+	new RegExp(`^${escapedPluginSlug}/vendor/`),
+	new RegExp(`^${escapedPluginSlug}/src/`),
+	new RegExp(`^${escapedPluginSlug}/tests/`),
+	new RegExp(`^${escapedPluginSlug}/scripts/`),
+	new RegExp(`^${escapedPluginSlug}/artifacts/`),
+	new RegExp(`^${escapedPluginSlug}/\\.git(?:/|$)`),
+	new RegExp(`^${escapedPluginSlug}/\\.env(?:\\.|$)`),
+	new RegExp(`^${escapedPluginSlug}/\\.listmonk\\.env$`),
+	new RegExp(`^${escapedPluginSlug}/\\.wp-env(?:\\.|/|$)`),
+	new RegExp(`^${escapedPluginSlug}/.*/\\.gitkeep$`),
+	new RegExp(`^${escapedPluginSlug}/docker-compose\\.listmonk\\.yml$`),
+	new RegExp(`^${escapedPluginSlug}/playwright\\.config\\.js$`),
+	new RegExp(`^${escapedPluginSlug}/phpunit\\.xml\\.dist$`),
+	new RegExp(`^${escapedPluginSlug}/composer\\.(?:json|lock)$`),
+	new RegExp(`^${escapedPluginSlug}/package\\.json$`),
+	new RegExp(`^${escapedPluginSlug}/pnpm-lock\\.yaml$`),
+	new RegExp(`^${escapedPluginSlug}/tsconfig\\.json$`),
+	new RegExp(`^${escapedPluginSlug}/webpack\\.config\\.js$`),
 ];
+
+function escapeRegExp(value) {
+	return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 function logStep(message) {
 	console.log(`\n> ${message}`);

@@ -44,6 +44,7 @@
 		"e2e:settings:local": "pnpm run build && pnpm run listmonk:start && pnpm exec playwright install chromium && pnpm exec playwright test --config=playwright.config.js tests/e2e/settings-listmonk.spec.ts",
 		"e2e:visual:local": "pnpm run build && pnpm exec playwright install chromium && pnpm exec playwright test --config=playwright.config.js tests/e2e/render-visual.spec.ts",
 		"test:php": "pnpm run env:start && pnpm run composer:install && wp-env run tests-cli --env-cwd=wp-content/plugins/wp-typia-newsletter-connector vendor/bin/phpunit",
+		"test:release": "node --test tests/node/sync-release-version.test.mjs",
 		"typecheck": "pnpm run sync --check && tsc --noEmit",
 		"lint:js": "wp-scripts lint-js",
 		"lint:css": "wp-scripts lint-style --allow-empty-input",
