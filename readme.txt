@@ -4,7 +4,7 @@ Tags: newsletter, newspack, listmonk, email, campaigns
 Requires at least: 6.7
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 0.1.0
+Stable tag: 0.1.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -62,8 +62,8 @@ or the Listmonk project.
 6. Select `listmonk` as the active Newspack Newsletters service provider.
 7. Create a Newspack newsletter and verify the Listmonk editor panel can preview, sync, and send a test.
 
-See `docs/SETUP.md` in the plugin package for the full setup and validation
-flow.
+Detailed setup and validation documentation is available at
+https://github.com/imjlk/wp-typia-newsletter-connector/blob/main/docs/SETUP.md.
 
 == Privacy and Uninstall ==
 
@@ -78,9 +78,15 @@ meta on newsletter posts so campaign history remains auditable if the plugin is
 reinstalled. Remove remote data from the Listmonk admin if your retention policy
 requires it.
 
-See `docs/PRIVACY.md` for suggested privacy-policy text.
+Suggested privacy-policy text is available at
+https://github.com/imjlk/wp-typia-newsletter-connector/blob/main/docs/PRIVACY.md.
 
 == Changelog ==
+
+= 0.1.1 =
+* Fixed: Replace dynamic PHP include paths with explicit local resource loading, remove development documentation from the WordPress.org package, and update the WPTypia tooling used to validate generated contracts.
+* Changed: [3ed995c](https://github.com/imjlk/wp-typia-newsletter-connector/commit/3ed995c7f2192d6c4b3eb194fb41ebe3eedae01f) Add changeset-driven versioning and verified WordPress plugin release automation. — Thanks @imjlk!
+* Changed: [c35932f](https://github.com/imjlk/wp-typia-newsletter-connector/commit/c35932f698bea5e78d5b2075ab76c1dbf92981f7) Align the plugin slug, text domain, REST namespace, and release artifacts for WordPress.org review while keeping the directory-facing display name distinct. — Thanks @imjlk!
 
 = 0.1.0 =
 * Initial WordPress.org release for the Newspack Newsletters and Listmonk integration.
