@@ -1,4 +1,4 @@
-=== WP Typia Connector for Newspack Newsletters with Listmonk ===
+=== WPTypia Connector for Newspack Newsletters with Listmonk ===
 Contributors: imjlk
 Tags: newsletter, newspack, listmonk, email, campaigns
 Requires at least: 6.7
@@ -12,7 +12,7 @@ Companion ESP provider for sending Newspack Newsletters campaigns with Listmonk.
 
 == Description ==
 
-WP Typia Connector for Newspack Newsletters with Listmonk is a companion plugin for Newspack Newsletters that adds a Listmonk ESP provider.
+WPTypia Connector for Newspack Newsletters with Listmonk is a companion plugin for Newspack Newsletters that adds a Listmonk ESP provider.
 It turns Newspack newsletter editor output into raw HTML Listmonk campaigns, then
 supports draft sync, test sends, immediate sends, and scheduled sends.
 
@@ -29,11 +29,11 @@ privacy policy, terms, and data retention settings before connecting it.
 
 Listmonk project documentation is available at https://listmonk.app/docs/.
 
-= Built with wp-typia =
+= Built with WPTypia =
 
-This plugin was scaffolded as a wp-typia workspace and continues to use
-wp-typia packages and synchronization tooling for typed REST contracts,
-generated schemas, and build consistency. wp-typia is maintained by this
+This plugin was scaffolded as a WPTypia workspace and continues to use
+WPTypia packages and synchronization tooling for typed REST contracts,
+generated schemas, and build consistency. WPTypia is maintained by this
 plugin's author at https://github.com/imjlk/wp-typia.
 
 The plugin also builds on the WordPress Block Editor and Interactivity API,

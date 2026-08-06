@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       WP Typia Connector for Newspack Newsletters with Listmonk
+ * Plugin Name:       WPTypia Connector for Newspack Newsletters with Listmonk
  * Description:       Companion ESP provider for sending Newspack Newsletters campaigns with Listmonk.
  * Version:           0.1.0
  * Requires at least: 6.7
@@ -194,7 +194,7 @@ function newspack_listmonk_connector_register_pattern_category() {
 		register_block_pattern_category(
 			'wp-typia-newsletter-connector',
 			array(
-				'label' => __( 'WP Typia Connector for Newspack Newsletters with Listmonk Patterns', 'wp-typia-newsletter-connector' ),
+				'label' => __( 'WPTypia Connector for Newspack Newsletters with Listmonk Patterns', 'wp-typia-newsletter-connector' ),
 			)
 		);
 	}
