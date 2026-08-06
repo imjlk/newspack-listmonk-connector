@@ -34,15 +34,14 @@ function newspack_listmonk_connector_enqueue_settings_page( $hook_suffix ) {
 	}
 
 	$script_path    = NEWSPACK_LISTMONK_CONNECTOR_DIR . '/build/admin-views/index.js';
-	$asset_path     = NEWSPACK_LISTMONK_CONNECTOR_DIR . '/build/admin-views/index.asset.php';
 	$style_path     = NEWSPACK_LISTMONK_CONNECTOR_DIR . '/build/admin-views/style-index.css';
 	$style_rtl_path = NEWSPACK_LISTMONK_CONNECTOR_DIR . '/build/admin-views/style-index-rtl.css';
 
-	if ( ! file_exists( $script_path ) || ! file_exists( $asset_path ) ) {
+	if ( ! file_exists( $script_path ) || ! file_exists( __DIR__ . '/../../build/admin-views/index.asset.php' ) ) {
 		return;
 	}
 
-	$asset = require $asset_path;
+	$asset = require __DIR__ . '/../../build/admin-views/index.asset.php';
 	if ( ! is_array( $asset ) ) {
 		$asset = array();
 	}
@@ -128,7 +127,7 @@ function newspack_listmonk_connector_render_settings_page() {
 	}
 	?>
 	<div class="wrap">
-		<h1><?php esc_html_e( 'WPTypia Connector for Newspack Newsletters with Listmonk', 'wp-typia-newsletter-connector' ); ?></h1>
+		<h1><?php esc_html_e( 'Newspack Listmonk Connector', 'wp-typia-newsletter-connector' ); ?></h1>
 		<?php settings_errors( 'newspack_listmonk_connector' ); ?>
 		<div id="wp-typia-newsletter-connector-settings-root">
 			<p><?php esc_html_e( 'Loading Listmonk settings...', 'wp-typia-newsletter-connector' ); ?></p>

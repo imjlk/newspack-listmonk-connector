@@ -246,7 +246,7 @@ async function ensurePluginsActive() {
 	if (!connector) {
 		throw new Error(
 			[
-				`WPTypia Connector for Newspack Newsletters with Listmonk is not installed on staging.`,
+				`Newspack Listmonk Connector is not installed on staging.`,
 				`Built beta zip: ${path.relative(rootDir, zipPath)}`,
 				'Upload that zip in WP Admin or install it with WP-CLI, then rerun pnpm run smoke:staging:zip.',
 				'WordPress core REST can install WordPress.org slugs, but does not accept arbitrary plugin zip uploads through application-password auth.',
@@ -260,7 +260,7 @@ async function ensurePluginsActive() {
 	}
 
 	await activatePlugin(newspack, 'Newspack Newsletters');
-	await activatePlugin(connector, 'WPTypia Connector for Newspack Newsletters with Listmonk');
+	await activatePlugin(connector, 'Newspack Listmonk Connector');
 }
 
 async function saveConnectorSettings() {

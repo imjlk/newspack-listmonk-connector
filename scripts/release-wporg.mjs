@@ -24,18 +24,6 @@ const releaseWorkDir = path.join( artifactsDir, 'wporg-release' );
 const distDir = path.join( releaseWorkDir, pluginSlug );
 const zipPath = path.join( artifactsDir, `${ pluginSlug }-${ version }-wporg.zip` );
 
-function getTrackedPaths( relativePath ) {
-	return execFileSync( 'git', [ 'ls-files', '-z', '--', relativePath ], {
-		cwd: rootDir,
-		encoding: 'utf8',
-	} ).split( '\0' ).filter( Boolean );
-}
-
-const forbiddenReviewDocuments = new Set( [
-	[ 'docs/STAGING-', 'CHECKLIST.md' ].join( '' ),
-	[ 'docs/PLUGIN-REVIEW-', 'CHECKLIST.md' ].join( '' ),
-] );
-
 const sourcePaths = [
 	pluginFile,
 	'uninstall.php',
@@ -60,12 +48,6 @@ const sourcePaths = [
 	'pnpm-lock.yaml',
 	'tsconfig.json',
 	'webpack.config.js',
-	'docs/RELEASING.md',
-	...getTrackedPaths( 'docs' ).filter(
-		( relativePath ) =>
-			relativePath !== 'docs/RELEASING.md' &&
-			! forbiddenReviewDocuments.has( relativePath )
-	),
 ];
 
 const requiredEntries = [
@@ -90,8 +72,6 @@ const requiredEntries = [
 	'CHANGELOG.md',
 	'readme.txt',
 	'LICENSE',
-	'docs/PRIVACY.md',
-	'docs/RELEASING.md',
 ];
 
 const restSchemaResources = [
@@ -115,6 +95,7 @@ const forbiddenZipPatterns = [
 	new RegExp( `^${ escapedPluginSlug }/docker-compose\\.listmonk\\.yml$` ),
 	new RegExp( `^${ escapedPluginSlug }/playwright-report/` ),
 	new RegExp( `^${ escapedPluginSlug }/test-results/` ),
+	new RegExp( `^${ escapedPluginSlug }/docs(?:/|$)` ),
 ];
 
 function escapeRegExp( value ) {
@@ -223,10 +204,8 @@ function assertCleanReleaseTree() {
 			.relative( distDir, file )
 			.split( path.sep )
 			.join( '/' );
-		if ( forbiddenReviewDocuments.has( relativePath ) ) {
-			throw new Error(
-				`WP.org release tree contains review-only document: ${ relativePath }`
-			);
+		if ( relativePath === 'docs' || relativePath.startsWith( 'docs/' ) ) {
+			throw new Error( `WP.org release tree contains docs: ${ relativePath }` );
 		}
 		if ( fs.readFileSync( file ).includes( legacySlugBuffer ) ) {
 			throw new Error( `WP.org release tree contains legacy plugin slug: ${ relativePath }` );

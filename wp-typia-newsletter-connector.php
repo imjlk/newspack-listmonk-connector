@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       WPTypia Connector for Newspack Newsletters with Listmonk
+ * Plugin Name:       Newspack Listmonk Connector
  * Description:       Companion ESP provider for sending Newspack Newsletters campaigns with Listmonk.
  * Version:           0.1.0
  * Requires at least: 6.7
@@ -23,10 +23,6 @@ define( 'NEWSPACK_LISTMONK_CONNECTOR_DIR', __DIR__ );
 
 require_once __DIR__ . '/inc/bootstrap.php';
 
-foreach ( glob( __DIR__ . '/src/blocks/*/server.php' ) ?: array() as $newspack_listmonk_connector_server_module ) {
-	require_once $newspack_listmonk_connector_server_module;
-}
-
 function newspack_listmonk_connector_get_build_root() {
 	return __DIR__ . '/build/blocks';
 }
@@ -37,8 +33,9 @@ function newspack_listmonk_connector_get_blocks_manifest_path() {
 
 function newspack_listmonk_connector_register_blocks_from_manifest_fallback() {
 	$build_root     = newspack_listmonk_connector_get_build_root();
-	$manifest_path  = newspack_listmonk_connector_get_blocks_manifest_path();
-	$manifest_data  = file_exists( $manifest_path ) ? require $manifest_path : array();
+	$manifest_data  = file_exists( __DIR__ . '/build/blocks-manifest.php' )
+		? require __DIR__ . '/build/blocks-manifest.php'
+		: array();
 
 	if ( ! is_array( $manifest_data ) || empty( $manifest_data ) ) {
 		$block_dirs = glob( $build_root . '/*', GLOB_ONLYDIR );
@@ -83,45 +80,16 @@ function newspack_listmonk_connector_register_blocks() {
 	newspack_listmonk_connector_register_blocks_from_manifest_fallback();
 }
 
-function newspack_listmonk_connector_register_binding_sources() {
-	foreach ( glob( __DIR__ . '/src/bindings/*/server.php' ) ?: array() as $binding_source_module ) {
-		require_once $binding_source_module;
-	}
-}
-
-function newspack_listmonk_connector_enqueue_binding_sources_editor() {
-	$script_path = __DIR__ . '/build/bindings/index.js';
-	$asset_path  = __DIR__ . '/build/bindings/index.asset.php';
-
-	if ( ! file_exists( $script_path ) || ! file_exists( $asset_path ) ) {
-		return;
-	}
-
-	$asset = require $asset_path;
-	if ( ! is_array( $asset ) ) {
-		$asset = array();
-	}
-
-	wp_enqueue_script(
-		'wp-typia-newsletter-connector-binding-sources',
-		plugins_url( 'build/bindings/index.js', __FILE__ ),
-		isset( $asset['dependencies'] ) && is_array( $asset['dependencies'] ) ? $asset['dependencies'] : array(),
-		isset( $asset['version'] ) ? $asset['version'] : filemtime( $script_path ),
-		true
-	);
-}
-
 function newspack_listmonk_connector_enqueue_editor_plugins_editor() {
 	$script_path = __DIR__ . '/build/editor-plugins/index.js';
-	$asset_path  = __DIR__ . '/build/editor-plugins/index.asset.php';
 	$style_path  = __DIR__ . '/build/editor-plugins/style-index.css';
 	$style_rtl_path = __DIR__ . '/build/editor-plugins/style-index-rtl.css';
 
-	if ( ! file_exists( $script_path ) || ! file_exists( $asset_path ) ) {
+	if ( ! file_exists( $script_path ) || ! file_exists( __DIR__ . '/build/editor-plugins/index.asset.php' ) ) {
 		return;
 	}
 
-	$asset = require $asset_path;
+	$asset = require __DIR__ . '/build/editor-plugins/index.asset.php';
 	if ( ! is_array( $asset ) ) {
 		$asset = array();
 	}
@@ -189,36 +157,14 @@ JS,
 	wp_enqueue_script( 'wp-typia-newsletter-connector-newspack-editor-compat' );
 }
 
-function newspack_listmonk_connector_register_pattern_category() {
-	if ( function_exists( 'register_block_pattern_category' ) ) {
-		register_block_pattern_category(
-			'wp-typia-newsletter-connector',
-			array(
-				'label' => __( 'WPTypia Connector for Newspack Newsletters with Listmonk Patterns', 'wp-typia-newsletter-connector' ),
-			)
-		);
-	}
-}
-
-function newspack_listmonk_connector_register_patterns() {
-	foreach ( glob( __DIR__ . '/src/patterns/*.php' ) ?: array() as $pattern_module ) {
-		require $pattern_module;
-	}
-}
-
-
-
 function newspack_listmonk_connector_register_rest_resources() {
-	foreach ( glob( __DIR__ . '/inc/rest/*.php' ) ?: array() as $rest_resource_module ) {
-		require_once $rest_resource_module;
-	}
+	require_once __DIR__ . '/inc/rest/listmonk-settings.php';
+	require_once __DIR__ . '/inc/rest/newsletter-preview.php';
+	require_once __DIR__ . '/inc/rest/newsletter-sync.php';
+	require_once __DIR__ . '/inc/rest/campaign-analytics.php';
 }
 
 add_action( 'init', 'newspack_listmonk_connector_register_blocks' );
-add_action( 'init', 'newspack_listmonk_connector_register_binding_sources', 20 );
-add_action( 'init', 'newspack_listmonk_connector_register_pattern_category' );
-add_action( 'init', 'newspack_listmonk_connector_register_patterns', 20 );
-add_action( 'enqueue_block_editor_assets', 'newspack_listmonk_connector_enqueue_binding_sources_editor' );
 add_action( 'enqueue_block_editor_assets', 'newspack_listmonk_connector_enqueue_editor_plugins_editor' );
 add_action( 'newspack_newsletters_enqueue_block_editor_assets', 'newspack_listmonk_connector_enqueue_newspack_editor_compat', 20 );
 add_action( 'init', 'newspack_listmonk_connector_register_rest_resources', 20 );
