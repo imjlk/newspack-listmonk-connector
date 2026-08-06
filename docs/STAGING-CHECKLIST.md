@@ -9,7 +9,7 @@ Completed on 2026-07-16 against WordPress 7.0.1, Newspack Newsletters 3.36.0,
 Listmonk 6.0.0, and Mailpit SMTP capture exposed temporarily through separate
 Cloudflare Quick Tunnels.
 
-- `pnpm run smoke:staging:zip` rebuilt the 0.1.0 beta ZIP and passed against the
+- `pnpm run smoke:staging:zip` rebuilt the current beta ZIP and passed against the
   release-matching installed package.
 - WordPress REST and Listmonk API traffic crossed public DNS, valid edge TLS,
   HTTP/2, and the Cloudflare reverse proxy. Both temporary hostnames resolved
@@ -56,7 +56,7 @@ delivery plus bounce and complaint webhooks.
 ## Automated Smoke
 
 - Build the beta zip with `pnpm run release:zip`.
-- Upload `artifacts/connector-for-newspack-newsletters-and-listmonk-0.1.0.zip` through WP Admin or
+- Upload `artifacts/connector-for-newspack-newsletters-and-listmonk-<version>.zip` through WP Admin or
   install it with WP-CLI.
 - Export the `STAGING_*` variables documented in
   `docs/INTEGRATION-TESTING.md`.

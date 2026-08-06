@@ -1,6 +1,7 @@
 {
 	"name": "connector-for-newspack-newsletters-and-listmonk",
 	"version": "0.1.0",
+	"private": true,
 	"packageManager": "pnpm@8.3.1",
 	"description": "Newspack Newsletters companion ESP provider for Listmonk campaigns",
 	"author": "imjlk",
@@ -12,6 +13,10 @@
 		"build": "pnpm run sync --check && node scripts/build-workspace.mjs build",
 		"release:zip": "node scripts/release-zip.mjs",
 		"release:wporg": "node scripts/release-wporg.mjs",
+		"release:sync-version": "node scripts/sync-release-version.mjs",
+		"release:check-version": "node scripts/sync-release-version.mjs --check",
+		"release:prepare": "node scripts/prepare-sampo-release.mjs",
+		"changeset:add": "sampo add",
 		"review:plugin-check": "node scripts/review-plugin-check.mjs",
 		"start": "pnpm run sync && node scripts/build-workspace.mjs start",
 		"dev": "pnpm run start",

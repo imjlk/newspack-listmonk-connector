@@ -73,7 +73,7 @@ required consent.
 ## Install The Plugin
 
 1. In WordPress admin, install and activate Newspack Newsletters.
-2. Upload `artifacts/connector-for-newspack-newsletters-and-listmonk-0.1.0.zip`.
+2. Upload `artifacts/connector-for-newspack-newsletters-and-listmonk-<version>.zip`.
 3. Activate Connector for Newspack Newsletters and Listmonk.
 4. Open Settings > Newsletter Connector.
 5. Enter:

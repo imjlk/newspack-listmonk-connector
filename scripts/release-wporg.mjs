@@ -31,20 +31,26 @@ const sourcePaths = [
 	'src',
 	'scripts/block-config.ts',
 	'scripts/build-workspace.mjs',
+	'scripts/prepare-sampo-release.mjs',
 	'scripts/release-zip.mjs',
 	'scripts/release-wporg.mjs',
 	'scripts/review-plugin-check.mjs',
+	'scripts/sync-release-version.mjs',
 	'scripts/sync-project.ts',
 	'scripts/sync-rest-contracts.ts',
 	'scripts/sync-types-to-block-json.ts',
 	'README.md',
+	'CHANGELOG.md',
 	'readme.txt',
 	'LICENSE',
 	'package.json',
 	'pnpm-lock.yaml',
 	'tsconfig.json',
 	'webpack.config.js',
-	...getTrackedPaths( 'docs' ),
+	'docs/RELEASING.md',
+	...getTrackedPaths( 'docs' ).filter(
+		( relativePath ) => relativePath !== 'docs/RELEASING.md'
+	),
 ];
 
 const requiredEntries = [
@@ -58,16 +64,20 @@ const requiredEntries = [
 	'src/editor-plugins/index.tsx',
 	'src/admin-views/index.tsx',
 	'scripts/build-workspace.mjs',
+	'scripts/prepare-sampo-release.mjs',
 	'scripts/sync-project.ts',
+	'scripts/sync-release-version.mjs',
 	'package.json',
 	'pnpm-lock.yaml',
 	'webpack.config.js',
 	'tsconfig.json',
 	'README.md',
+	'CHANGELOG.md',
 	'readme.txt',
 	'LICENSE',
 	'docs/PRIVACY.md',
 	'docs/PLUGIN-REVIEW-CHECKLIST.md',
+	'docs/RELEASING.md',
 ];
 
 const restSchemaResources = [
@@ -232,6 +242,9 @@ function assertZipContents() {
 }
 
 function main() {
+	logStep( 'Validating synchronized release metadata' );
+	run( 'node', [ 'scripts/sync-release-version.mjs', '--check' ] );
+
 	logStep( 'Building production assets' );
 	run( 'pnpm', [ 'run', 'build' ] );
 

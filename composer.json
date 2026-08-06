@@ -1,5 +1,6 @@
 {
 	"name": "imjlk/connector-for-newspack-newsletters-and-listmonk",
+	"version": "0.1.0",
 	"description": "Newspack Newsletters ESP provider for Listmonk campaigns.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",

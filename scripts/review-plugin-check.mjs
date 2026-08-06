@@ -65,7 +65,7 @@ function main() {
 		'--require=./wp-content/plugins/plugin-check/cli.php',
 		'--mode=new',
 		'--format=strict-json',
-		'--exclude-directories=artifacts,tests,node_modules,vendor,.wp-env,playwright-report,test-results',
+		'--exclude-directories=artifacts,tests,node_modules,vendor,.github,.sampo,.wp-env,playwright-report,test-results',
 		'--exclude-files=.DS_Store,.listmonk.env,.staging.env,.env.example,.wp-env.json,.phpunit.result.cache,.gitignore,AGENTS.md,CLAUDE.md,phpunit.xml.dist,playwright.config.js,composer.json,composer.lock,docker-compose.listmonk.yml',
 	], { stdio: 'pipe' } );
 	assertNoPluginCheckFindings( result );

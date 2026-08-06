@@ -28,6 +28,7 @@ const runtimePaths = [
 	'inc',
 	'build',
 	'README.md',
+	'CHANGELOG.md',
 	'readme.txt',
 	'LICENSE',
 	'docs/SETUP.md',
@@ -63,6 +64,7 @@ const requiredFiles = [
 	'build/editor-plugins/index.asset.php',
 	'build/editor-plugins/style-index.css',
 	'README.md',
+	'CHANGELOG.md',
 	'readme.txt',
 	'LICENSE',
 	'docs/SETUP.md',
@@ -262,6 +264,9 @@ function assertZipContents() {
 }
 
 function main() {
+	logStep('Validating synchronized release metadata');
+	run('node', ['scripts/sync-release-version.mjs', '--check']);
+
 	logStep('Building production assets');
 	run('pnpm', ['run', 'build']);
 

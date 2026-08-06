@@ -1,0 +1,246 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".sampo/changesets/**"
+      - ".sampo/config.toml"
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Release operation to run against main
+        required: true
+        default: prepare
+        type: choice
+        options:
+          - prepare
+          - publish
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  prepare-release:
+    if: >-
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && inputs.operation == 'prepare')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Detect pending changesets
+        id: changesets
+        shell: bash
+        run: |
+          shopt -s nullglob
+          changesets=(.sampo/changesets/*.md)
+          if (( ${#changesets[@]} > 0 )); then
+            echo "pending=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pending=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node.js
+        if: steps.changesets.outputs.pending == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Setup pnpm
+        if: steps.changesets.outputs.pending == 'true'
+        uses: pnpm/action-setup@v6
+        with:
+          version: 8.3.1
+
+      - name: Prepare Sampo release
+        if: steps.changesets.outputs.pending == 'true'
+        # sampo-github-action 0.17.0
+        uses: bruits/sampo/crates/sampo-github-action@91bbcc250a37178571054ef8399fac1b52d67740
+        with:
+          command: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SAMPO_RELEASE_BRANCH: main
+
+      - name: Synchronize WordPress release metadata
+        if: steps.changesets.outputs.pending == 'true'
+        run: node scripts/sync-release-version.mjs
+
+      - name: Verify release changes
+        if: steps.changesets.outputs.pending == 'true'
+        run: |
+          node scripts/sync-release-version.mjs --check
+          git diff --check
+
+      - name: Resolve release version
+        if: steps.changesets.outputs.pending == 'true'
+        id: version
+        run: echo "value=$(node -p "require('./composer.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Push release branch
+        if: steps.changesets.outputs.pending == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C release/main
+          git add --all
+          git commit -m "Prepare release v${{ steps.version.outputs.value }}"
+          git fetch origin release/main:refs/remotes/origin/release/main || true
+          git push --force-with-lease origin HEAD:refs/heads/release/main
+
+      - name: Create or update release pull request
+        if: steps.changesets.outputs.pending == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ steps.version.outputs.value }}
+        shell: bash
+        run: |
+          pr_number="$(
+            gh pr list \
+              --base main \
+              --head release/main \
+              --state open \
+              --json number \
+              --jq '.[0].number // empty'
+          )"
+          body="Collects pending Sampo changesets and synchronizes the WordPress plugin metadata for v${RELEASE_VERSION}."
+          if [[ -n "$pr_number" ]]; then
+            gh pr edit "$pr_number" \
+              --title "Release v${RELEASE_VERSION}" \
+              --body "$body"
+          else
+            gh pr create \
+              --base main \
+              --head release/main \
+              --title "Release v${RELEASE_VERSION}" \
+              --body "$body"
+          fi
+
+  publish-release:
+    if: >-
+      (
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.merged == true &&
+        github.event.pull_request.base.ref == 'main' &&
+        github.event.pull_request.head.ref == 'release/main'
+      ) ||
+      (github.event_name == 'workflow_dispatch' && inputs.operation == 'publish')
+    runs-on: ubuntu-latest
+    env:
+      SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+      SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+
+    steps:
+      - name: Checkout released commit
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.merge_commit_sha || 'main' }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 8.3.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          cache: pnpm
+          node-version: "24"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Resolve release version
+        id: version
+        run: |
+          echo "value=$(node -p "require('./composer.json').version")" >> "$GITHUB_OUTPUT"
+          echo "tag=v$(node -p "require('./composer.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Reject unpublished changesets
+        shell: bash
+        run: |
+          shopt -s nullglob
+          changesets=(.sampo/changesets/*.md)
+          if (( ${#changesets[@]} > 0 )); then
+            echo "::error::Publish requires the release/main pull request with all changesets consumed."
+            exit 1
+          fi
+
+      - name: Verify synchronized release metadata
+        run: pnpm run release:check-version
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Run PHP tests
+        run: pnpm run test:php
+
+      - name: Run Plugin Check
+        run: pnpm run review:plugin-check
+
+      - name: Build WordPress.org package
+        run: pnpm run release:wporg
+
+      - name: Publish tag and GitHub release
+        id: sampo
+        # sampo-github-action 0.17.0
+        uses: bruits/sampo/crates/sampo-github-action@91bbcc250a37178571054ef8399fac1b52d67740
+        with:
+          command: publish
+          create-github-release: true
+          release-assets: >-
+            artifacts/connector-for-newspack-newsletters-and-listmonk-{{version}}-wporg.zip
+            => connector-for-newspack-newsletters-and-listmonk-{{version}}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SAMPO_RELEASE_BRANCH: main
+
+      - name: Deploy to WordPress.org SVN
+        if: >-
+          vars.WPORG_DEPLOY_ENABLED == 'true' &&
+          env.SVN_USERNAME != '' &&
+          env.SVN_PASSWORD != ''
+        uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2
+        env:
+          BUILD_DIR: artifacts/wporg-release/connector-for-newspack-newsletters-and-listmonk
+          SLUG: connector-for-newspack-newsletters-and-listmonk
+          SVN_USERNAME: ${{ env.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ env.SVN_PASSWORD }}
+          VERSION: ${{ steps.version.outputs.value }}
+
+      - name: Report disabled WordPress.org deployment
+        if: >-
+          vars.WPORG_DEPLOY_ENABLED != 'true' ||
+          env.SVN_USERNAME == '' ||
+          env.SVN_PASSWORD == ''
+        run: >-
+          echo "::notice::GitHub release published; WordPress.org deployment is disabled
+          until WPORG_DEPLOY_ENABLED and SVN credentials are configured."
+
+      - name: Stop wp-env
+        if: always()
+        run: pnpm run env:stop || true

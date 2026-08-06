@@ -84,17 +84,21 @@ pnpm run test:php
 pnpm run typecheck
 pnpm run lint
 pnpm run build
+pnpm run changeset:add
+pnpm run release:check-version
 pnpm run release:zip
 pnpm run release:wporg
 pnpm run review:plugin-check
 ```
 
 The beta zip is written to
-`artifacts/connector-for-newspack-newsletters-and-listmonk-0.1.0.zip`. See
+`artifacts/connector-for-newspack-newsletters-and-listmonk-<version>.zip`. See
 [docs/SETUP.md](docs/SETUP.md) and
 [docs/STAGING-CHECKLIST.md](docs/STAGING-CHECKLIST.md) for staging validation.
 The WordPress.org source zip is written to
-`artifacts/connector-for-newspack-newsletters-and-listmonk-0.1.0-wporg.zip`.
+`artifacts/connector-for-newspack-newsletters-and-listmonk-<version>-wporg.zip`.
+Changeset-driven release PRs, GitHub releases, and optional WordPress.org SVN
+deployment are documented in [docs/RELEASING.md](docs/RELEASING.md).
 Webhook direction and bounce ownership are documented in
 [docs/WEBHOOK-POLICY.md](docs/WEBHOOK-POLICY.md).
 Privacy and uninstall behavior are documented in
@@ -124,7 +128,7 @@ Local Listmonk runs at `http://localhost:9000`, with a dedicated Mailpit UI at
 `.listmonk.env` file. See
 [docs/INTEGRATION-TESTING.md](docs/INTEGRATION-TESTING.md) for the full flow.
 
-Use `pnpm run doctor:wp-typia` to verify the `wp-typia@0.22.10` workspace
+Use `pnpm run doctor:wp-typia` to verify the `wp-typia@0.25.0` workspace
 diagnostics. The wrapper accepts the documented Bun-only readiness failure in
 Node fallback mode while still failing on workspace drift. See
 [docs/WP-TYPIA-DOCTOR.md](docs/WP-TYPIA-DOCTOR.md).
